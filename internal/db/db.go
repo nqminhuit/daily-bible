@@ -41,6 +41,7 @@ func Open(path string) (*sql.DB, error) {
 }
 
 // InitDB loads a SQL schema file into the provided database.
+// Fails fast if FTS5 is not available: this application requires FTS5.
 func InitDB(db *sql.DB, schemaPath string) error {
 	if db == nil {
 		return fmt.Errorf("nil db")

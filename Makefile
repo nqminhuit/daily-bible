@@ -2,6 +2,9 @@
 
 .PHONY: test compile import-sqlite build
 
+test-with-race-detection:
+	go test -tags "fts5" -race -cover ./...
+
 test:
 	go test -tags "fts5" -cover ./...
 
@@ -16,6 +19,7 @@ build:
 	@go build -tags "fts5" -ldflags="-s -w" -o build/daily-bible ./cmd/server
 
 dev:
+	@mkdir -p build
 	@go run -tags "fts5" ./cmd/server
 
 clean:
