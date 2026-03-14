@@ -3,17 +3,20 @@
 .PHONY: test compile import-sqlite build
 
 test:
-	go test -cover ./...
+	go test -tags "fts5" -cover ./...
 
 compile:
-	go build ./...
+	go build -tags "fts5" ./...
 
 import-sqlite:
-	@test -f data/schema.sql || (echo "data/schema.sql not found" && exit 1)
-	@test -f data/gospel.json || (echo "data/gospel.json not found" && exit 1)
-	@mkdir -p data
-	@go run ./cmd/importer -in data/gospel.json -db data/readings.db -schema data/schema.sql
+	@go run -tags "fts5" ./cmd/importer -db data/readings.db -schema data/schema.sql
 
 build:
 	@mkdir -p build
-	@go build -ldflags="-s -w" -o build/daily-bible ./cmd/server
+	@go build -tags "fts5" -ldflags="-s -w" -o build/daily-bible ./cmd/server
+
+dev:
+	@go run -tags "fts5" ./cmd/server
+
+clean:
+	@rm -rf build

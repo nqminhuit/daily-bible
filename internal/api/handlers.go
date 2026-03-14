@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -37,8 +38,7 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
 			}
-			log.Printf("db error: %v", err)
-			http.Error(w, "internal error", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -58,16 +58,11 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// Try FTS search first
-		rows, err := db.Query(`SELECT reference FROM gospels_fts WHERE gospels_fts MATCH ? LIMIT 20`, q)
+		rows, err := db.Query(`SELECT reference FROM gospels_fts WHERE gospels_fts MATCH ? LIMIT 10`,
+			fmt.Sprintf(`"%s"`, q))
 		if err != nil {
-			// fallback to LIKE search
-			rows, err = db.Query(`SELECT reference FROM gospels WHERE text LIKE ? LIMIT 20`, "%"+q+"%")
-			if err != nil {
-				log.Printf("search error: %v", err)
-				http.Error(w, "internal error", http.StatusInternalServerError)
-				return
-			}
+			http.Error(w, fmt.Sprintf("fts search error: %v", err), http.StatusInternalServerError)
+			return
 		}
 		defer rows.Close()
 
@@ -94,8 +89,7 @@ func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
 			}
-			log.Printf("random error: %v", err)
-			http.Error(w, "internal error", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("random error: %v", err), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")

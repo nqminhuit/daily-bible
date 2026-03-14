@@ -3,9 +3,10 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,26 +14,28 @@ import (
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/minh/daily-bible/internal/constants"
 	internaldb "github.com/minh/daily-bible/internal/db"
 )
 
 func main() {
-	in := flag.String("in", "data/gospel.json", "input JSON file")
-	out := flag.String("out", "data/import_gospels.sql", "output SQL file")
-	schema := flag.String("schema", "data/schema.sql", "schema SQL file")
-	dbPath := flag.String("db", "", "path to sqlite db to create and load data into (optional)")
-	flag.Parse()
-
-	b, err := ioutil.ReadFile(*in)
+	resp, err := http.Get(constants.GospelURL)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "read input: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("download json: %v\n", err)
+	}
+	defer resp.Body.Close()
+
+	if c := resp.StatusCode; c != http.StatusOK {
+		log.Fatalf("bad http status: %d\n", c)
 	}
 
 	var m map[string]string
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("read response body: %v\n", err)
+	}
 	if err := json.Unmarshal(b, &m); err != nil {
-		fmt.Fprintf(os.Stderr, "parse json: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("parse json: %v\n", err)
 	}
 
 	refs := make([]string, 0, len(m))
@@ -42,15 +45,13 @@ func main() {
 	sort.Strings(refs)
 
 	// write SQL file
-	if err := os.MkdirAll(filepath.Dir(*out), 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "mkdir: %v\n", err)
-		os.Exit(1)
+	if err := os.MkdirAll(filepath.Dir(constants.DBImportPath), 0755); err != nil {
+		log.Fatalf("mkdir: %v\n", err)
 	}
 
-	f, err := os.Create(*out)
+	f, err := os.Create(constants.DBImportPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "create out: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("create out: %v\n", err)
 	}
 	defer f.Close()
 
@@ -65,32 +66,25 @@ func main() {
 			escRef, escBook, cs, vs, ce, ve, escText)
 	}
 	fmt.Fprintln(f, "COMMIT;")
-	fmt.Printf("wrote %s\n", *out)
+	fmt.Printf("wrote %s\n", constants.DBImportPath)
 
-	// optionally load into sqlite db
-	if *dbPath != "" {
-		if err := os.MkdirAll(filepath.Dir(*dbPath), 0755); err != nil {
-			fmt.Fprintf(os.Stderr, "mkdir db dir: %v\n", err)
-			os.Exit(1)
-		}
-		dbConn, err := internaldb.Open(*dbPath)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "open db: %v\n", err)
-			os.Exit(1)
-		}
-		defer dbConn.Close()
-
-		if err := internaldb.InitDB(dbConn, *schema); err != nil {
-			fmt.Fprintf(os.Stderr, "init db schema: %v\n", err)
-			os.Exit(1)
-		}
-
-		if err := loadData(dbConn, refs, m); err != nil {
-			fmt.Fprintf(os.Stderr, "load data: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("loaded %d rows into %s\n", len(refs), *dbPath)
+	if err := os.MkdirAll(filepath.Dir(constants.DBPath), 0755); err != nil {
+		log.Fatalf("mkdir db dir: %v\n", err)
 	}
+	dbConn, err := internaldb.Open(constants.DBPath)
+	if err != nil {
+		log.Fatalf("open db: %v\n", err)
+	}
+	defer dbConn.Close()
+
+	if err := internaldb.InitDB(dbConn, constants.DBSchemaPath); err != nil {
+		log.Fatalf("Error: init schema: %v", err)
+	}
+
+	if err := loadData(dbConn, refs, m); err != nil {
+		log.Fatalf("load data: %v\n", err)
+	}
+	fmt.Printf("loaded %d rows into %s\n", len(refs), constants.DBPath)
 }
 
 func loadData(db *sql.DB, refs []string, m map[string]string) error {
