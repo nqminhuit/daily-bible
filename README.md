@@ -44,25 +44,12 @@ sqlite3 readings.db "SELECT reference FROM gospels LIMIT 5;"
 
 # Development
 
-## Start Server
-
-``` shell
-make import-sqlite
-make dev
-```
+Use `make help` to get more insight
 
 ## E2E tests
 
 ``` shell
-curl 'http://localhost:8080/api/v1/gospel/Ga%2010,31-42'
+curl 'http://localhost:8080/api/v1/gospel/Ga%209,1-41'
 curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
 curl 'http://localhost:8080/api/v1/random'
-```
-
-# Crawler
-
-``` shell
-go run tools/biblelinks/main.go
-go run tools/crawler/main.go
-go run tools/tsv/main.go
 ```

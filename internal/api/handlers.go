@@ -117,7 +117,7 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.Query(`SELECT reference FROM gospels_fts WHERE gospels_fts MATCH ? LIMIT 10`,
+		rows, err := db.Query(`SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
 			fmt.Sprintf(`"%s"`, q))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("fts search error: %v", err), http.StatusInternalServerError)
@@ -141,9 +141,9 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 
 func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		row := db.QueryRow(`SELECT reference, text FROM gospels ORDER BY RANDOM() LIMIT 1`)
-		var ref, text string
-		if err := row.Scan(&ref, &text); err != nil {
+		row := db.QueryRow(`SELECT text FROM verses ORDER BY RANDOM() LIMIT 1`)
+		var text string
+		if err := row.Scan(&text); err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
@@ -152,6 +152,6 @@ func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"reference": ref, "text": text})
+		json.NewEncoder(w).Encode(text)
 	}
 }

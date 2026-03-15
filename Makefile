@@ -1,49 +1,64 @@
 # Makefile for daily-bible
 
-.PHONY: test compile import-sqlite build
+PHONY_TARGETS := $(shell grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | cut -d: -f1)
+.PHONY: $(PHONY_TARGETS)
 
 DB=build/bible.db
 
-test-with-race-detection:
-	go test -tags "fts5" -race -cover ./...
+GOFLAGS=-tags "fts5"
 
-test:
-	go test -tags "fts5" -cover ./...
+.DEFAULT_GOAL := help
 
-compile:
-	go build -tags "fts5" ./...
+help: ## (0) Show all available commands and their descriptions
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
+	awk 'BEGIN {FS=":.*?## "}; {printf "%-23s %s\n", $$1, $$2}'
 
-import-db: data/schema.sql build/gospels.tsv
-	mkdir -p build
-	rm -f $(DB)
+test-with-race-detector: ## (0) Run tests with race detector, better run on CI
+	go test $(GOFLAGS) -race -cover ./...
+
+compile: ## (0) Compile the project, but do not build the binary files
+	go build $(GOFLAGS) ./...
+
+test: ## (1) Run all unit tests
+	go test $(GOFLAGS) -cover ./...
+
+links: ## (2) Crawl the Bible links and save them to build/bible-links.txt
+	@mkdir -p build
+	go run ./tools/biblelinks
+
+crawler: build/bible-links.txt ## (3) Crawl the Bible verses and save them to build/gospels.tsv
+	@mkdir -p build
+	go run ./tools/crawler
+
+tsv: build/gospels.txt ## (4) Convert the crawled data to TSV format
+	@mkdir -p build
+	go run ./tools/tsv
+
+import-db: data/schema.sql build/gospels.tsv ## (5) Import data into SQLite database, requires sqlite3 to be installed
+	@mkdir -p build
+	@rm -f $(DB)
 
 	sqlite3 $(DB) < data/schema.sql
 
-	sqlite3 $(DB) <<EOF
-	PRAGMA journal_mode=OFF;
-	PRAGMA synchronous=OFF;
-	.mode tabs
-	.import build/gospels.tsv verses
-	EOF
+	printf "%s\n" \
+	"PRAGMA journal_mode=OFF;" \
+	"PRAGMA synchronous=OFF;" \
+	".mode tabs" \
+	".import build/gospels.tsv verses" \
+	| sqlite3 $(DB)
 
-	sqlite3 $(DB) < data/indexes.sql
 	sqlite3 $(DB) < data/fts.sql
 	sqlite3 $(DB) "INSERT INTO verses_fts(verses_fts) VALUES('rebuild');"
 	sqlite3 $(DB) < data/triggers.sql
+	@echo "✅ Database imported successfully to $(DB)"
 
-build:
+build: ## (6) Build the binary server file
 	@mkdir -p build
-	@go build -tags "fts5" -ldflags="-s -w" -o build/daily-bible ./cmd/server
+	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible ./cmd/server
 
-links:
-	go run ./tools/biblelinks
-
-crawler: build/bible-links.txt
-	@go run ./tools/crawler
-
-dev:
+dev: ## (7) Run the server in development mode
 	@mkdir -p build
-	@go run -tags "fts5" ./cmd/server
+	go run $(GOFLAGS) ./cmd/server
 
-clean:
-	@rm -rf build
+clean: ## (99) Clean the build artifacts
+	rm -rf build

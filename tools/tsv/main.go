@@ -32,6 +32,9 @@ func main() {
 	book := ""
 	chapter := ""
 
+	// deduplicate (book, chapter, verse) and keep the first occurrence
+	seen := make(map[string]struct{})
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		// detect gospel line
@@ -52,12 +55,12 @@ func main() {
 			verse := m[1]
 			text := m[2]
 			text = strings.ReplaceAll(text, "\t", " ")
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n",
-				book,
-				chapter,
-				verse,
-				text,
-			)
+			key := fmt.Sprintf("%s\t%s\t%s", book, chapter, verse)
+			if _, exists := seen[key]; exists {
+				continue
+			}
+			seen[key] = struct{}{}
+			fmt.Fprintf(writer, "%s\t%s\n", key, text)
 		}
 	}
 	if err := scanner.Err(); err != nil {
