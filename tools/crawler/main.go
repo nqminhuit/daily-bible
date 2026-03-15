@@ -28,8 +28,21 @@ var missingVerse int64
 var verseLine = regexp.MustCompile(`\s*\{\{(\d+)\}\}`)
 var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>]+>\s*)*</sup>`)
 
+// workerSleep is the time the worker pauses between requests. Overridable in tests.
+var workerSleep = 300 * time.Millisecond
+
 func wrapVerseHTML(s string) string {
 	return verseHTML.ReplaceAllString(s, "{{$1}}")
+}
+
+func findReadingStart(s string) int {
+	if i := strings.Index(s, "Tin mừng:"); i != -1 {
+		return i
+	}
+	if i := strings.Index(s, "Lời Chúa:"); i != -1 {
+		return i
+	}
+	return -1
 }
 
 func loadLinks(filename string) ([]string, error) {
@@ -192,7 +205,8 @@ func worker(
 
 		html := string(*buf)
 		bufPool.Put(buf)
-		if !strings.Contains(html, "Tin mừng:") {
+
+		if idx := findReadingStart(html); idx == -1 {
 			continue
 		}
 
@@ -204,7 +218,7 @@ func worker(
 			continue
 		}
 
-		if idx := strings.Index(article, "Tin mừng:"); idx != -1 {
+		if idx := findReadingStart(article); idx != -1 {
 			content := article[idx:]
 			content = cleanText(content)
 			var b strings.Builder
@@ -224,7 +238,7 @@ func worker(
 			}
 		}
 		done <- url
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(workerSleep)
 		if c := atomic.AddInt64(&checked, 1); c%cst.Progress == 0 {
 			fmt.Printf(
 				"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d\n",
