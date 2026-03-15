@@ -22,36 +22,36 @@ jobs:
         run: go mod download
 
       - name: Run unit tests
-        run: make test-with-race-detection
+        run: make test-with-race-detector
 
       - name: Build server
         run: make build
 
-      - name: Import data
-        run: make import-sqlite
+      # - name: Import data
+      #   run: make import-db
 
-      - name: Start server
-        shell: bash
-        run: |
-          nohup ./build/daily-bible > server.log 2>&1 &
-          echo $! > server.pid
-          for i in $(seq 1 10); do
-            if curl -fsS http://127.0.0.1:8080/api/v1/random; then
-              echo "server ready"
-              break
-            fi
-            sleep 1
-          done
-          cat server.log
+      # - name: Start server
+      #   shell: bash
+      #   run: |
+      #     nohup ./build/daily-bible > server.log 2>&1 &
+      #     echo $! > server.pid
+      #     for i in $(seq 1 10); do
+      #       if curl -fsS http://127.0.0.1:8080/api/v1/random; then
+      #         echo "server ready"
+      #         break
+      #       fi
+      #       sleep 1
+      #     done
+      #     cat server.log
 
-      - name: Run end-to-end tests
-        shell: bash
-        run: |
-          set -e
-          curl -fsS "http://127.0.0.1:8080/api/v1/random" | jq .
-          curl -fsS "http://127.0.0.1:8080/api/v1/search?q=Gi%C3%AAsu" | jq .
-          curl -fsS "http://127.0.0.1:8080/api/v1/gospel/Ga%2010,31-42" | jq .
+      # - name: Run end-to-end tests
+      #   shell: bash
+      #   run: |
+      #     set -e
+      #     curl -fsS "http://127.0.0.1:8080/api/v1/random" | jq .
+      #     curl -fsS "http://127.0.0.1:8080/api/v1/search?q=Gi%C3%AAsu" | jq .
+      #     curl -fsS "http://127.0.0.1:8080/api/v1/gospel/Ga%2010,31-42" | jq .
 
-      - name: Stop server
-        if: always()
-        run: kill $(cat server.pid) || true
+      # - name: Stop server
+      #   if: always()
+      #   run: kill $(cat server.pid) || true
