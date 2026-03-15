@@ -36,10 +36,13 @@ internal/
 data/
 - static resources like database file, sql files
 
-Makefile: define targets that use for development easier 
+tools/
+- tools needed to prepare data for sqlite
+
+Makefile: defined targets that help development easier
 - unit tests (with coverage): `make test`
 - compile go code: `make compile`
-- import data to Sqlite (this should include init db if not exist): `make import-sqlite`
+- import data to Sqlite (this should include init db if not exist): `make import-db`
 - build the binary server: `make build` (should include compile and test)
 
 ---

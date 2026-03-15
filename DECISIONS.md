@@ -116,21 +116,6 @@ Reason:
 
 ---
 
-# Repository Organization
-
-Decision: Use the following structure:
-```
-cmd/
-internal/
-data/
-```
-
-Reason:
-- follows Go project conventions
-- separates entrypoints from application logic
-
----
-
 # No Heavy Frameworks
 
 Decision: Avoid heavy frameworks unless absolutely required.

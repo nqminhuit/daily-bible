@@ -5,7 +5,6 @@ This repository implements a small API for daily Gospel readings.
 Before modifying code, read these files:
 
 - architecture.md
-- tasks.md
 - coding-rules.md
 - DECISIONS.md
 
@@ -31,6 +30,40 @@ When adding code:
 - avoid unnecessary dependencies
 - code must be testable and have coverage
 
+## Unit tests
+
+- Use a real SQLite database for most tests
+- Do NOT mock SQLite in most cases
+- use memory mode for testing: `sql.Open("sqlite3", ":memory:")`
+- Each test gets a new DB: `file:test.db?mode=memory&cache=shared`
+- Use Test Fixtures, create helper (if not exist)
+  ```
+  testdb/
+    schema.sql
+    seed.sql
+  ```
+  then load:
+  ```go
+  func loadSchema(db *sql.DB) {
+    schema, _ := os.ReadFile("testdata/schema.sql")
+    db.Exec(string(schema))
+  }
+  ```
+- Transaction Rollback Pattern if needed
+- Create a test DB helper package (if not exist): `internal/testdb/testdb.go`
+  ```go
+  func New(t *testing.T) *sql.DB {
+    db, err := sql.Open("sqlite3", ":memory:")
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    loadSchema(db)
+
+    return db
+  }
+  ```
+
 ---
 
 ## Database
@@ -38,18 +71,6 @@ When adding code:
 - use SQLite
 - use prepared statements
 - keep schema in schema.sql
-
----
-
-## API
-
-Endpoints:
-
-```
-GET /api/v1/gospel/{reference}
-GET /api/v1/search?q=...
-GET /api/v1/random
-```
 
 ---
 

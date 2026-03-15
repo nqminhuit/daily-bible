@@ -18,7 +18,7 @@ Clients may include:
 
 ---
 
-## 1. System Architecture
+## System Architecture
 
 ```
 SQLite database
@@ -30,7 +30,7 @@ Clients
 
 ---
 
-## 2. Technology Stack
+## Technology Stack
 
 Language:
 - Go
@@ -46,34 +46,9 @@ Web server:
 
 ---
 
-## 3. Repository Structure
+## SQLite Schema
 
-```
-daily-bible-api/
-    Makefile
-    cmd/
-        server/
-            main.go
-    internal/
-        db/
-            db.go
-        model/
-            gospel.go
-            calendar.go
-        api/
-            router.go
-            handlers.go
-        search/
-            fts.go
-    data/
-        import_gospels.sql
-        readings.db
-        schema.sql
-```
-
-## 4. SQLite Schema
-
-Create schema file:
+Schema:
 
 ```
 data/schema.sql
@@ -82,91 +57,45 @@ data/schema.sql
 ### Main table
 
 ```sql
-CREATE TABLE gospels (
-    id INTEGER PRIMARY KEY,
-    reference TEXT UNIQUE NOT NULL,
-    book TEXT,
-    chapter_start INTEGER,
-    verse_start INTEGER,
-    chapter_end INTEGER,
-    verse_end INTEGER,
-    text TEXT NOT NULL
+-- Each row = one verse
+CREATE TABLE IF NOT EXISTS verses (
+    book TEXT NOT NULL,
+    chapter INTEGER NOT NULL,
+    verse INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    PRIMARY KEY(book, chapter, verse)
 );
 ```
 
 Example row:
 
 ```
-reference: "Mt 26,14-27,66"
-book: Mt
-chapter_start: 26
-verse_start: 14
-chapter_end: 27
-verse_end: 66
-text: "..."
+Ga|9|41|Đức Giê-su bảo họ: “Nếu các ông đui mù, thì các ông đã chẳng có tội. Nhưng giờ đây các ông nói rằng: ‘Chúng tôi thấy’, nên tội các ông vẫn còn!”
 ```
 
-### Indexes
+## Full Text Search
 
-```sql
-CREATE INDEX idx_gospel_book
-ON gospels(book);
-```
+- Use **SQLite FTS5**.
 
-## 5. Full Text Search
+- Use triggers on insert, update, delete to sync with the source table
 
-Use **SQLite FTS5**.
+## API Server
 
-```sql
-CREATE VIRTUAL TABLE gospels_fts
-USING fts5(
-  reference,
-  text,
-  content='gospels',
-  content_rowid='id'
-);
-```
+- Location:
+  ```
+  cmd/server/main.go
+  ```
 
-Triggers:
+- Use **Go standard library**.
 
-```sql
-CREATE TRIGGER gospels_ai AFTER INSERT ON gospels BEGIN
-  INSERT INTO gospels_fts(rowid, reference, text)
-  VALUES (new.id, new.reference, new.text);
-END;
+- Router:
+  ```
+  net/http
+  ```
 
-CREATE TRIGGER gospels_ad AFTER DELETE ON gospels BEGIN
-  INSERT INTO gospels_fts(gospels_fts, rowid, reference, text)
-  VALUES('delete', old.id, old.reference, old.text);
-END;
+## API Endpoints
 
-CREATE TRIGGER gospels_au AFTER UPDATE ON gospels BEGIN
-  INSERT INTO gospels_fts(gospels_fts, rowid, reference, text)
-  VALUES('delete', old.id, old.reference, old.text);
-  INSERT INTO gospels_fts(rowid, reference, text)
-  VALUES(new.id, new.reference, new.text);
-END;
-```
-
-## 6. API Server
-
-Location:
-
-```
-cmd/server/main.go
-```
-
-Use **Go standard library**.
-
-Router:
-
-```
-net/http
-```
-
-## 7. API Endpoints
-
-### 1. ### Get gospel by book, chapter and verse start, end 
+### Get gospel by reference
 
 ```
 GET /api/v1/gospel/{reference}
@@ -178,65 +107,21 @@ Example:
 /api/v1/gospel/Mt%2026,14-27,66
 ```
 
-### 2. Search text
+### Search text
 
 ```
-GET /api/v1/search?q=Giêsu
+GET /api/v1/search?q=Giesu
 ```
 
-Query:
-
-```
-SELECT reference
-FROM gospels_fts
-WHERE gospels_fts MATCH ?
-LIMIT 20
-```
-
-### 3. Random reading 
+### Random verse
 
 ```
 GET /api/v1/random
 ```
 
-SQL:
+## CLI Usage
 
-```
-SELECT reference, text
-FROM gospels
-ORDER BY RANDOM()
-LIMIT 1;
-```
-
-## 8. Example Handler
-
-```go
-func GetGospelByReference(w http.ResponseWriter, r *http.Request) {
-    ref := r.PathValue("ref")
-
-    row := db.QueryRow(`
-        SELECT reference, text
-        FROM gospels
-        WHERE reference = ?
-    `, ref)
-
-    var g Gospel
-    err := row.Scan(&g.Reference, &g.Text)
-
-    if err != nil {
-        http.Error(w, "not found", 404)
-        return
-    }
-
-    json.NewEncoder(w).Encode(g)
-}
-```
-
-## 9. CLI Usage
-
-### Bash
-
-```
+``` bash
 curl http://localhost:8080/api/v1/search?q=Giêsu
 curl http://localhost:8080/api/v1/gospel/Mt%2026,14-27,66
 curl http://localhost:8080/api/v1/random
