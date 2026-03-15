@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	cst "github.com/minh/daily-bible/internal/constants"
 	h "html"
 	"io"
 	"net/http"
@@ -12,15 +13,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-)
-
-const (
-	workers       = 1
-	progress      = 2
-	outFilename   = "gospels.txt"
-	linkFile      = "bible-links.txt"
-	processedFile = "processed.txt"
-	missingVerseF = "missing_verse_number.txt"
 )
 
 var bufPool = sync.Pool{
@@ -233,7 +225,7 @@ func worker(
 		}
 		done <- url
 		time.Sleep(300 * time.Millisecond)
-		if c := atomic.AddInt64(&checked, 1); c%progress == 0 {
+		if c := atomic.AddInt64(&checked, 1); c%cst.Progress == 0 {
 			fmt.Printf(
 				"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d\n",
 				c,
@@ -247,7 +239,7 @@ func worker(
 }
 
 func processedWriter(ch <-chan string) {
-	f, err := os.OpenFile(processedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(cst.ProcessedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -261,7 +253,7 @@ func processedWriter(ch <-chan string) {
 }
 
 func missingVerseNumWriter(ch <-chan string) {
-	f, err := os.OpenFile(missingVerseF, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(cst.MissingVerseF, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -275,7 +267,7 @@ func missingVerseNumWriter(ch <-chan string) {
 }
 
 func resultsWriter(ch <-chan string) {
-	f, err := os.OpenFile(outFilename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(cst.OutFilename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -305,7 +297,7 @@ func main() {
 		},
 	}
 
-	jobs := make(chan string, workers*2)
+	jobs := make(chan string, cst.Workers*2)
 	results := make(chan string, 100)
 	done := make(chan string, 100)
 	missing := make(chan string, 100)
@@ -316,17 +308,17 @@ func main() {
 	go processedWriter(done)
 	go missingVerseNumWriter(missing)
 
-	links, err := loadLinks(linkFile)
+	links, err := loadLinks(cst.LinkFile)
 	if err != nil {
 		panic(err)
 	}
 
 	total := len(links)
-	processed := loadProcessed(processedFile)
+	processed := loadProcessed(cst.ProcessedFile)
 	fmt.Printf("Loaded %d links, %d already processed\n", total, len(processed))
 
 	// start workers
-	for range workers {
+	for range cst.Workers {
 		wg.Add(1)
 		go worker(client, jobs, results, done, missing, &wg, total)
 	}

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/minh/daily-bible/internal/model"
@@ -30,19 +31,77 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		row := db.QueryRow(`SELECT reference, book, chapter_start, verse_start, chapter_end, verse_end, text FROM gospels WHERE reference = ? LIMIT 1`, ref)
-		var g model.Gospel
-		err = row.Scan(&g.Reference, &g.Book, &g.ChapterStart, &g.VerseStart, &g.ChapterEnd, &g.VerseEnd, &g.Text)
+		// Expected: "Ga 10,31-42"
+		parts := strings.Split(ref, " ")
+		if len(parts) != 2 {
+			http.Error(w, "invalid reference format", http.StatusBadRequest)
+			return
+		}
+
+		book := parts[0]
+
+		chParts := strings.Split(parts[1], ",")
+		if len(chParts) != 2 {
+			http.Error(w, "invalid reference format", http.StatusBadRequest)
+			return
+		}
+
+		chapter, err := strconv.Atoi(chParts[0])
 		if err != nil {
-			if err == sql.ErrNoRows {
-				http.Error(w, "not found", http.StatusNotFound)
-				return
-			}
+			http.Error(w, "invalid chapter", http.StatusBadRequest)
+			return
+		}
+
+		rangeParts := strings.Split(chParts[1], "-")
+		if len(rangeParts) != 2 {
+			http.Error(w, "invalid verse range", http.StatusBadRequest)
+			return
+		}
+
+		vStart, err := strconv.Atoi(rangeParts[0])
+		if err != nil {
+			http.Error(w, "invalid verse", http.StatusBadRequest)
+			return
+		}
+
+		vEnd, err := strconv.Atoi(rangeParts[1])
+		if err != nil {
+			http.Error(w, "invalid verse", http.StatusBadRequest)
+			return
+		}
+
+		rows, err := db.Query(`
+			SELECT book, chapter, verse, text
+			FROM verses
+			WHERE book = ?
+			AND chapter = ?
+			AND verse BETWEEN ? AND ?
+			ORDER BY verse`,
+			book, chapter, vStart, vEnd,
+		)
+		if err != nil {
 			http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
 			return
 		}
+		defer rows.Close()
+
+		var results []model.Gospel
+		for rows.Next() {
+			var g model.Gospel
+			if err := rows.Scan(&g.Book, &g.Chapter, &g.Verse, &g.Text); err != nil {
+				http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
+				return
+			}
+			results = append(results, g)
+		}
+
+		if len(results) == 0 {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(g)
+		json.NewEncoder(w).Encode(results)
 	}
 }
 

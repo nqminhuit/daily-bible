@@ -58,3 +58,11 @@ curl 'http://localhost:8080/api/v1/gospel/Ga%2010,31-42'
 curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
 curl 'http://localhost:8080/api/v1/random'
 ```
+
+# Crawler
+
+``` shell
+go run tools/biblelinks/main.go
+go run tools/crawler/main.go
+go run tools/tsv/main.go
+```
