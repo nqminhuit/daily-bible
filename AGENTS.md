@@ -32,6 +32,7 @@ When adding code:
 
 ## Unit tests
 
+- Tests must be small and focus, avoid lengthy tests
 - Use a real SQLite database for most tests
 - Do NOT mock SQLite in most cases
 - use memory mode for testing: `sql.Open("sqlite3", ":memory:")`
