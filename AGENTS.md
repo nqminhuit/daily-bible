@@ -34,6 +34,8 @@ When adding code:
 
 - Tests must be small and focus, avoid lengthy tests
 - Use a real SQLite database for most tests
+- When using local file, tests must be run on tmp dir to avoid conflicting with real data.
+- Should use local test data in test-data/ dir instead of calling the real website. If missing data for testing, ask the user to provide it for you.
 - Do NOT mock SQLite in most cases
 - use memory mode for testing: `sql.Open("sqlite3", ":memory:")`
 - Each test gets a new DB: `file:test.db?mode=memory&cache=shared`
