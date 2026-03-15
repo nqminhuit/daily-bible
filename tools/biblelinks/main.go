@@ -14,6 +14,12 @@ import (
 
 var linkRe = regexp.MustCompile(`/bai-viet/[^"' ]+`)
 
+// baseURL is the site root used to build page URLs. Overridable in tests.
+var baseURL = "https://tgpsaigon.net"
+
+// sleepDur is the delay between page fetches. Overridable in tests.
+var sleepDur = 500 * time.Millisecond
+
 func main() {
 	out, err := os.Create(cst.LinkFile)
 	if err != nil {
@@ -26,7 +32,7 @@ func main() {
 	page := 1
 
 	for {
-		url := fmt.Sprintf("https://tgpsaigon.net/diem-tin/x-10?page=%d", page)
+		url := fmt.Sprintf("%s/diem-tin/x-10?page=%d", baseURL, page)
 		fmt.Println("Fetching:", url)
 		resp, err := http.Get(url)
 		if err != nil {
@@ -49,7 +55,7 @@ func main() {
 
 		newLinks := 0
 		for _, m := range matches {
-			full := "https://tgpsaigon.net" + m
+			full := baseURL + m
 			if seen[full] {
 				continue
 			}
@@ -60,7 +66,7 @@ func main() {
 
 		fmt.Println("Page", page, "found", newLinks, "new links")
 		page++
-		time.Sleep(500 * time.Millisecond) // be nice to the server
+		time.Sleep(sleepDur) // be nice to the server
 	}
 	writer.Flush()
 
