@@ -178,9 +178,9 @@ func TestSearchHandler_ValidationAndDB(t *testing.T) {
 func TestSearchHandler_SuccessFTS(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
-	// Require FTS5; fail the test if it's not available in the sqlite build.
+	// Require FTS5; skip the test if it's not available in the sqlite build.
 	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
-		t.Fatalf("fts5 not available in sqlite build: %v", err)
+		t.Skipf("fts5 not available in sqlite build: %v", err)
 	}
 	if _, err := db.Exec("INSERT INTO verses_fts(text) VALUES(?)", "hello world"); err != nil {
 		t.Fatal(err)
@@ -201,6 +201,33 @@ func TestSearchHandler_SuccessFTS(t *testing.T) {
 	}
 	if len(got) == 0 {
 		t.Fatalf("expected at least one search result, got empty array")
+	}
+}
+
+// Test that search returns an empty JSON array when FTS exists but there are no matches.
+func TestSearchHandler_EmptyResults(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	// Require FTS5; skip the test if it's not available in the sqlite build.
+	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
+		t.Skipf("fts5 not available in sqlite build: %v", err)
+	}
+
+	h := makeSearchHandler(db)
+	req := httptest.NewRequest("GET", "/", nil)
+	req.URL.Path = "/api/v1/search"
+	req.URL.RawQuery = "q=" + url.QueryEscape("no match here")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for empty fts search, got %d", w.Code)
+	}
+	var got []string
+	if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("expected empty array for no matches, got %v", got)
 	}
 }
 
