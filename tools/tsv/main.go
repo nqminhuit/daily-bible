@@ -11,6 +11,21 @@ import (
 )
 
 var verseRE = regexp.MustCompile(`\{\{(\d+)\}\}\s*(.*)`)
+var chapterRE = regexp.MustCompile(`^(\d+)`)
+
+func extractChapter(ref string) string {
+	parts := strings.Fields(ref)
+	if len(parts) < 2 {
+		return ""
+	}
+
+	chapterPart := parts[1]
+	if m := chapterRE.FindStringSubmatch(chapterPart); m != nil {
+		return m[1]
+	}
+
+	return ""
+}
 
 func main() {
 	file, err := os.Open(cst.OutFilename)
@@ -39,14 +54,14 @@ func main() {
 		line := strings.TrimSpace(scanner.Text())
 		// detect gospel line
 		if after, ok := strings.CutPrefix(line, "Tin mừng:"); ok {
-			ref := after
-			ref = strings.TrimSpace(ref)
-			// Tin mừng: Lc 18,9-14 or Tin mừng: Lc 18, 9-14
+			ref := strings.TrimSpace(after)
 			parts := strings.Fields(ref)
-			book = parts[0]
-			if len(parts) > 1 {
-				chapter = strings.Split(parts[1], ",")[0]
+			if len(parts) > 0 {
+				book = parts[0]
+			} else {
+				book = ""
 			}
+			chapter = extractChapter(ref)
 			continue
 		}
 
