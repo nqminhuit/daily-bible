@@ -141,7 +141,17 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 
 func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		row := db.QueryRow(`SELECT text FROM verses ORDER BY RANDOM() LIMIT 1`)
+		row := db.QueryRow(`
+			SELECT text
+			FROM verses
+			WHERE rowid >= (
+				SELECT CASE
+					WHEN max_rowid = 0 THEN 0
+					ELSE (ABS(RANDOM()) % max_rowid) + 1
+				END
+				FROM (SELECT IFNULL(MAX(rowid), 0) AS max_rowid FROM verses)
+			)
+			LIMIT 1`)
 		var text string
 		if err := row.Scan(&text); err != nil {
 			if err == sql.ErrNoRows {
