@@ -144,14 +144,14 @@ func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 		row := db.QueryRow(`
 			SELECT text
 			FROM verses
-			WHERE rowid >= (
+			ORDER BY rowid
+			LIMIT 1 OFFSET (
 				SELECT CASE
-					WHEN max_rowid = 0 THEN 0
-					ELSE (ABS(RANDOM()) % max_rowid) + 1
+					WHEN verse_count = 0 THEN 0
+					ELSE ABS(RANDOM()) % verse_count
 				END
-				FROM (SELECT IFNULL(MAX(rowid), 0) AS max_rowid FROM verses)
-			)
-			LIMIT 1`)
+				FROM (SELECT COUNT(*) AS verse_count FROM verses)
+			)`)
 		var text string
 		if err := row.Scan(&text); err != nil {
 			if err == sql.ErrNoRows {

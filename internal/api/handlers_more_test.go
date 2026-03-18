@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/minh/daily-bible/internal/model"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/minh/daily-bible/internal/model"
 )
 
 func TestGetGospel_ValidAndErrors(t *testing.T) {
@@ -228,6 +228,44 @@ func TestSearchHandler_EmptyResults(t *testing.T) {
 	}
 	if len(got) != 0 {
 		t.Fatalf("expected empty array for no matches, got %v", got)
+	}
+}
+
+func TestRandomHandler_UsesUniformExistingRows(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	if _, err := db.Exec(`
+		INSERT INTO verses(rowid, book, chapter, verse, text)
+		VALUES
+			(1, 'Ga', 10, 31, 'first gap row'),
+			(1000, 'Ga', 10, 32, 'second gap row')`); err != nil {
+		t.Fatal(err)
+	}
+
+	h := makeRandomHandler(db)
+	req := httptest.NewRequest("GET", "/api/v1/random", nil)
+	counts := map[string]int{}
+
+	for range 200 {
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected 200 during random sampling, got %d", w.Code)
+		}
+
+		var got string
+		if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+			t.Fatal(err)
+		}
+		counts[got]++
+	}
+
+	if counts["first gap row"] < 40 {
+		t.Fatalf("expected first sparse-row entry to be sampled repeatedly, got counts %v", counts)
+	}
+	if counts["second gap row"] < 40 {
+		t.Fatalf("expected second sparse-row entry to be sampled repeatedly, got counts %v", counts)
 	}
 }
 
