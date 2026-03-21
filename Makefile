@@ -19,6 +19,9 @@ test-with-race-detector: ## (0) Run tests with race detector, better run on CI
 compile: ## (0) Compile the project, but do not build the binary files
 	go build $(GOFLAGS) ./...
 
+fmt: ## (0) Format the code using gofmt
+	go fmt ./...
+
 test: ## (1) Run all unit tests
 	go test $(GOFLAGS) -cover ./...
 

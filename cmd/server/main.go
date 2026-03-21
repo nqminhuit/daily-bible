@@ -17,7 +17,10 @@ func main() {
 	}
 	defer db.Close()
 
-	mux := api.NewRouter(db)
+	mux, err := api.NewRouter(db)
+	if err != nil {
+		log.Fatalf("init router: %v", err)
+	}
 
 	srv := &http.Server{
 		Addr:         constants.ServerAddr,

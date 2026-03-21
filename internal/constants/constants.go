@@ -1,8 +1,8 @@
 package constants
 
 const (
-	DBPath       = "build/bible.db"
-	ServerAddr   = ":8080"
+	DBPath     = "build/bible.db"
+	ServerAddr = ":8080"
 )
 
 // crawler constants

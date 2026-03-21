@@ -12,7 +12,10 @@ func TestNewRouter_RegistersHandlers_404(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	r := NewRouter(db)
+	r, err := NewRouter(db)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// no rows -> 404
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
@@ -27,10 +30,13 @@ func TestNewRouter_RegistersHandlers_Ok(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	r := NewRouter(db)
-
 	// insert row and expect 200
 	if _, err := db.Exec(`INSERT INTO verses(book,chapter,verse,text) VALUES('Ga',10,31,'text from router')`); err != nil {
+		t.Fatal(err)
+	}
+
+	r, err := NewRouter(db)
+	if err != nil {
 		t.Fatal(err)
 	}
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)

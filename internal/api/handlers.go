@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -120,7 +121,8 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 		rows, err := db.Query(`SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
 			fmt.Sprintf(`"%s"`, q))
 		if err != nil {
-			http.Error(w, fmt.Sprintf("fts search error: %v", err), http.StatusInternalServerError)
+			log.Printf("fts search error: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
@@ -139,26 +141,27 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func makeRandomHandler(db *sql.DB) http.HandlerFunc {
+// makeRandomHandler returns a handler that serves a random verse from the database.
+// The table "verses" is expected to be static, immutable,
+// and have a rowid column that is a dense sequence from 1 to maxRowID.
+func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
+	// Guard against invalid maxRowID to avoid rand.Int64N panic.
+	if maxRowID <= 0 {
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "no verses available", http.StatusNotFound)
+		}
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		row := db.QueryRow(`
-			SELECT text
-			FROM verses
-			WHERE rowid >= (
-				SELECT CASE
-					WHEN max_rowid = 0 THEN 0
-					ELSE (ABS(RANDOM()) % max_rowid) + 1
-				END
-				FROM (SELECT IFNULL(MAX(rowid), 0) AS max_rowid FROM verses)
-			)
-			LIMIT 1`)
+		randomID := 1 + rand.Int64N(maxRowID)
+		row := db.QueryRow("SELECT text FROM verses WHERE rowid >= ? LIMIT 1", randomID)
 		var text string
 		if err := row.Scan(&text); err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
 			}
-			http.Error(w, fmt.Sprintf("random error: %v", err), http.StatusInternalServerError)
+			log.Printf("random query error: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")

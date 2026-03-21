@@ -57,10 +57,11 @@ func InitDB(db *sql.DB, schemaPath string) error {
 	if err != nil {
 		return fmt.Errorf("exec schema: %w", err)
 	}
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %w", err)
+	if affected, err := res.RowsAffected(); err == nil {
+		log.Printf("Schema applied, %d rows affected", affected)
+	} else {
+		// RowsAffected may not be supported for DDL in some drivers; log and continue.
+		log.Printf("Schema applied; RowsAffected not available: %v", err)
 	}
-	log.Printf("Schema applied, %d rows affected", affected)
 	return nil
 }
