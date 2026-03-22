@@ -28,7 +28,35 @@ func TestExtractGospelFromFixture(t *testing.T) {
 	}
 	strExpected := strings.TrimSpace(string(expected))
 	if strings.Compare(actualContent, strExpected) != 0 {
-		t.Fatalf("unexpected empty extracted content, expected: %s, got: %s", strExpected, actualContent)
+		t.Fatalf("unexpected extracted content, expected: %s, got: %s", strExpected, actualContent)
+	}
+}
+
+func TestExtractGospelFromFixture_2(t *testing.T) {
+	htmlPath := "../../test-data/13jan2025.html"
+
+	b, err := os.ReadFile(htmlPath)
+	if err != nil {
+		t.Fatalf("read html fixture: %v", err)
+	}
+	actualContent, ref, err := ExtractGospel(string(b))
+	if err != nil {
+		t.Fatalf("ExtractGospel error: %v", err)
+	}
+
+	want := "Mc 1,14-20"
+	if ref != want {
+		t.Fatalf("unexpected reference: got %q, want %q", ref, want)
+	}
+
+	// previously expected empty; update to compare against full expected fixture
+	expected, err := os.ReadFile("../../test-data/expected_13jan2025.html")
+	if err != nil {
+		t.Fatalf("read expected content fixture: %v", err)
+	}
+	strExpected := strings.TrimSpace(string(expected))
+	if strings.Compare(actualContent, strExpected) != 0 {
+		t.Fatalf("unexpected extracted content, expected: %s, got: %s", strExpected, actualContent)
 	}
 }
 
