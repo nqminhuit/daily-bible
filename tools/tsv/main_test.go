@@ -22,7 +22,14 @@ func TestTSVMain_BasicConversionAndDedup(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	in := "Tin mừng: Lc 18,9-14\n{{1}} Hello\tworld\n{{2}} Second line\n{{1}} Duplicate should be ignored\n"
+	in := `-------
+	URL: https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/03/19.html
+	__ref__: Mt 1,16.18-21.24a
+	Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu.    Mt 1,16.18-21.24a
+	{{16}}  Ông Gia-cóp sinh ông Giu-se, chồng của bà Ma-ri-a, bà là mẹ Đức Giê-su cũng gọi là Đấng Ki-tô.
+	{{18}}  Sau đây là gốc tích Đức Giê-su Ki-tô : bà Ma-ri-a, mẹ Người, đã thành hôn với ông Giu-se. Nhưng trước khi hai ông bà về chung sống, bà đã có thai do quyền năng Chúa Thánh Thần.
+	{{16}}  Ông Giu-se, chồng bà, là người công chính và không muốn tố giác bà, nên mới định tâm bỏ bà cách kín đáo.
+	`
 	if err := os.WriteFile(filepath.Join(dir, "gospels.txt"), []byte(in), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -39,44 +46,10 @@ func TestTSVMain_BasicConversionAndDedup(t *testing.T) {
 	if len(lines) != 2 {
 		t.Fatalf("expected 2 lines (deduped), got %d: %v", len(lines), lines)
 	}
-	if !strings.HasPrefix(lines[0], "Lc\t18\t1\t") {
+	if !strings.HasPrefix(lines[0], "Mt\t1\t16\t") {
 		t.Fatalf("unexpected first line prefix: %q", lines[0])
 	}
 	if strings.Contains(lines[0], "\\t") {
 		t.Fatalf("tabs should be replaced in text: %q", lines[0])
-	}
-}
-
-func TestTSVMain_ParsesChapterFromColonReference(t *testing.T) {
-	temp := t.TempDir()
-	oldWd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = os.Chdir(oldWd) }()
-	if err := os.Chdir(temp); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.MkdirAll("build", 0755); err != nil {
-		t.Fatal(err)
-	}
-
-	in := "Tin mừng: Mc 6:17-29\n{{17}} one\n{{18}} two\n"
-	if err := os.WriteFile(filepath.Join("build", "gospels.txt"), []byte(in), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	main()
-
-	b, err := os.ReadFile(filepath.Join("build", "gospels.tsv"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	lines := strings.Split(strings.TrimSpace(string(b)), "\n")
-	if len(lines) != 2 {
-		t.Fatalf("expected 2 lines, got %d: %v", len(lines), lines)
-	}
-	if !strings.HasPrefix(lines[0], "Mc\t6\t17\t") {
-		t.Fatalf("expected chapter 6 for colon reference, got %q", lines[0])
 	}
 }

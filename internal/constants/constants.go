@@ -15,3 +15,8 @@ const (
 	MissingVerseF  = "build/missing_verse_number.txt"
 	OutTsvFilename = "build/gospels.tsv"
 )
+
+const (
+	VaticanPrefix = "https://www.vaticannews.va/vi/loi-chua-hang-ngay/"
+	SitemapURL    = "https://www.vaticannews.va/sitemap.vi.xml"
+)

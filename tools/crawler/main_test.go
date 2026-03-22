@@ -8,79 +8,17 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	"golang.org/x/net/html"
 )
 
-func TestHelperFunctions(t *testing.T) {
-	// wrapVerseHTML
-	in := `<sup>1</sup> Some text <sup class="num"><b>2</b></sup>`
-	out := wrapVerseHTML(in)
-	if !strings.Contains(out, "{{1}}") || !strings.Contains(out, "{{2}}") {
-		t.Fatalf("wrapVerseHTML failed: %q", out)
-	}
+// RoundTripper that always returns an error for testing client GET failures
+type badRT struct{}
 
-	// findReadingStart
-	if idx := findReadingStart("prefix Tin mừng: here"); idx == -1 {
-		t.Fatalf("findReadingStart missed Tin mừng")
-	}
-	if idx := findReadingStart("something Lời Chúa: more"); idx == -1 {
-		t.Fatalf("findReadingStart missed Lời Chúa")
-	}
-	if idx := findReadingStart("nothing here"); idx != -1 {
-		t.Fatalf("findReadingStart false positive")
-	}
-
-	// cutBeforeSuyNiem
-	s := "start content<h2>should cut<h2>rest"
-	if got := cutBeforeSuyNiem(s); strings.Contains(got, "should cut") {
-		t.Fatalf("cutBeforeSuyNiem did not cut: %q", got)
-	}
-
-	// stripHtmlTags
-	html := `<div>Hello <b>World</b> &amp; friends</div>`
-	if got := stripHtmlTags(html); !strings.Contains(got, "Hello") || strings.Contains(got, "<b>") {
-		t.Fatalf("stripHtmlTags failed: %q", got)
-	}
-}
-
-func TestExtractAndCleanFromSample(t *testing.T) {
-	path := filepath.Join("..", "..", "test-data", "page1_test.html")
-	b, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read sample failed: %v", err)
-	}
-	html := string(b)
-
-	h1 := extractH1(html)
-	if h1 == "" {
-		t.Fatalf("expected non-empty h1 from sample")
-	}
-
-	article := extractArticleDetail(html)
-	if article == "" {
-		t.Fatalf("expected non-empty article detail")
-	}
-
-	// find reading start inside article
-	idx := findReadingStart(article)
-	if idx == -1 {
-		t.Fatalf("expected to find reading start in article")
-	}
-	content := article[idx:]
-	clean := cleanText(content)
-	if clean == "" {
-		t.Fatalf("cleanText returned empty")
-	}
-	// cleaned text should not contain raw HTML tags or <sup>
-	if strings.Contains(clean, "<") || strings.Contains(clean, "</") {
-		t.Fatalf("cleaned text still contains tags: %q", clean[:200])
-	}
-	// should contain a verse marker like {{1}}
-	if !strings.Contains(clean, "{{") {
-		t.Fatalf("cleaned text missing verse markers: %q", clean[:200])
-	}
-}
+func (badRT) RoundTrip(_ *http.Request) (*http.Response, error) { return nil, fmt.Errorf("boom") }
 
 func TestLoadLinksAndProcessed(t *testing.T) {
 	temp := t.TempDir()
@@ -110,11 +48,16 @@ func TestLoadLinksAndProcessed(t *testing.T) {
 }
 
 func TestWritersAndWorkerIntegration(t *testing.T) {
-	// Use test HTML files served by a test server
-	page1 := filepath.Join("..", "..", "test-data", "page1_test.html")
-	b1, _ := os.ReadFile(page1)
-	page2 := filepath.Join("..", "..", "test-data", "page2_test.html")
-	b2, _ := os.ReadFile(page2)
+	// Serve simple Vatican-style HTML pages (main.content) for tests
+	b1, err := os.ReadFile("../../test-data/22mar2026.html")
+	if err != nil {
+		t.Fatalf("read html fixture: %v", err)
+	}
+
+	b2, err := os.ReadFile("../../test-data/12mar2026.html")
+	if err != nil {
+		t.Fatalf("read html fixture: %v", err)
+	}
 
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path
@@ -189,51 +132,12 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	}
 
 	// basic contents check
-	b, _ := os.ReadFile("build/processed.txt")
+	b, err := os.ReadFile("build/processed.txt")
+	if err != nil {
+		t.Fatalf("read processed file: %v", err)
+	}
 	if len(strings.TrimSpace(string(b))) == 0 {
 		t.Fatalf("processed file seems empty")
-	}
-}
-
-func TestExtractEdgeCasesAndWritersFlush(t *testing.T) {
-	// extractH1 edge cases
-	if v := extractH1(""); v != "" {
-		t.Fatalf("expected empty for empty html, got %q", v)
-	}
-	if v := extractH1("<h1>No close"); v != "" {
-		t.Fatalf("expected empty for unclosed h1, got %q", v)
-	}
-	if v := extractH1("<h1>OK</h1> rest"); v != "OK" {
-		t.Fatalf("expected OK, got %q", v)
-	}
-
-	// extractArticleDetail with nested divs
-	html := `<div class="article-detail"><div><p>inner</p></div></div>`
-	if got := extractArticleDetail(html); !strings.Contains(got, "inner") {
-		t.Fatalf("extractArticleDetail failed: %q", got)
-	}
-
-	// test resultsWriter flush behavior (flush every 10 writes)
-	temp := t.TempDir()
-	oldWd, _ := os.Getwd()
-	defer func() { _ = os.Chdir(oldWd) }()
-	_ = os.Chdir(temp)
-	_ = os.MkdirAll("build", 0755)
-
-	resCh := make(chan string, 20)
-	go resultsWriter(resCh)
-	for i := range 15 {
-		resCh <- fmt.Sprintf("LINE%02d", i)
-	}
-	close(resCh)
-	// wait for flush
-	time.Sleep(10 * time.Millisecond)
-	b, err := os.ReadFile("build/gospels.txt")
-	if err != nil {
-		t.Fatalf("read results file: %v", err)
-	}
-	if len(b) == 0 {
-		t.Fatalf("expected non-empty results file")
 	}
 }
 
@@ -280,4 +184,540 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	if len(strings.TrimSpace(string(b))) != 0 {
 		t.Fatalf("expected processed file to be empty when worker skipped non-200; got %q", string(b))
 	}
+}
+
+func TestWriteLinksToFile(t *testing.T) {
+	oldWd, _ := os.Getwd()
+	tmp := t.TempDir()
+	defer func() { _ = os.Chdir(oldWd) }()
+	_ = os.Chdir(tmp)
+	_ = os.MkdirAll("build", 0755)
+
+	links := []string{"https://a/1", "https://a/2"}
+	if err := writeLinksToFile(links); err != nil {
+		t.Fatalf("writeLinksToFile failed: %v", err)
+	}
+	b, err := os.ReadFile("build/bible-links.txt")
+	if err != nil {
+		t.Fatalf("read links file: %v", err)
+	}
+	if !strings.Contains(string(b), "https://a/1") || !strings.Contains(string(b), "https://a/2") {
+		t.Fatalf("links not written correctly: %q", string(b))
+	}
+}
+
+func TestResultsWriterFlushes(t *testing.T) {
+	oldWd, _ := os.Getwd()
+	tmp := t.TempDir()
+	defer func() { _ = os.Chdir(oldWd) }()
+	_ = os.Chdir(tmp)
+	_ = os.MkdirAll("build", 0755)
+
+	resCh := make(chan string, 50)
+	go resultsWriter(resCh)
+	for i := range 25 {
+		resCh <- fmt.Sprintf("entry-%d\n", i)
+	}
+	close(resCh)
+	// wait for writer to create the file and write content (with timeout)
+	deadline := time.After(2 * time.Second)
+	for {
+		select {
+		case <-deadline:
+			t.Fatalf("timed out waiting for gospels file to be written")
+		default:
+			if fi, err := os.Stat("build/gospels.txt"); err == nil && fi.Size() > 0 {
+				b, err := os.ReadFile("build/gospels.txt")
+				if err != nil {
+					t.Fatalf("read gospels file: %v", err)
+				}
+				if len(b) == 0 {
+					t.Fatalf("gospels file empty after write")
+				}
+				return
+			}
+			// short sleep
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
+}
+
+// TestMainRun runs main() end-to-end with a local test server to exercise main flow.
+func TestMainRun(t *testing.T) {
+	// simple pages that contain gospel and verse
+	page := `<html><body>
+	<section>
+	  <div class="section__content">
+	    <p>Tin Mừng ngày hôm nay</p>
+	    <p><sup>1</sup> Verse one</p>
+	  </div>
+	</section>
+	</body></html>`
+
+	// We'll create a server that serves sitemap.xml and two pages
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/sitemap.xml") {
+			// use r.Host so we can compose absolute URLs without referencing srv in its own initializer
+			host := r.Host
+			sx := `<?xml version="1.0"?><urlset>` +
+				`<url><loc>http://` + host + `/page1</loc></url>` +
+				`<url><loc>http://` + host + `/page2</loc></url>` +
+				`</urlset>`
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write([]byte(sx))
+			return
+		}
+		w.Write([]byte(page))
+	}))
+	defer srv.Close()
+
+	oldWd, _ := os.Getwd()
+	tmp := t.TempDir()
+	defer func() { _ = os.Chdir(oldWd) }()
+	_ = os.Chdir(tmp)
+	_ = os.MkdirAll("build", 0755)
+
+	// set env vars so main uses local server and prefix (include http:// to match generated locs)
+	workerSleep = 0
+
+	// call main - should complete
+	sitemapURL = srv.URL + "/sitemap.xml"
+	main()
+
+	// verify outputs exist
+	if _, err := os.Stat("build/gospels.txt"); err != nil {
+		t.Fatalf("expected gospels output file created: %v", err)
+	}
+	if _, err := os.Stat("build/processed.txt"); err != nil {
+		t.Fatalf("expected processed file created: %v", err)
+	}
+}
+
+// Test stripHtmlTags removes tags but preserves text
+func TestStripHtmlTags(t *testing.T) {
+	in := "<p>Hello <b>World</b> &amp; <span>Go</span></p>"
+	out := stripHtmlTags(in)
+	if !strings.Contains(out, "Hello World") || !strings.Contains(out, "Go") {
+		t.Fatalf("unexpected stripHtmlTags output: %q", out)
+	}
+}
+
+// Test wrapVerseHTML and cleanText convert <sup>..</sup> to verse markers and normalize whitespace
+func TestWrapAndCleanText(t *testing.T) {
+	in := "Line1<sup>12</sup>\u00A0\r\nLine2{{3}}<b>Ignore</b>"
+	w := wrapVerseHTML(in)
+	if !strings.Contains(w, "{{12}}") {
+		t.Fatalf("wrapVerseHTML did not convert sup tag: %q", w)
+	}
+
+	c := cleanText(in)
+	// cleanText should unescape, remove tags and produce verse markers
+	if !strings.Contains(c, "{{12}}") || !strings.Contains(c, "{{3}}") {
+		t.Fatalf("cleanText did not contain expected verse markers: %q", c)
+	}
+}
+
+// Test extract returns content when section contains section__content and Tin Mừng header
+func TestExtractFallbackToMain(t *testing.T) {
+	h := `<html><body>
+	<section>
+	  <div class="section__content">
+	    <p>Tin Mừng ngày hôm nay</p>
+	    <p>Actual content paragraph</p>
+	  </div>
+	</section>
+	<main class="content"><p>From main</p></main>
+	</body></html>`
+
+	mainContent, ref, err := extract(h)
+	if err != nil {
+		t.Fatalf("extract returned error: %v", err)
+	}
+	// extractGospelSection includes the header paragraph and stops at the first non-verse paragraph
+	if !strings.Contains(mainContent, "Tin Mừng ngày hôm nay") {
+		t.Fatalf("extract did not return expected header content: %q", mainContent)
+	}
+	if strings.Contains(mainContent, "Actual content paragraph") {
+		t.Fatalf("extract should not include the non-verse paragraph: %q", mainContent)
+	}
+	if ref == "" {
+		t.Fatalf("expected a ref extracted, got empty")
+	}
+}
+
+// Test extract returns error when ref exists but no content is found
+func TestExtractMissingContentCausesError(t *testing.T) {
+	h := `<html><body>
+	<section>Tin Mừng ngày hôm nay</section>
+	</body></html>`
+	_, _, err := ExtractGospel(h)
+	if err == nil {
+		t.Fatalf("ExtractGospel expected to error when content missing")
+	}
+}
+
+// Test parseSitemap error conditions
+func TestParseSitemapErrors(t *testing.T) {
+	// invalid XML
+	if _, err := parseSitemap(0, strings.NewReader("<notxml>"), "https://x/"); err == nil {
+		t.Fatalf("expected parseSitemap to fail on invalid XML")
+	}
+
+	// empty prefix should error when encountering a loc
+	xml := `<?xml version="1.0"?><urlset><url><loc>https://a/1</loc></url></urlset>`
+	if _, err := parseSitemap(0, strings.NewReader(xml), ""); err == nil {
+		t.Fatalf("expected parseSitemap to error on empty prefix")
+	}
+}
+
+// loadLinks should return an error when file does not exist
+func TestLoadLinksFileMissing(t *testing.T) {
+	if _, err := loadLinks("non-existent-file.txt"); err == nil {
+		t.Fatalf("expected loadLinks to return error for missing file")
+	}
+}
+
+// Test verse paragraph/header helpers
+func TestVerseHelpers(t *testing.T) {
+	// create a <p><sup>1</sup>..</p> node to check isVerseParagraph
+	h := `<p><sup>1</sup> Text</p><p>No sup here</p>`
+	doc, err := html.Parse(strings.NewReader(h))
+	if err != nil {
+		t.Fatalf("parse html: %v", err)
+	}
+	p1 := findNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	if !isVerseParagraph(p1) {
+		t.Fatalf("expected first p to be verse paragraph")
+	}
+	p2 := findNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "p" && strings.Contains(getText(n), "No sup")
+	})
+	if isVerseParagraph(p2) {
+		t.Fatalf("expected second p to NOT be verse paragraph")
+	}
+
+	// isGospelHeader
+	h2 := `<p>Some Tin Mừng header here</p>`
+	d2, _ := html.Parse(strings.NewReader(h2))
+	ph := findNode(d2, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	if !isGospelHeader(ph) {
+		t.Fatalf("isGospelHeader failed to detect header")
+	}
+}
+
+// Test extractGospelSection includes header and verse paragraphs only
+func TestExtractGospelSectionBehavior(t *testing.T) {
+	h := `<div class="section__content">
+	  <p>Tin Mừng header</p>
+	  <p><sup>1</sup> Verse one</p>
+	  <p><sup>2</sup> Verse two</p>
+	  <p>Non-verse paragraph stops here</p>
+	</div>`
+
+	doc, _ := html.Parse(strings.NewReader(h))
+	div := findNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	})
+	res := extractGospelSection(div)
+	if !strings.Contains(res, "Tin Mừng header") {
+		t.Fatalf("expected header to be included: %q", res)
+	}
+	if !strings.Contains(res, "Verse one") || !strings.Contains(res, "Verse two") {
+		t.Fatalf("expected verse paragraphs present: %q", res)
+	}
+	if strings.Contains(res, "Non-verse paragraph") {
+		t.Fatalf("non-verse paragraph should stop extraction: %q", res)
+	}
+}
+
+// Test parseSitemap respects totalUrls limit and skips empty locs
+func TestParseSitemapLimitAndEmptyLoc(t *testing.T) {
+	xml := `<?xml version="1.0"?><urlset>
+	  <url><loc>https://www.vaticannews.va/vi/one</loc></url>
+	  <url><loc>https://www.vaticannews.va/vi/two</loc></url>
+	  <url><loc></loc></url>
+	</urlset>`
+	urls, err := parseSitemap(1, strings.NewReader(xml), "https://www.vaticannews.va/vi/")
+	if err != nil {
+		t.Fatalf("parseSitemap unexpected error: %v", err)
+	}
+	if len(urls) != 1 {
+		t.Fatalf("expected 1 url due to limit, got %d", len(urls))
+	}
+	// ensure empty loc skipped
+	urls2, _ := parseSitemap(0, strings.NewReader(xml), "https://www.vaticannews.va/vi/")
+	for _, u := range urls2 {
+		if strings.TrimSpace(u) == "" {
+			t.Fatalf("unexpected empty loc in result")
+		}
+	}
+}
+
+// Test worker handles client GET errors gracefully
+func TestWorkerClientGetError(t *testing.T) {
+	client := &http.Client{Transport: badRT{}}
+	jobs := make(chan string, 1)
+	resultsCh := make(chan string, 1)
+	doneCh := make(chan string, 1)
+	missingCh := make(chan string, 1)
+	jobs <- "http://example.invalid/"
+	close(jobs)
+
+	workerSleep = 0
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	wg.Wait()
+	select {
+	case <-resultsCh:
+		t.Fatalf("expected no results when client GET errors")
+	default:
+	}
+	select {
+	case <-doneCh:
+		t.Fatalf("expected no done when client GET errors")
+	default:
+	}
+	select {
+	case <-missingCh:
+		t.Fatalf("expected no missing when client GET errors")
+	default:
+	}
+}
+
+// Test worker skips pages with no Vatican markers
+func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("<html><body>No markers here</body></html>"))
+	}))
+	defer srv.Close()
+
+	client := srv.Client()
+	jobs := make(chan string, 1)
+	resultsCh := make(chan string, 1)
+	doneCh := make(chan string, 1)
+	missingCh := make(chan string, 1)
+	jobs <- srv.URL + "/"
+	close(jobs)
+
+	workerSleep = 0
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	wg.Wait()
+	select {
+	case <-resultsCh:
+		t.Fatalf("expected no results for page without markers")
+	default:
+	}
+}
+
+// Test worker sends to missing channel when no verse markers in content
+func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
+	h := `<html><body>
+	<section>
+	  <div class="section__content">
+	    <p>Tin Mừng ngày hôm nay</p>
+	    <p>Some article content without verse numbers</p>
+	  </div>
+	</section>
+	</body></html>`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(h))
+	}))
+	defer srv.Close()
+
+	client := srv.Client()
+	jobs := make(chan string, 1)
+	resultsCh := make(chan string, 1)
+	doneCh := make(chan string, 1)
+	missingCh := make(chan string, 1)
+	jobs <- srv.URL + "/"
+	close(jobs)
+
+	workerSleep = 0
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	wg.Wait()
+
+	select {
+	case m := <-missingCh:
+		if !strings.Contains(m, "Tin Mừng ngày hôm nay") {
+			t.Fatalf("missing output did not contain expected header: %q", m)
+		}
+	default:
+		t.Fatalf("expected missing output")
+	}
+}
+
+// Test findNode/findLastNode and helpers hasClass/getText work on parsed HTML
+func TestFindNodeHelpers(t *testing.T) {
+	h := `<html><body>
+	<section>
+	  <div class="section__content">
+	    <p>Tin Mừng ngày hôm nay</p>
+	    <p><sup>1</sup> First verse</p>
+	  </div>
+	</section>
+	<main class="content"><p>Main here</p></main>
+	</body></html>`
+
+	doc, err := html.Parse(strings.NewReader(h))
+	if err != nil {
+		t.Fatalf("parse html: %v", err)
+	}
+
+	// getText on the first <p>
+	p := findNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	if p == nil {
+		t.Fatal("findNode did not find paragraph")
+	}
+	text := getText(p)
+	if !strings.Contains(text, "Tin Mừng") {
+		t.Fatalf("getText returned unexpected: %q", text)
+	}
+
+	// hasClass should detect section__content
+	div := findNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	})
+	if div == nil {
+		t.Fatal("div.section__content not found")
+	}
+
+	// findLastNode should find main.content (last occurrence)
+	last := findLastNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "main" && hasClass(n, "content")
+	})
+	if last == nil {
+		t.Fatal("findLastNode failed to find main.content")
+	}
+}
+
+// Test FetchSitemapAndParse handles non-200 responses
+func TestFetchSitemapAndParseNon200(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("nope"))
+	}))
+	defer srv.Close()
+
+	client := srv.Client()
+	if _, err := FetchSitemapAndParse(0, srv.URL+"/sitemap.xml", "https://x/", client); err == nil {
+		t.Fatalf("expected FetchSitemapAndParse to fail on non-200")
+	}
+}
+
+func TestWorkerProgressLogging(t *testing.T) {
+	// serve pages that contain Tin Mừng and verse markers
+	h := `<html><body>
+	<section>
+	  <div class="section__content">
+	    <p>Tin Mừng ngày hôm nay</p>
+	    <p><sup>1</sup> Verse one</p>
+	  </div>
+	</section>
+	</body></html>`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(h))
+	}))
+	defer srv.Close()
+
+	client := srv.Client()
+	jobs := make(chan string, 10)
+	resultsCh := make(chan string, 10)
+	doneCh := make(chan string, 10)
+	missingCh := make(chan string, 10)
+
+	// enqueue 4 jobs to trigger progress logging (Progress==2)
+	for i := range 4 {
+		jobs <- srv.URL + "/page" + fmt.Sprint(i)
+	}
+	close(jobs)
+
+	// reset counters
+	atomic.StoreInt64(&checked, 0)
+	atomic.StoreInt64(&matched, 0)
+	atomic.StoreInt64(&missingVerse, 0)
+
+	workerSleep = 0
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 4)
+	wg.Wait()
+
+	if atomic.LoadInt64(&checked) != 4 {
+		t.Fatalf("expected checked==4, got %d", atomic.LoadInt64(&checked))
+	}
+	if atomic.LoadInt64(&matched) != 4 {
+		t.Fatalf("expected matched==4, got %d", atomic.LoadInt64(&matched))
+	}
+}
+
+func TestProcessedAndMissingWriters(t *testing.T) {
+	// ensure build dir exists
+	os.MkdirAll("build", 0755)
+	// cleanup files
+	os.Remove("build/processed.txt")
+	os.Remove("build/missing_verse_number.txt")
+	os.Remove("build/gospels.txt")
+
+	// processedWriter
+	procCh := make(chan string, 2)
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		processedWriter(procCh)
+	})
+
+	procCh <- "u1"
+	procCh <- "u2"
+	close(procCh)
+	wg.Wait()
+
+	b, err := os.ReadFile("build/processed.txt")
+	if err != nil {
+		t.Fatalf("read processed file: %v", err)
+	}
+	if string(b) == "" {
+		t.Fatalf("processed file empty")
+	}
+
+	// missingVerseNumWriter
+	missCh := make(chan string, 2)
+	wg.Go(func() {
+		missingVerseNumWriter(missCh)
+	})
+	missCh <- "m1"
+	close(missCh)
+	wg.Wait()
+	b2, err := os.ReadFile("build/missing_verse_number.txt")
+	if err != nil {
+		t.Fatalf("read missing file: %v", err)
+	}
+	if string(b2) == "" {
+		t.Fatalf("missing file empty")
+	}
+
+	// resultsWriter
+	resCh := make(chan string, 2)
+	wg.Go(func() {
+		resultsWriter(resCh)
+	})
+	resCh <- "entry1"
+	resCh <- "entry2"
+	close(resCh)
+	wg.Wait()
+	b3, err := os.ReadFile("build/gospels.txt")
+	if err != nil {
+		t.Fatalf("read gospels file: %v", err)
+	}
+	if len(b3) == 0 {
+		t.Fatalf("gospels file empty")
+	}
+
+	// cleanup
+	os.Remove("build/processed.txt")
+	os.Remove("build/missing_verse_number.txt")
+	os.Remove("build/gospels.txt")
 }

@@ -25,19 +25,19 @@ fmt: ## (0) Format the code using gofmt
 test: ## (1) Run all unit tests
 	go test $(GOFLAGS) -cover ./...
 
-links: ## (2) Crawl the Bible links and save them to build/bible-links.txt
+crawler: ## (2) Crawl the 3 latest Bible readings and save them to build/gospels.tsv
 	@mkdir -p build
-	go run ./tools/biblelinks
+	go run ./tools/crawler -totalUrls=3
 
-crawler: build/bible-links.txt ## (3) Crawl the Bible verses and save them to build/gospels.tsv
+crawler-all-urls: ## (2) Crawl the Bible verses and save them to build/gospels.tsv
 	@mkdir -p build
 	go run ./tools/crawler
 
-tsv: build/gospels.txt ## (4) Convert the crawled data to TSV format
+tsv: build/gospels.txt ## (3) Convert the crawled data to TSV format
 	@mkdir -p build
 	go run ./tools/tsv
 
-import-db: data/schema.sql build/gospels.tsv ## (5) Import data into SQLite database, requires sqlite3 to be installed
+import-db: data/schema.sql build/gospels.tsv ## (4) Import data into SQLite database, requires sqlite3 to be installed
 	@mkdir -p build
 	@rm -f $(DB)
 
@@ -55,11 +55,11 @@ import-db: data/schema.sql build/gospels.tsv ## (5) Import data into SQLite data
 	sqlite3 $(DB) < data/triggers.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
-build: ## (6) Build the binary server file
+build: ## (5) Build the binary server file
 	@mkdir -p build
 	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible ./cmd/server
 
-dev: ## (7) Run the server in development mode
+dev: ## (6) Run the server in development mode
 	@mkdir -p build
 	go run $(GOFLAGS) ./cmd/server
 
