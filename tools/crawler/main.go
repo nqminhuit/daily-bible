@@ -2,10 +2,11 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
-	cst "github.com/minh/daily-bible/internal/constants"
 	h "html"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -13,6 +14,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	cst "github.com/minh/daily-bible/internal/constants"
 )
 
 var bufPool = sync.Pool{
@@ -31,18 +34,15 @@ var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>
 // workerSleep is the time the worker pauses between requests. Overridable in tests.
 var workerSleep = 300 * time.Millisecond
 
+// output file paths (overrideable via flags)
+var outFilename = cst.OutFilename
+var processedFile = cst.ProcessedFile
+var missingFile = cst.MissingVerseF
+var sitemapURL = cst.SitemapURL
+var prefix = cst.VaticanPrefix
+
 func wrapVerseHTML(s string) string {
 	return verseHTML.ReplaceAllString(s, "{{$1}}")
-}
-
-func findReadingStart(s string) int {
-	if i := strings.Index(s, "Tin mừng:"); i != -1 {
-		return i
-	}
-	if i := strings.Index(s, "Lời Chúa:"); i != -1 {
-		return i
-	}
-	return -1
 }
 
 func loadLinks(filename string) ([]string, error) {
@@ -80,14 +80,6 @@ func loadProcessed(filename string) map[string]bool {
 	}
 
 	return done
-}
-
-func cutBeforeSuyNiem(s string) string {
-	before, _, ok := strings.Cut(s, "<h2")
-	if !ok {
-		return s
-	}
-	return before
 }
 
 func stripHtmlTags(s string) string {
@@ -131,47 +123,6 @@ func cleanText(s string) string {
 
 	return strings.Join(out, "\n")
 }
-func extractH1(html string) string {
-	start := strings.Index(html, "<h1")
-	if start == -1 {
-		return ""
-	}
-
-	start = strings.Index(html[start:], ">") + start + 1
-	end := strings.Index(html[start:], "</h1>")
-	if end == -1 {
-		return ""
-	}
-
-	return strings.TrimSpace(html[start : start+end])
-}
-
-func extractArticleDetail(html string) string {
-	start := strings.Index(html, `<div class="article-detail"`)
-	if start == -1 {
-		return ""
-	}
-
-	// move to end of start tag
-	start = strings.Index(html[start:], ">") + start + 1
-
-	depth := 1
-	i := start
-
-	for i < len(html) {
-		if strings.HasPrefix(html[i:], "<div") {
-			depth++
-		} else if strings.HasPrefix(html[i:], "</div>") {
-			depth--
-			if depth == 0 {
-				return html[start:i]
-			}
-		}
-		i++
-	}
-
-	return ""
-}
 
 func worker(
 	client *http.Client,
@@ -206,41 +157,44 @@ func worker(
 		html := string(*buf)
 		bufPool.Put(buf)
 
-		if idx := findReadingStart(html); idx == -1 {
+		// Vatican-only parsing: require vatican markers and paragraph extraction
+		if idx := findReadingStartVatican(html); idx == -1 {
+			log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
 			continue
 		}
-
-		title := extractH1(html)
-
-		article := extractArticleDetail(html)
-		article = cutBeforeSuyNiem(article)
-		if article == "" {
+		article, ref, err := ExtractGospel(html)
+		if err != nil {
+			log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
 			continue
 		}
-
-		if idx := findReadingStart(article); idx != -1 {
-			content := article[idx:]
-			content = cleanText(content)
-			var b strings.Builder
-			b.WriteString("TITLE: ")
-			b.WriteString(h.UnescapeString(title))
-			b.WriteString("\nURL: ")
-			b.WriteString(url)
-			b.WriteString("\n\n")
-			b.WriteString(content)
-			b.WriteString("\n\n-----------------------\n\n")
-			if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
-				missing <- b.String()
-				atomic.AddInt64(&missingVerse, 1)
-			} else {
-				results <- b.String()
-				atomic.AddInt64(&matched, 1)
-			}
+		idx2 := findReadingStartVatican(article)
+		if idx2 == -1 {
+			log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
+			continue
+		}
+		content := article[idx2:]
+		content = cleanText(content)
+		var b strings.Builder
+		b.WriteString("-------\n")
+		b.WriteString("URL: ")
+		b.WriteString(url)
+		b.WriteString("\n")
+		b.WriteString("__ref__: ")
+		b.WriteString(ref)
+		b.WriteString("\n")
+		b.WriteString(content)
+		b.WriteString("\n")
+		if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
+			missing <- b.String()
+			atomic.AddInt64(&missingVerse, 1)
+		} else {
+			results <- b.String()
+			atomic.AddInt64(&matched, 1)
 		}
 		done <- url
 		time.Sleep(workerSleep)
 		if c := atomic.AddInt64(&checked, 1); c%cst.Progress == 0 {
-			fmt.Printf(
+			log.Printf(
 				"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d\n",
 				c,
 				total,
@@ -253,7 +207,7 @@ func worker(
 }
 
 func processedWriter(ch <-chan string) {
-	f, err := os.OpenFile(cst.ProcessedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(processedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -267,7 +221,7 @@ func processedWriter(ch <-chan string) {
 }
 
 func missingVerseNumWriter(ch <-chan string) {
-	f, err := os.OpenFile(cst.MissingVerseF, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(missingFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -299,8 +253,35 @@ func resultsWriter(ch <-chan string) {
 	w.Flush()
 }
 
+func writeLinksToFile(links []string) error {
+	out, err := os.Create(cst.LinkFile)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer func() {
+		if err := out.Close(); err != nil {
+			panic(fmt.Errorf("failed to close file: %w", err))
+		}
+	}()
+
+	writer := bufio.NewWriter(out)
+	for _, m := range links {
+		writer.WriteString(m + "\n")
+	}
+	return writer.Flush()
+}
+
 func main() {
 	startTime := time.Now()
+
+	var totalUrls int
+	flag.IntVar(&totalUrls, "totalUrls", 0, "if >0, process N latest URLs from the sitemap")
+	flag.StringVar(&outFilename, "out", outFilename, "output gospels file")
+	flag.StringVar(&processedFile, "processed", processedFile, "processed URLs file")
+	flag.StringVar(&missingFile, "missing", missingFile, "missing verse file")
+	flag.Parse()
+
+	log.Printf("Starting crawl with sitemap: %s, totalUrls: %d\n", sitemapURL, totalUrls)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
@@ -322,14 +303,21 @@ func main() {
 	go processedWriter(done)
 	go missingVerseNumWriter(missing)
 
-	links, err := loadLinks(cst.LinkFile)
-	if err != nil {
-		panic(err)
+	// Fetch sitemap and build links
+	if urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client); err != nil {
+		log.Fatalf("Failed to fetch and parse sitemap: %v", err)
+	} else {
+		writeLinksToFile(urls)
 	}
 
-	total := len(links)
-	processed := loadProcessed(cst.ProcessedFile)
-	fmt.Printf("Loaded %d links, %d already processed\n", total, len(processed))
+	urls, err := loadLinks(cst.LinkFile)
+	if err != nil {
+		log.Fatalf("Failed to load links: %v", err)
+	}
+
+	total := len(urls)
+	processed := loadProcessed(processedFile)
+	log.Printf("Loaded %d links, %d already processed\n", total, len(processed))
 
 	// start workers
 	for range cst.Workers {
@@ -338,7 +326,7 @@ func main() {
 	}
 
 	// enqueue jobs
-	for _, url := range links {
+	for _, url := range urls {
 		if !processed[url] {
 			jobs <- url
 		}
@@ -350,10 +338,10 @@ func main() {
 	close(missing)
 	close(done)
 
-	fmt.Println()
-	fmt.Println("Crawl finished")
-	fmt.Println("Checked pages:", checked)
-	fmt.Println("Matched pages:", matched)
-	fmt.Println("Missing verse number pages:", missingVerse)
-	fmt.Println("Time elapsed:", time.Since(startTime))
+	log.Println()
+	log.Println("Crawl finished")
+	log.Println("Checked pages:", checked)
+	log.Println("Matched pages:", matched)
+	log.Println("Missing verse number pages:", missingVerse)
+	log.Println("Time elapsed:", time.Since(startTime))
 }

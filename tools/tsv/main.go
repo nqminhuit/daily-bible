@@ -53,7 +53,7 @@ func main() {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		// detect gospel line
-		if after, ok := strings.CutPrefix(line, "Tin mừng:"); ok {
+		if after, ok := strings.CutPrefix(line, "__ref__: "); ok {
 			ref := strings.TrimSpace(after)
 			parts := strings.Fields(ref)
 			if len(parts) > 0 {
