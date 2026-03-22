@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
 )
+
+var bibleRefRe = regexp.MustCompile(`([A-Za-zÀ-ỹ]{1,5}\s*\d+,\d+(?:-\d+)?)`)
 
 // find last node matching condition
 func findLastNode(n *html.Node, match func(*html.Node) bool) *html.Node {
@@ -71,39 +74,37 @@ func extractGospelRef(doc *html.Node) (string, error) {
 
 	// 2. find section__content inside it
 	content := findNode(section, func(n *html.Node) bool {
-		return n.Type == html.ElementNode &&
-			n.Data == "div" &&
-			hasClass(n, "section__content")
+		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
 	})
 
 	if content == nil {
 		return "", fmt.Errorf("div with class 'section__content' not found in section")
 	}
 
-	// 3. find <p> containing "Tin Mừng"
+	// 3. find <p> containing the gospel reference line
 	p := findNode(content, func(n *html.Node) bool {
-		return n.Type == html.ElementNode &&
-			n.Data == "p" &&
-			strings.Contains(getText(n), "Tin Mừng")
+		if n.Type != html.ElementNode || n.Data != "p" {
+			return false
+		}
+
+		text := strings.TrimSpace(getText(n))
+		text = strings.ReplaceAll(text, "\u00A0", " ")
+
+		// must contain "Tin Mừng" AND a ✠ marker (strong signal)
+		return strings.Contains(text, "Tin Mừng") && strings.Contains(text, "✠")
 	})
 
 	if p == nil {
 		return "", fmt.Errorf("paragraph containing 'Tin Mừng' not found in content")
 	}
 
-	// 4. extract last meaningful text node
-	var result string
-	for c := p.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.TextNode {
-			text := strings.TrimSpace(c.Data)
-			text = strings.ReplaceAll(text, "\u00A0", "")
-			if text != "" {
-				result = text
-			}
-		}
+	// 4. extract Bible reference from that paragraph
+	text := getText(p)
+	text = strings.ReplaceAll(text, "\u00A0", " ") // non-breaking space to regular space
+	if match := bibleRefRe.FindString(text); match != "" {
+		return match, nil
 	}
-
-	return result, nil
+	return "", fmt.Errorf("no Bible reference found in text: %q", text)
 }
 
 func isVerseParagraph(p *html.Node) bool {
@@ -116,7 +117,13 @@ func isVerseParagraph(p *html.Node) bool {
 }
 
 func isGospelHeader(p *html.Node) bool {
-	return strings.Contains(getText(p), "Tin Mừng")
+	txt := strings.TrimSpace(getText(p))
+	// Strong signals: leading "Tin Mừng", the ✠ marker, or explicit "Tin Mừng Chúa"
+	if strings.Contains(txt, "✠") || strings.Contains(txt, "Tin Mừng Chúa") {
+		return true
+	}
+	// header paragraphs often start with "Tin Mừng"
+	return strings.HasPrefix(txt, "Tin Mừng")
 }
 
 func extractGospelSection(content *html.Node) string {
@@ -170,20 +177,7 @@ func extract(htmlStr string) (main, ref string, err error) {
 		main = extractGospelSection(div)
 		return
 	}
-
-	// fallback: <main class="content">
-	if mainEl := findLastNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode &&
-			n.Data == "main" &&
-			hasClass(n, "content")
-	}); mainEl != nil {
-		var b strings.Builder
-		html.Render(&b, mainEl)
-		main = b.String()
-		return
-	}
-
-	return
+	return "", "", fmt.Errorf("div with class 'section__content' not found")
 }
 
 // findReadingStartVatican searches for typical starting keywords in lowered text.
@@ -210,9 +204,11 @@ func ExtractGospel(htmlInput string) (section, ref string, err error) {
 	if err != nil {
 		return "", "", fmt.Errorf("failed to extract content: %w", err)
 	}
-
-	if section == "" || ref == "" {
-		return "", "", fmt.Errorf("page missing content or reference")
+	if section == "" {
+		return "", "", fmt.Errorf("page missing Bible content")
+	}
+	if ref == "" {
+		return "", "", fmt.Errorf("page missing Bible reference")
 	}
 	section = strings.TrimSpace(section)
 	ref = strings.TrimSpace(ref)

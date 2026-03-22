@@ -8,7 +8,7 @@ const (
 // crawler constants
 const (
 	Workers        = 1
-	Progress       = 2
+	Progress       = 1
 	OutFilename    = "build/gospels.txt"
 	LinkFile       = "build/bible-links.txt"
 	ProcessedFile  = "build/processed.txt"
