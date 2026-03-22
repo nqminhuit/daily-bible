@@ -41,7 +41,6 @@ func TestNewRouter_RegistersHandlers_Ok(t *testing.T) {
 	}
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
 	w := httptest.NewRecorder()
-	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200 after insert, got %d", w.Code)
