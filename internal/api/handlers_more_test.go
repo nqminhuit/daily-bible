@@ -5,12 +5,56 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/minh/daily-bible/internal/model"
 )
+
+func TestLivenessHandler(t *testing.T) {
+	h := makeLivenessHandler()
+	req := httptest.NewRequest("GET", "/liveness", nil)
+	w := httptest.NewRecorder()
+
+	h.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for liveness, got %d", w.Code)
+	}
+}
+
+func TestReadinessHandler(t *testing.T) {
+	t.Run("ready when db file exists", func(t *testing.T) {
+		dir := t.TempDir()
+		dbPath := filepath.Join(dir, "bible.db")
+		if err := os.WriteFile(dbPath, []byte("ready"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+
+		h := makeReadinessHandler(dbPath)
+		req := httptest.NewRequest("GET", "/readiness", nil)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected 200 when db file exists, got %d", w.Code)
+		}
+	})
+
+	t.Run("not ready when db file is missing", func(t *testing.T) {
+		h := makeReadinessHandler(filepath.Join(t.TempDir(), "missing.db"))
+		req := httptest.NewRequest("GET", "/readiness", nil)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Fatalf("expected 503 when db file is missing, got %d", w.Code)
+		}
+	})
+}
 
 func TestGetGospel_ValidAndErrors(t *testing.T) {
 	// prefix not found (no DB usage required)
