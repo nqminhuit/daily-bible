@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+
+	"github.com/minh/daily-bible/internal/constants"
 )
 
 // NewRouter initializes HTTP handlers and returns an http.Handler. Returns an error
@@ -15,6 +17,8 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 		return nil, fmt.Errorf("query max rowid: %w", err)
 	}
 	mux := http.NewServeMux()
+	mux.HandleFunc("/liveness", makeLivenessHandler())
+	mux.HandleFunc("/readiness", makeReadinessHandler(constants.DBPath))
 	mux.HandleFunc("/api/v1/gospel/", makeGetGospelHandler(db))
 	mux.HandleFunc("/api/v1/search", makeSearchHandler(db))
 	mux.HandleFunc("/api/v1/random", makeRandomHandler(db, maxRowID))

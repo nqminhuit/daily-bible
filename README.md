@@ -52,4 +52,6 @@ Use `make help` to get more insight
 curl 'http://localhost:8080/api/v1/gospel/Ga%209,1-41'
 curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
 curl 'http://localhost:8080/api/v1/random'
+curl 'http://localhost:8080/liveness'
+curl 'http://localhost:8080/readiness'
 ```

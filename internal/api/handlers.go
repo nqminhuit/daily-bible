@@ -8,11 +8,32 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/minh/daily-bible/internal/model"
 )
+
+func makeLivenessHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func makeReadinessHandler(dbPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat(dbPath); err != nil {
+			if os.IsNotExist(err) {
+				http.Error(w, "database not ready", http.StatusServiceUnavailable)
+				return
+			}
+			http.Error(w, "readiness check failed", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
 
 func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
