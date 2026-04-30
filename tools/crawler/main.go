@@ -35,14 +35,6 @@ var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>
 // workerSleep is the time the worker pauses between requests. Overridable in tests.
 var workerSleep = 300 * time.Millisecond
 
-// output file paths (overrideable via flags)
-var outFilename = cst.OutFilename
-var processedFile = cst.ProcessedFile
-var failedFile = cst.FailedFile
-var missingFile = cst.MissingVerseF
-var sitemapURL = cst.SitemapURL
-var prefix = cst.VaticanPrefix
-
 func wrapVerseHTML(s string) string {
 	return verseHTML.ReplaceAllString(s, "{{$1}}")
 }
@@ -261,8 +253,8 @@ func worker(
 	}
 }
 
-func processedWriter(ch <-chan string) {
-	f, err := os.OpenFile(processedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+func processedWriter(filename string, ch <-chan string) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -274,8 +266,8 @@ func processedWriter(ch <-chan string) {
 	}
 }
 
-func missingVerseNumWriter(ch <-chan string) {
-	f, err := os.OpenFile(missingFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+func missingVerseNumWriter(filename string, ch <-chan string) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -287,8 +279,8 @@ func missingVerseNumWriter(ch <-chan string) {
 	}
 }
 
-func failedWriter(ch <-chan string) {
-	f, err := os.OpenFile(failedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+func failedWriter(filename string, ch <-chan string) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -300,8 +292,8 @@ func failedWriter(ch <-chan string) {
 	}
 }
 
-func resultsWriter(ch <-chan string) {
-	f, err := os.OpenFile(outFilename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+func resultsWriter(filename string, ch <-chan string) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -310,17 +302,24 @@ func resultsWriter(ch <-chan string) {
 	w := bufio.NewWriter(f)
 	count := 0
 	for r := range ch {
-		w.WriteString(r)
+		if _, err := w.WriteString(r); err != nil {
+			log.Printf("Failed writing crawler result payload: %v\n", err)
+			continue
+		}
 		count++
 		if count%10 == 0 {
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				log.Printf("Failed flushing crawler results writer: %v\n", err)
+			}
 		}
 	}
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		log.Printf("Failed final flush for crawler results writer: %v\n", err)
+	}
 }
 
-func writeLinksToFile(links []string) error {
-	out, err := os.Create(cst.LinkFile)
+func writeLinksToFile(filename string, links []string) error {
+	out, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
@@ -332,20 +331,20 @@ func writeLinksToFile(links []string) error {
 
 	writer := bufio.NewWriter(out)
 	for _, m := range links {
-		writer.WriteString(m + "\n")
+		if _, err := writer.WriteString(m + "\n"); err != nil {
+			return fmt.Errorf("failed to write link %q: %w", m, err)
+		}
 	}
 	return writer.Flush()
 }
 
-func main() {
-	startTime := time.Now()
+func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string) error {
+	atomic.StoreInt64(&checked, 0)
+	atomic.StoreInt64(&matched, 0)
+	atomic.StoreInt64(&missingVerse, 0)
+	atomic.StoreInt64(&failed, 0)
 
-	var totalUrls int
-	flag.IntVar(&totalUrls, "totalUrls", 0, "if >0, process N latest URLs from the sitemap")
-	flag.StringVar(&outFilename, "out", outFilename, "output gospels file")
-	flag.StringVar(&processedFile, "processed", processedFile, "processed URLs file")
-	flag.StringVar(&missingFile, "missing", missingFile, "missing verse file")
-	flag.Parse()
+	startTime := time.Now()
 
 	log.Printf("Starting crawl with sitemap: %s, totalUrls: %d\n", sitemapURL, totalUrls)
 
@@ -364,30 +363,44 @@ func main() {
 	missing := make(chan string, 100)
 	failedCh := make(chan string, 100)
 
-	var wg sync.WaitGroup
+	var workerWG sync.WaitGroup
+	var writerWG sync.WaitGroup
 
-	go resultsWriter(results)
-	go processedWriter(done)
-	go missingVerseNumWriter(missing)
-	go failedWriter(failedCh)
+	writerWG.Add(4)
+	go func() {
+		defer writerWG.Done()
+		resultsWriter(outFile, results)
+	}()
+	go func() {
+		defer writerWG.Done()
+		processedWriter(processedPath, done)
+	}()
+	go func() {
+		defer writerWG.Done()
+		missingVerseNumWriter(missingPath, missing)
+	}()
+	go func() {
+		defer writerWG.Done()
+		failedWriter(failedPath, failedCh)
+	}()
 
 	// Fetch sitemap and build links
-	if urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client); err != nil {
-		log.Fatalf("Failed to fetch and parse sitemap: %v", err)
-	} else {
-		if err := writeLinksToFile(urls); err != nil {
-			log.Fatalf("Failed to write links: %v", err)
-		}
+	urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client)
+	if err != nil {
+		return fmt.Errorf("fetch and parse sitemap: %w", err)
+	}
+	if err := writeLinksToFile(cst.LinkFile, urls); err != nil {
+		return fmt.Errorf("write links file: %w", err)
 	}
 
-	urls, err := loadLinks(cst.LinkFile)
+	urls, err = loadLinks(cst.LinkFile)
 	if err != nil {
-		log.Fatalf("Failed to load links: %v", err)
+		return fmt.Errorf("load links file: %w", err)
 	}
 
 	total := len(urls)
-	processed := loadProcessed(processedFile)
-	failedBefore := loadFailed(failedFile)
+	processed := loadProcessed(processedPath)
+	failedBefore := loadFailed(failedPath)
 	toProcess := filterPendingURLs(urls, processed, failedBefore)
 	log.Printf(
 		"Loaded %d links, %d already processed, %d previously failed; %d remaining\n",
@@ -399,8 +412,8 @@ func main() {
 
 	// start workers
 	for range cst.Workers {
-		wg.Add(1)
-		go worker(client, jobs, results, done, missing, failedCh, &wg, len(toProcess))
+		workerWG.Add(1)
+		go worker(client, jobs, results, done, missing, failedCh, &workerWG, len(toProcess))
 	}
 
 	// enqueue jobs
@@ -409,11 +422,12 @@ func main() {
 	}
 
 	close(jobs)
-	wg.Wait()
+	workerWG.Wait()
 	close(results)
 	close(missing)
 	close(done)
 	close(failedCh)
+	writerWG.Wait()
 
 	log.Println()
 	log.Println("Crawl finished")
@@ -422,4 +436,26 @@ func main() {
 	log.Println("Missing verse number pages:", missingVerse)
 	log.Println("Failed pages:", failed)
 	log.Println("Time elapsed:", time.Since(startTime))
+	return nil
+}
+
+func main() {
+	var totalUrls int
+	outFile := cst.OutFilename
+	processedPath := cst.ProcessedFile
+	failedPath := cst.FailedFile
+	missingPath := cst.MissingVerseF
+	sitemapURL := cst.SitemapURL
+	prefix := cst.VaticanPrefix
+
+	flag.IntVar(&totalUrls, "totalUrls", 0, "if >0, process N latest URLs from the sitemap")
+	flag.StringVar(&outFile, "out", outFile, "output gospels file")
+	flag.StringVar(&processedPath, "processed", processedPath, "processed URLs file")
+	flag.StringVar(&failedPath, "failed", failedPath, "failed URLs file")
+	flag.StringVar(&missingPath, "missing", missingPath, "missing verse file")
+	flag.Parse()
+
+	if err := runCrawler(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix); err != nil {
+		log.Fatalf("crawl failed: %v", err)
+	}
 }

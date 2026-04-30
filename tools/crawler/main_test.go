@@ -136,9 +136,9 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	missingCh := make(chan string, 10)
 	failedCh := make(chan string, 10)
 
-	go resultsWriter(resultsCh)
-	go processedWriter(doneCh)
-	go missingVerseNumWriter(missingCh)
+	go resultsWriter("build/gospels.txt", resultsCh)
+	go processedWriter("build/processed.txt", doneCh)
+	go missingVerseNumWriter("build/missing_verse_number.txt", missingCh)
 
 	// prepare http client
 	client := &http.Client{Timeout: 2 * time.Second}
@@ -207,9 +207,9 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	doneCh := make(chan string, 10)
 	missingCh := make(chan string, 10)
 	failedCh := make(chan string, 10)
-	go resultsWriter(resultsCh)
-	go processedWriter(doneCh)
-	go missingVerseNumWriter(missingCh)
+	go resultsWriter("build/gospels.txt", resultsCh)
+	go processedWriter("build/processed.txt", doneCh)
+	go missingVerseNumWriter("build/missing_verse_number.txt", missingCh)
 
 	client := &http.Client{Timeout: 2 * time.Second}
 	jobs := make(chan string, 1)
@@ -242,7 +242,7 @@ func TestWriteLinksToFile(t *testing.T) {
 	_ = os.MkdirAll("build", 0755)
 
 	links := []string{"https://a/1", "https://a/2"}
-	if err := writeLinksToFile(links); err != nil {
+	if err := writeLinksToFile("build/bible-links.txt", links); err != nil {
 		t.Fatalf("writeLinksToFile failed: %v", err)
 	}
 	b, err := os.ReadFile("build/bible-links.txt")
@@ -262,7 +262,7 @@ func TestResultsWriterFlushes(t *testing.T) {
 	_ = os.MkdirAll("build", 0755)
 
 	resCh := make(chan string, 50)
-	go resultsWriter(resCh)
+	go resultsWriter("build/gospels.txt", resCh)
 	for i := range 25 {
 		resCh <- fmt.Sprintf("entry-%d\n", i)
 	}
@@ -325,12 +325,23 @@ func TestMainRun(t *testing.T) {
 	_ = os.Chdir(tmp)
 	_ = os.MkdirAll("build", 0755)
 
-	// set env vars so main uses local server and prefix (include http:// to match generated locs)
+	oldWorkerSleep := workerSleep
 	workerSleep = 0
+	defer func() {
+		workerSleep = oldWorkerSleep
+	}()
 
-	// call main - should complete
-	sitemapURL = srv.URL + "/sitemap.xml"
-	main()
+	if err := runCrawler(
+		0,
+		"build/gospels.txt",
+		"build/processed.txt",
+		"build/failed.txt",
+		"build/missing_verse_number.txt",
+		srv.URL+"/sitemap.xml",
+		srv.URL+"/",
+	); err != nil {
+		t.Fatalf("runCrawler failed: %v", err)
+	}
 
 	// verify outputs exist
 	if _, err := os.Stat("build/gospels.txt"); err != nil {
@@ -338,6 +349,54 @@ func TestMainRun(t *testing.T) {
 	}
 	if _, err := os.Stat("build/processed.txt"); err != nil {
 		t.Fatalf("expected processed file created: %v", err)
+	}
+}
+
+func TestMainRun_PersistsFailedURL(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/sitemap.xml") {
+			host := r.Host
+			sx := `<?xml version="1.0"?><urlset>` +
+				`<url><loc>http://` + host + `/bad</loc></url>` +
+				`</urlset>`
+			w.Header().Set("Content-Type", "application/xml")
+			_, _ = w.Write([]byte(sx))
+			return
+		}
+		_, _ = w.Write([]byte("<html><body>no vatican markers</body></html>"))
+	}))
+	defer srv.Close()
+
+	oldWd, _ := os.Getwd()
+	tmp := t.TempDir()
+	defer func() { _ = os.Chdir(oldWd) }()
+	_ = os.Chdir(tmp)
+	_ = os.MkdirAll("build", 0755)
+
+	oldWorkerSleep := workerSleep
+	workerSleep = 0
+	defer func() {
+		workerSleep = oldWorkerSleep
+	}()
+
+	if err := runCrawler(
+		0,
+		"build/gospels.txt",
+		"build/processed.txt",
+		"build/failed.txt",
+		"build/missing_verse_number.txt",
+		srv.URL+"/sitemap.xml",
+		srv.URL+"/",
+	); err != nil {
+		t.Fatalf("runCrawler failed: %v", err)
+	}
+
+	b, err := os.ReadFile("build/failed.txt")
+	if err != nil {
+		t.Fatalf("read failed file: %v", err)
+	}
+	if !strings.Contains(string(b), "/bad") {
+		t.Fatalf("expected failed URL to be persisted, got: %q", string(b))
 	}
 }
 
@@ -704,7 +763,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	procCh := make(chan string, 2)
 	var wg sync.WaitGroup
 	wg.Go(func() {
-		processedWriter(procCh)
+		processedWriter("build/processed.txt", procCh)
 	})
 
 	procCh <- "u1"
@@ -723,7 +782,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	// missingVerseNumWriter
 	missCh := make(chan string, 2)
 	wg.Go(func() {
-		missingVerseNumWriter(missCh)
+		missingVerseNumWriter("build/missing_verse_number.txt", missCh)
 	})
 	missCh <- "m1"
 	close(missCh)
@@ -739,7 +798,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	// resultsWriter
 	resCh := make(chan string, 2)
 	wg.Go(func() {
-		resultsWriter(resCh)
+		resultsWriter("build/gospels.txt", resCh)
 	})
 	resCh <- "entry1"
 	resCh <- "entry2"
@@ -756,7 +815,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	// failedWriter
 	failCh := make(chan string, 2)
 	wg.Go(func() {
-		failedWriter(failCh)
+		failedWriter("build/failed.txt", failCh)
 	})
 	failCh <- "https://example.invalid/page"
 	close(failCh)
