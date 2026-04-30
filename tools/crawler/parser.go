@@ -10,6 +10,7 @@ import (
 
 var bibleRefRe = regexp.MustCompile(`((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10}\s*\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?)*)`)
 var chapterVerseRe = regexp.MustCompile(`(\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?)*)`)
+var bookChapterSplitRe = regexp.MustCompile(`^((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10})\s*(\d.*)$`)
 var commaSpacingRe = regexp.MustCompile(`\s*,\s*`)
 var dashSpacingRe = regexp.MustCompile(`\s*-\s*`)
 var dotSpacingRe = regexp.MustCompile(`\s*\.\s*`)
@@ -173,6 +174,9 @@ func normalizeSpaces(s string) string {
 
 func canonicalizeReference(ref string) string {
 	ref = normalizeSpaces(ref)
+	if parts := bookChapterSplitRe.FindStringSubmatch(ref); parts != nil {
+		ref = strings.TrimSpace(parts[1]) + " " + strings.TrimSpace(parts[2])
+	}
 	ref = commaSpacingRe.ReplaceAllString(ref, ",")
 	ref = dashSpacingRe.ReplaceAllString(ref, "-")
 	ref = dotSpacingRe.ReplaceAllString(ref, ".")

@@ -11,20 +11,40 @@ import (
 )
 
 var verseRE = regexp.MustCompile(`\{\{(\d+)\}\}\s*(.*)`)
-var chapterRE = regexp.MustCompile(`^(\d+)`)
+var refRE = regexp.MustCompile(`^\s*([A-Za-zÀ-ỹ]{1,12})\s*(\d+)\s*,`)
 
-func extractChapter(ref string) string {
-	parts := strings.Fields(ref)
-	if len(parts) < 2 {
-		return ""
+var canonicalBooks = map[string]struct{}{
+	"Mt": {},
+	"Mc": {},
+	"Lc": {},
+	"Ga": {},
+}
+
+func canonicalBookCode(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "mt", "mát-thêu":
+		return "Mt"
+	case "mc", "mác-cô":
+		return "Mc"
+	case "lc", "lu-ca":
+		return "Lc"
+	case "ga", "gio-an":
+		return "Ga"
+	default:
+		return strings.TrimSpace(raw)
 	}
+}
 
-	chapterPart := parts[1]
-	if m := chapterRE.FindStringSubmatch(chapterPart); m != nil {
-		return m[1]
+func parseReference(ref string) (book, chapter string, ok bool) {
+	m := refRE.FindStringSubmatch(ref)
+	if m == nil {
+		return "", "", false
 	}
-
-	return ""
+	book = canonicalBookCode(m[1])
+	if _, valid := canonicalBooks[book]; !valid {
+		return "", "", false
+	}
+	return book, m[2], true
 }
 
 func main() {
@@ -55,18 +75,20 @@ func main() {
 		// detect gospel line
 		if after, ok := strings.CutPrefix(line, "__ref__: "); ok {
 			ref := strings.TrimSpace(after)
-			parts := strings.Fields(ref)
-			if len(parts) > 0 {
-				book = parts[0]
-			} else {
+			var valid bool
+			book, chapter, valid = parseReference(ref)
+			if !valid {
 				book = ""
+				chapter = ""
 			}
-			chapter = extractChapter(ref)
 			continue
 		}
 
 		m := verseRE.FindStringSubmatch(line)
 		if m != nil {
+			if book == "" || chapter == "" {
+				continue
+			}
 			verse := m[1]
 			text := m[2]
 			text = strings.ReplaceAll(text, "\t", " ")

@@ -99,6 +99,11 @@ func TestExtractGospel_ReferenceVariants(t *testing.T) {
 			headerLine: "✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô. 2,1-12",
 			wantRef:    "Mc 2,1-12",
 		},
+		{
+			name:       "book and chapter are separated when source has no space",
+			headerLine: "✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Gio-an. Ga10,1-10",
+			wantRef:    "Ga 10,1-10",
+		},
 	}
 
 	for _, tc := range tests {

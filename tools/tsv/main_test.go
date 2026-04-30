@@ -53,3 +53,88 @@ func TestTSVMain_BasicConversionAndDedup(t *testing.T) {
 		t.Fatalf("tabs should be replaced in text: %q", lines[0])
 	}
 }
+
+func TestTSVMain_NormalizesReferenceWithoutBookSpace(t *testing.T) {
+	temp := t.TempDir()
+	oldWd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(oldWd) }()
+	if err := os.Chdir(temp); err != nil {
+		t.Fatal(err)
+	}
+	dir := "build"
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	in := `-------
+	URL: https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/03/19.html
+	__ref__: Ga10,1-10
+	{{1}} Câu một
+	{{2}} Câu hai
+	`
+	if err := os.WriteFile(filepath.Join(dir, "gospels.txt"), []byte(in), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	main()
+
+	outPath := filepath.Join(dir, "gospels.tsv")
+	b, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("failed to read output: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(b)), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("expected 2 lines, got %d: %v", len(lines), lines)
+	}
+	if !strings.HasPrefix(lines[0], "Ga\t10\t1\t") {
+		t.Fatalf("unexpected first line prefix: %q", lines[0])
+	}
+}
+
+func TestTSVMain_SkipsUnknownBookReferences(t *testing.T) {
+	temp := t.TempDir()
+	oldWd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(oldWd) }()
+	if err := os.Chdir(temp); err != nil {
+		t.Fatal(err)
+	}
+	dir := "build"
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	in := `-------
+	URL: https://example.invalid/a
+	__ref__: Xa 1,1-2
+	{{1}} Câu không hợp lệ
+	-------
+	URL: https://example.invalid/b
+	__ref__: Mt 1,1-2
+	{{1}} Câu hợp lệ
+	`
+	if err := os.WriteFile(filepath.Join(dir, "gospels.txt"), []byte(in), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	main()
+
+	outPath := filepath.Join(dir, "gospels.tsv")
+	b, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("failed to read output: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(b)), "\n")
+	if len(lines) != 1 {
+		t.Fatalf("expected only 1 line from valid canonical book, got %d: %v", len(lines), lines)
+	}
+	if !strings.HasPrefix(lines[0], "Mt\t1\t1\t") {
+		t.Fatalf("unexpected output line: %q", lines[0])
+	}
+}
