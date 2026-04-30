@@ -1,57 +1,87 @@
-# Start the project with agentic AI
+# daily-bible
 
-Prompt:
+## How to use
+
+### Prerequisites
+
+- Go 1.25+
+- `sqlite3` CLI
+
+Install sqlite3 (Ubuntu/Debian):
 
 ```shell
-Read AGENTS.md and all referenced documents and follow tasks.md and implement tasks sequentially.
-```
-
-# Query DB
-
-Install sqlite if not:
-
-``` shell
 sudo apt-get install sqlite3
 ```
 
-Start:
+### 1) Build the local Bible database
 
-``` shell
-sqlite3 build/bible.db
+Run the full ingestion pipeline:
+
+```shell
+make crawler        # crawl latest readings (use make crawler-all-urls for full crawl)
+make tsv            # convert build/gospels.txt -> build/gospels.tsv
+make import-db      # create build/bible.db and load schema + FTS
 ```
 
-``` sql
-.tables -- list tables
-.schema gospels -- show schema
-.databases -- show loaded DBs
+Crawler state files are kept under `build/`:
+- `processed.txt`: URLs successfully parsed
+- `failed.txt`: URLs that failed parsing and are skipped on next runs
+- `missing_verse_number.txt`: extracted pages without verse `<sup>` markers
 
--- Pretty Output in Terminal
-.mode column
-.headers on
+If you want to retry previously failed URLs after parser updates, delete `build/failed.txt` before running crawler again.
 
-SELECT * FROM gospels LIMIT 10;
-SELECT reference, text FROM gospels WHERE reference = 'Ga 10,31-42';
+### 2) Start the API server
 
--- Query Full-Text Search
-SELECT reference FROM gospels_fts WHERE gospels_fts MATCH 'Giêsu';
+```shell
+make dev
 ```
 
-query from bash directly:
+Server runs on `http://localhost:8080`.
 
-``` shell
-sqlite3 readings.db "SELECT reference FROM gospels LIMIT 5;"
-```
+### 3) Call API endpoints
 
-# Development
-
-Use `make help` to get more insight
-
-## E2E tests
-
-``` shell
+```shell
 curl 'http://localhost:8080/api/v1/gospel/Ga%209,1-41'
 curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
 curl 'http://localhost:8080/api/v1/random'
 curl 'http://localhost:8080/liveness'
 curl 'http://localhost:8080/readiness'
+```
+
+## Query the SQLite database
+
+Open DB:
+
+```shell
+sqlite3 build/bible.db
+```
+
+Useful sqlite commands:
+
+```sql
+.tables
+.schema verses
+.schema verses_fts
+.mode column
+.headers on
+
+SELECT book, chapter, verse, text FROM verses LIMIT 10;
+SELECT text FROM verses_fts WHERE verses_fts MATCH 'Giêsu' LIMIT 10;
+```
+
+Run query directly from shell:
+
+```shell
+sqlite3 build/bible.db "SELECT book, chapter, verse FROM verses LIMIT 5;"
+```
+
+## Development commands
+
+```shell
+make help
+make fmt
+make test
+make test-with-race-detector
+make compile
+make build
 ```

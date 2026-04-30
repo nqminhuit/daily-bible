@@ -28,6 +28,7 @@ var bufPool = sync.Pool{
 var checked int64
 var matched int64
 var missingVerse int64
+var failed int64
 var verseLine = regexp.MustCompile(`\s*\{\{(\d+)\}\}`)
 var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>]+>\s*)*</sup>`)
 
@@ -37,6 +38,7 @@ var workerSleep = 300 * time.Millisecond
 // output file paths (overrideable via flags)
 var outFilename = cst.OutFilename
 var processedFile = cst.ProcessedFile
+var failedFile = cst.FailedFile
 var missingFile = cst.MissingVerseF
 var sitemapURL = cst.SitemapURL
 var prefix = cst.VaticanPrefix
@@ -66,6 +68,25 @@ func loadLinks(filename string) ([]string, error) {
 }
 
 func loadProcessed(filename string) map[string]bool {
+	return loadURLSet(filename)
+}
+
+func loadFailed(filename string) map[string]bool {
+	return loadURLSet(filename)
+}
+
+func filterPendingURLs(urls []string, processed, failed map[string]bool) []string {
+	pending := make([]string, 0, len(urls))
+	for _, url := range urls {
+		if processed[url] || failed[url] {
+			continue
+		}
+		pending = append(pending, url)
+	}
+	return pending
+}
+
+func loadURLSet(filename string) map[string]bool {
 	done := map[string]bool{}
 
 	f, err := os.Open(filename)
@@ -101,6 +122,16 @@ func stripHtmlTags(s string) string {
 	return b.String()
 }
 
+func writeURLLineAndFlush(w *bufio.Writer, url, label string) {
+	if _, err := fmt.Fprintln(w, url); err != nil {
+		log.Printf("Failed writing %s entry for URL %s: %v\n", label, url, err)
+		return
+	}
+	if err := w.Flush(); err != nil {
+		log.Printf("Failed flushing %s writer: %v\n", label, err)
+	}
+}
+
 func cleanText(s string) string {
 	s = h.UnescapeString(s)
 	s = strings.ReplaceAll(s, "\u00A0", " ")
@@ -130,79 +161,103 @@ func worker(
 	results chan<- string,
 	done chan<- string,
 	missing chan<- string,
+	failedURLs chan<- string,
 	wg *sync.WaitGroup,
 	total int) {
 	defer wg.Done()
 
 	for url := range jobs {
-		resp, err := client.Get(url)
-		if err != nil {
-			continue
-		}
+		func() {
+			defer func() {
+				c := atomic.AddInt64(&checked, 1)
+				if total <= 0 || c%cst.Progress != 0 {
+					return
+				}
+				log.Printf(
+					"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d | Failed: %d\n",
+					c,
+					total,
+					float64(c)*100/float64(total),
+					atomic.LoadInt64(&matched),
+					atomic.LoadInt64(&missingVerse),
+					atomic.LoadInt64(&failed),
+				)
+			}()
 
-		if resp.StatusCode != 200 {
+			resp, err := client.Get(url)
+			if err != nil {
+				atomic.AddInt64(&failed, 1)
+				return
+			}
+
+			if resp.StatusCode != http.StatusOK {
+				resp.Body.Close()
+				atomic.AddInt64(&failed, 1)
+				return
+			}
+
+			buf := bufPool.Get().(*[]byte)
+			*buf = (*buf)[:0]
+			*buf, err = io.ReadAll(io.LimitReader(resp.Body, 10<<20))
 			resp.Body.Close()
-			continue
-		}
+			if err != nil {
+				bufPool.Put(buf)
+				atomic.AddInt64(&failed, 1)
+				return
+			}
 
-		buf := bufPool.Get().(*[]byte)
-		*buf = (*buf)[:0]
-		*buf, err = io.ReadAll(io.LimitReader(resp.Body, 10<<20))
-		resp.Body.Close()
-		if err != nil {
+			html := string(*buf)
 			bufPool.Put(buf)
-			continue
-		}
 
-		html := string(*buf)
-		bufPool.Put(buf)
-
-		// Vatican-only parsing: require vatican markers and paragraph extraction
-		if idx := findReadingStartVatican(html); idx == -1 {
-			log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
-			continue
-		}
-		article, ref, err := ExtractGospel(html)
-		if err != nil {
-			log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
-			continue
-		}
-		idx2 := findReadingStartVatican(article)
-		if idx2 == -1 {
-			log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
-			continue
-		}
-		content := article[idx2:]
-		content = cleanText(content)
-		var b strings.Builder
-		b.WriteString("-------\n")
-		b.WriteString("URL: ")
-		b.WriteString(url)
-		b.WriteString("\n")
-		b.WriteString("__ref__: ")
-		b.WriteString(ref)
-		b.WriteString("\n")
-		b.WriteString(content)
-		b.WriteString("\n")
-		if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
-			missing <- b.String()
-			atomic.AddInt64(&missingVerse, 1)
-		} else {
-			results <- b.String()
-			atomic.AddInt64(&matched, 1)
-		}
-		done <- url
-		time.Sleep(workerSleep)
-		if c := atomic.AddInt64(&checked, 1); c%cst.Progress == 0 {
-			log.Printf(
-				"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d\n",
-				c,
-				total,
-				float64(c)*100/float64(total),
-				atomic.LoadInt64(&matched),
-				atomic.LoadInt64(&missingVerse),
-			)
-		}
+			// Vatican-only parsing: require Vatican markers and paragraph extraction.
+			if idx := findReadingStartVatican(html); idx == -1 {
+				log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
+				atomic.AddInt64(&failed, 1)
+				if failedURLs != nil {
+					failedURLs <- url
+				}
+				return
+			}
+			article, ref, err := ExtractGospel(html)
+			if err != nil {
+				log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
+				atomic.AddInt64(&failed, 1)
+				if failedURLs != nil {
+					failedURLs <- url
+				}
+				return
+			}
+			idx2 := findReadingStartVatican(article)
+			if idx2 == -1 {
+				log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
+				atomic.AddInt64(&failed, 1)
+				if failedURLs != nil {
+					failedURLs <- url
+				}
+				return
+			}
+			content := article[idx2:]
+			content = cleanText(content)
+			var b strings.Builder
+			b.WriteString("-------\n")
+			b.WriteString("URL: ")
+			b.WriteString(url)
+			b.WriteString("\n")
+			b.WriteString("__ref__: ")
+			b.WriteString(ref)
+			b.WriteString("\n")
+			b.WriteString(content)
+			b.WriteString("\n")
+			if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
+				missing <- b.String()
+				atomic.AddInt64(&missingVerse, 1)
+			} else {
+				results <- b.String()
+				atomic.AddInt64(&matched, 1)
+			}
+			done <- url
+			time.Sleep(workerSleep)
+		}()
 	}
 }
 
@@ -215,8 +270,7 @@ func processedWriter(ch <-chan string) {
 
 	w := bufio.NewWriter(f)
 	for url := range ch {
-		fmt.Fprintln(w, url)
-		w.Flush()
+		writeURLLineAndFlush(w, url, "processed")
 	}
 }
 
@@ -229,8 +283,20 @@ func missingVerseNumWriter(ch <-chan string) {
 
 	w := bufio.NewWriter(f)
 	for url := range ch {
-		fmt.Fprintln(w, url)
-		w.Flush()
+		writeURLLineAndFlush(w, url, "missing")
+	}
+}
+
+func failedWriter(ch <-chan string) {
+	f, err := os.OpenFile(failedFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	for url := range ch {
+		writeURLLineAndFlush(w, url, "failed")
 	}
 }
 
@@ -296,12 +362,14 @@ func main() {
 	results := make(chan string, 100)
 	done := make(chan string, 100)
 	missing := make(chan string, 100)
+	failedCh := make(chan string, 100)
 
 	var wg sync.WaitGroup
 
 	go resultsWriter(results)
 	go processedWriter(done)
 	go missingVerseNumWriter(missing)
+	go failedWriter(failedCh)
 
 	// Fetch sitemap and build links
 	if urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client); err != nil {
@@ -319,19 +387,25 @@ func main() {
 
 	total := len(urls)
 	processed := loadProcessed(processedFile)
-	log.Printf("Loaded %d links, %d already processed\n", total, len(processed))
+	failedBefore := loadFailed(failedFile)
+	toProcess := filterPendingURLs(urls, processed, failedBefore)
+	log.Printf(
+		"Loaded %d links, %d already processed, %d previously failed; %d remaining\n",
+		total,
+		len(processed),
+		len(failedBefore),
+		len(toProcess),
+	)
 
 	// start workers
 	for range cst.Workers {
 		wg.Add(1)
-		go worker(client, jobs, results, done, missing, &wg, total)
+		go worker(client, jobs, results, done, missing, failedCh, &wg, len(toProcess))
 	}
 
 	// enqueue jobs
-	for _, url := range urls {
-		if !processed[url] {
-			jobs <- url
-		}
+	for _, url := range toProcess {
+		jobs <- url
 	}
 
 	close(jobs)
@@ -339,11 +413,13 @@ func main() {
 	close(results)
 	close(missing)
 	close(done)
+	close(failedCh)
 
 	log.Println()
 	log.Println("Crawl finished")
 	log.Println("Checked pages:", checked)
 	log.Println("Matched pages:", matched)
 	log.Println("Missing verse number pages:", missingVerse)
+	log.Println("Failed pages:", failed)
 	log.Println("Time elapsed:", time.Since(startTime))
 }

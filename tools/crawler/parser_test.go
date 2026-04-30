@@ -77,3 +77,52 @@ func TestFindReadingStartVatican(t *testing.T) {
 		}
 	}
 }
+
+func TestExtractGospel_ReferenceVariants(t *testing.T) {
+	tests := []struct {
+		name       string
+		headerLine string
+		wantRef    string
+	}{
+		{
+			name:       "space after comma is normalized",
+			headerLine: "✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Gio-an. Ga 4, 5-42",
+			wantRef:    "Ga 4,5-42",
+		},
+		{
+			name:       "dot separated ranges are preserved",
+			headerLine: "✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu Mt 5, 20-22a.27-28.33-34a.37",
+			wantRef:    "Mt 5,20-22a.27-28.33-34a.37",
+		},
+		{
+			name:       "book inferred from evangelist when missing in numeric reference",
+			headerLine: "✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô. 2,1-12",
+			wantRef:    "Mc 2,1-12",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			htmlInput := `<html><body><section><div class="section__content">` +
+				`<p>` + tc.headerLine + `</p>` +
+				`<p><sup>1</sup> Câu thử nghiệm.</p>` +
+				`</div></section></body></html>`
+			_, ref, err := ExtractGospel(htmlInput)
+			if err != nil {
+				t.Fatalf("ExtractGospel returned error: %v", err)
+			}
+			if ref != tc.wantRef {
+				t.Fatalf("unexpected reference: got %q, want %q", ref, tc.wantRef)
+			}
+		})
+	}
+}
+
+func TestIsGospelHeaderText(t *testing.T) {
+	if isGospelHeaderText(`Hễ Tin Mừng được loan báo đến đâu trong khắp thiên hạ`) {
+		t.Fatalf("expected body sentence not to be detected as gospel header")
+	}
+	if !isGospelHeaderText(`✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Lu-ca. Lc 7, 11-17`) {
+		t.Fatalf("expected canonical header line to be detected")
+	}
+}

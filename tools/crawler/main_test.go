@@ -44,6 +44,53 @@ func TestLoadLinksAndProcessed(t *testing.T) {
 	if !m["http://a/2"] {
 		t.Fatalf("loadProcessed missing entry")
 	}
+
+	// failed
+	f := filepath.Join("failed.txt")
+	_ = os.WriteFile(f, []byte("http://a/1\n"), 0644)
+	failed := loadFailed(f)
+	if !failed["http://a/1"] {
+		t.Fatalf("loadFailed missing entry")
+	}
+
+	// filtering should skip both processed and failed URLs
+	pending := filterPendingURLs(got, m, failed)
+	if len(pending) != 0 {
+		t.Fatalf("expected no pending URLs after filtering, got %v", pending)
+	}
+}
+
+func TestFilterPendingURLs_IntegrationWithStateFiles(t *testing.T) {
+	temp := t.TempDir()
+	oldWd, _ := os.Getwd()
+	defer func() { _ = os.Chdir(oldWd) }()
+	_ = os.Chdir(temp)
+
+	linksPath := filepath.Join("links.txt")
+	processedPath := filepath.Join("processed.txt")
+	failedPath := filepath.Join("failed.txt")
+
+	if err := os.WriteFile(linksPath, []byte("http://a/1\nhttp://a/2\nhttp://a/3\n"), 0644); err != nil {
+		t.Fatalf("write links: %v", err)
+	}
+	if err := os.WriteFile(processedPath, []byte("http://a/2\n"), 0644); err != nil {
+		t.Fatalf("write processed: %v", err)
+	}
+	if err := os.WriteFile(failedPath, []byte("http://a/1\n"), 0644); err != nil {
+		t.Fatalf("write failed: %v", err)
+	}
+
+	links, err := loadLinks(linksPath)
+	if err != nil {
+		t.Fatalf("loadLinks: %v", err)
+	}
+	processed := loadProcessed(processedPath)
+	failed := loadFailed(failedPath)
+
+	pending := filterPendingURLs(links, processed, failed)
+	if len(pending) != 1 || pending[0] != "http://a/3" {
+		t.Fatalf("unexpected pending URLs: %v", pending)
+	}
 }
 
 func TestWritersAndWorkerIntegration(t *testing.T) {
@@ -87,6 +134,7 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	resultsCh := make(chan string, 10)
 	doneCh := make(chan string, 10)
 	missingCh := make(chan string, 10)
+	failedCh := make(chan string, 10)
 
 	go resultsWriter(resultsCh)
 	go processedWriter(doneCh)
@@ -106,7 +154,7 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 2)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 2)
 
 	// wait for worker
 	wg.Wait()
@@ -158,6 +206,7 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	resultsCh := make(chan string, 10)
 	doneCh := make(chan string, 10)
 	missingCh := make(chan string, 10)
+	failedCh := make(chan string, 10)
 	go resultsWriter(resultsCh)
 	go processedWriter(doneCh)
 	go missingVerseNumWriter(missingCh)
@@ -170,7 +219,7 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	workerSleep = 0
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
 	wg.Wait()
 
 	close(resultsCh)
@@ -247,8 +296,8 @@ func TestMainRun(t *testing.T) {
 	page := `<html><body>
 	<section>
 	  <div class="section__content">
-	    <p>Tin Mừng ngày hôm nay</p>
-	    <p><sup>1</sup> Verse one</p>
+	    <p><b>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô.</b> Mc 1,14-20</p>
+	    <p><sup>14</sup> Verse one</p>
 	  </div>
 	</section>
 	</body></html>`
@@ -384,7 +433,7 @@ func TestGospelHeader(t *testing.T) {
 // Test extractGospelSection includes header and verse paragraphs only
 func TestExtractGospelSectionBehavior(t *testing.T) {
 	h := `<div class="section__content">
-	  <p>Tin Mừng header</p>
+	  <p>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô. Mc 1,14-20</p>
 	  <p><sup>1</sup> Verse one</p>
 	  <p><sup>2</sup> Verse two</p>
 	  <p>Non-verse paragraph stops here</p>
@@ -395,7 +444,7 @@ func TestExtractGospelSectionBehavior(t *testing.T) {
 		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
 	})
 	res := extractGospelSection(div)
-	if !strings.Contains(res, "Tin Mừng header") {
+	if !strings.Contains(res, "Tin Mừng Chúa Giê-su Ki-tô") {
 		t.Fatalf("expected header to be included: %q", res)
 	}
 	if !strings.Contains(res, "Verse one") || !strings.Contains(res, "Verse two") {
@@ -436,13 +485,14 @@ func TestWorkerClientGetError(t *testing.T) {
 	resultsCh := make(chan string, 1)
 	doneCh := make(chan string, 1)
 	missingCh := make(chan string, 1)
+	failedCh := make(chan string, 1)
 	jobs <- "http://example.invalid/"
 	close(jobs)
 
 	workerSleep = 0
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -473,13 +523,14 @@ func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
 	resultsCh := make(chan string, 1)
 	doneCh := make(chan string, 1)
 	missingCh := make(chan string, 1)
+	failedCh := make(chan string, 1)
 	jobs <- srv.URL + "/"
 	close(jobs)
 
 	workerSleep = 0
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -512,13 +563,14 @@ func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
 	resultsCh := make(chan string, 1)
 	doneCh := make(chan string, 1)
 	missingCh := make(chan string, 1)
+	failedCh := make(chan string, 1)
 	jobs <- srv.URL + "/"
 	close(jobs)
 
 	workerSleep = 0
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
 	wg.Wait()
 
 	select {
@@ -646,6 +698,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	os.Remove("build/processed.txt")
 	os.Remove("build/missing_verse_number.txt")
 	os.Remove("build/gospels.txt")
+	os.Remove("build/failed.txt")
 
 	// processedWriter
 	procCh := make(chan string, 2)
@@ -700,8 +753,25 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 		t.Fatalf("gospels file empty")
 	}
 
+	// failedWriter
+	failCh := make(chan string, 2)
+	wg.Go(func() {
+		failedWriter(failCh)
+	})
+	failCh <- "https://example.invalid/page"
+	close(failCh)
+	wg.Wait()
+	b4, err := os.ReadFile("build/failed.txt")
+	if err != nil {
+		t.Fatalf("read failed file: %v", err)
+	}
+	if len(b4) == 0 {
+		t.Fatalf("failed file empty")
+	}
+
 	// cleanup
 	os.Remove("build/processed.txt")
 	os.Remove("build/missing_verse_number.txt")
 	os.Remove("build/gospels.txt")
+	os.Remove("build/failed.txt")
 }

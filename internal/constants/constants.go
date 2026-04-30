@@ -12,6 +12,7 @@ const (
 	OutFilename    = "build/gospels.txt"
 	LinkFile       = "build/bible-links.txt"
 	ProcessedFile  = "build/processed.txt"
+	FailedFile     = "build/failed.txt"
 	MissingVerseF  = "build/missing_verse_number.txt"
 	OutTsvFilename = "build/gospels.tsv"
 )
