@@ -18,7 +18,7 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/liveness", makeLivenessHandler())
-	mux.HandleFunc("/readiness", makeReadinessHandler(constants.DBPath))
+	mux.HandleFunc("/readiness", makeReadinessHandler(db, constants.DBPath))
 	mux.HandleFunc("/api/v1/gospel/", makeGetGospelHandler(db))
 	mux.HandleFunc("/api/v1/search", makeSearchHandler(db))
 	mux.HandleFunc("/api/v1/random", makeRandomHandler(db, maxRowID))

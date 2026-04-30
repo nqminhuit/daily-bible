@@ -12,37 +12,49 @@ import (
 // ParseSitemap reads a standard sitemap XML and returns the list of <loc> URLs.
 // Accepts maxUrls to limit the number of URLs returned (after filtering by prefix); if <= 0, no limit is applied.
 func parseSitemap(totalUrls int, r io.Reader, prefix string) ([]string, error) {
-	var sitemapUrls struct {
-		URLs []struct {
-			Loc string `xml:"loc"`
-		} `xml:"url"`
+	if prefix == "" {
+		return nil, fmt.Errorf("prefix cannot be empty when filtering URLs")
 	}
+
 	dec := xml.NewDecoder(r)
-	if err := dec.Decode(&sitemapUrls); err != nil {
-		return nil, fmt.Errorf("failed to parse sitemap XML: %w", err)
+	maxUrls := totalUrls
+	if maxUrls <= 0 {
+		maxUrls = -1
 	}
-	maxUrls := len(sitemapUrls.URLs)
-	if totalUrls > 0 {
-		maxUrls = totalUrls
-	}
-	out := make([]string, 0, maxUrls)
-	for _, item := range sitemapUrls.URLs {
-		loc := strings.TrimSpace(item.Loc)
-		if loc == "" {
+
+	out := make([]string, 0)
+	seen := make(map[string]struct{})
+	for {
+		tok, err := dec.Token()
+		if err == io.EOF {
+			return out, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse sitemap XML: %w", err)
+		}
+
+		start, ok := tok.(xml.StartElement)
+		if !ok || start.Name.Local != "loc" {
 			continue
 		}
-		if prefix == "" {
-			return nil, fmt.Errorf("prefix cannot be empty when filtering URLs")
+
+		var loc string
+		if err := dec.DecodeElement(&loc, &start); err != nil {
+			return nil, fmt.Errorf("failed to decode sitemap loc: %w", err)
 		}
-		// TODO: deduplicate URLs if they appear multiple times in the sitemap
-		if strings.HasPrefix(loc, prefix) {
-			out = append(out, loc)
+		loc = strings.TrimSpace(loc)
+		if loc == "" || !strings.HasPrefix(loc, prefix) {
+			continue
 		}
-		if len(out) >= maxUrls {
-			break
+		if _, exists := seen[loc]; exists {
+			continue
+		}
+		seen[loc] = struct{}{}
+		out = append(out, loc)
+		if maxUrls > 0 && len(out) >= maxUrls {
+			return out, nil
 		}
 	}
-	return out, nil
 }
 
 // FetchSitemapAndParse fetches the sitemap at sitemapURL and parses the <loc> entries.
@@ -60,13 +72,7 @@ func FetchSitemapAndParse(totalUrls int, sitemapURL, prefix string, client *http
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status %d", resp.StatusCode)
 	}
-	// Read whole body then parse all URLs, then filter to the Vatican prefix.
-	// TODO: can we stream the XML and filter as we go to avoid reading the whole body into memory?
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read sitemap body: %w", err)
-	}
-	urls, err := parseSitemap(totalUrls, strings.NewReader(string(b)), prefix)
+	urls, err := parseSitemap(totalUrls, resp.Body, prefix)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse sitemap: %w", err)
 	}

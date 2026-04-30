@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/minh/daily-bible/internal/model"
 )
@@ -21,7 +23,7 @@ func makeLivenessHandler() http.HandlerFunc {
 	}
 }
 
-func makeReadinessHandler(dbPath string) http.HandlerFunc {
+func makeReadinessHandler(db *sql.DB, dbPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if _, err := os.Stat(dbPath); err != nil {
 			if os.IsNotExist(err) {
@@ -29,6 +31,20 @@ func makeReadinessHandler(dbPath string) http.HandlerFunc {
 				return
 			}
 			http.Error(w, "readiness check failed", http.StatusInternalServerError)
+			return
+		}
+		if db == nil {
+			http.Error(w, "database not ready", http.StatusServiceUnavailable)
+			return
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), time.Second)
+		defer cancel()
+
+		var one int
+		err := db.QueryRowContext(ctx, "SELECT 1 FROM verses LIMIT 1").Scan(&one)
+		if err != nil && err != sql.ErrNoRows {
+			log.Printf("readiness db probe error: %v", err)
+			http.Error(w, "database not ready", http.StatusServiceUnavailable)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -54,7 +70,7 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		// Expected: "Ga 10,31-42"
-		parts := strings.Split(ref, " ")
+		parts := strings.Fields(ref)
 		if len(parts) != 2 {
 			http.Error(w, "invalid reference format", http.StatusBadRequest)
 			return
@@ -138,9 +154,13 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "query too long", http.StatusBadRequest)
 			return
 		}
+		if db == nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
 
 		rows, err := db.Query(`SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
-			fmt.Sprintf(`"%s"`, q))
+			ftsPhraseQuery(q))
 		if err != nil {
 			log.Printf("fts search error: %v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -160,6 +180,11 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(results)
 	}
+}
+
+func ftsPhraseQuery(q string) string {
+	escaped := strings.ReplaceAll(q, `"`, `""`)
+	return fmt.Sprintf(`"%s"`, escaped)
 }
 
 // makeRandomHandler returns a handler that serves a random verse from the database.

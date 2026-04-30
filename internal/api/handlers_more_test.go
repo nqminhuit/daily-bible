@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -28,13 +29,16 @@ func TestLivenessHandler(t *testing.T) {
 
 func TestReadinessHandler(t *testing.T) {
 	t.Run("ready when db file exists", func(t *testing.T) {
+		db := setupTestDB(t)
+		defer db.Close()
+
 		dir := t.TempDir()
 		dbPath := filepath.Join(dir, "bible.db")
 		if err := os.WriteFile(dbPath, []byte("ready"), 0o644); err != nil {
 			t.Fatal(err)
 		}
 
-		h := makeReadinessHandler(dbPath)
+		h := makeReadinessHandler(db, dbPath)
 		req := httptest.NewRequest("GET", "/readiness", nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, req)
@@ -45,13 +49,39 @@ func TestReadinessHandler(t *testing.T) {
 	})
 
 	t.Run("not ready when db file is missing", func(t *testing.T) {
-		h := makeReadinessHandler(filepath.Join(t.TempDir(), "missing.db"))
+		db := setupTestDB(t)
+		defer db.Close()
+
+		h := makeReadinessHandler(db, filepath.Join(t.TempDir(), "missing.db"))
 		req := httptest.NewRequest("GET", "/readiness", nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, req)
 
 		if w.Code != http.StatusServiceUnavailable {
 			t.Fatalf("expected 503 when db file is missing, got %d", w.Code)
+		}
+	})
+
+	t.Run("not ready when db query fails", func(t *testing.T) {
+		db, err := sql.Open("sqlite3", ":memory:")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer db.Close()
+
+		dir := t.TempDir()
+		dbPath := filepath.Join(dir, "bible.db")
+		if err := os.WriteFile(dbPath, []byte("ready"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+
+		h := makeReadinessHandler(db, dbPath)
+		req := httptest.NewRequest("GET", "/readiness", nil)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Fatalf("expected 503 when db probe fails, got %d", w.Code)
 		}
 	})
 }
@@ -181,6 +211,15 @@ func TestGetGospel_ValidAndErrors(t *testing.T) {
 	if len(got) != 1 || got[0].Text != "Jews picked up stones..." {
 		t.Fatalf("unexpected payload: %v", got)
 	}
+
+	// valid format with extra spaces between book/chapter parts
+	req = httptest.NewRequest("GET", "/", nil)
+	req.URL.Path = "/api/v1/gospel/Ga%20%2010,31-31"
+	w = httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for ref with extra spaces, got %d", w.Code)
+	}
 }
 
 func TestSearchHandler_ValidationAndDB(t *testing.T) {
@@ -245,6 +284,27 @@ func TestSearchHandler_SuccessFTS(t *testing.T) {
 	}
 	if len(got) == 0 {
 		t.Fatalf("expected at least one search result, got empty array")
+	}
+}
+
+func TestSearchHandler_QueryWithQuotes(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
+		t.Skipf("fts5 not available in sqlite build: %v", err)
+	}
+	if _, err := db.Exec("INSERT INTO verses_fts(text) VALUES(?)", `he said "hello"`); err != nil {
+		t.Fatal(err)
+	}
+
+	h := makeSearchHandler(db)
+	req := httptest.NewRequest("GET", "/", nil)
+	req.URL.Path = "/api/v1/search"
+	req.URL.RawQuery = "q=" + url.QueryEscape(`he said "hello"`)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for query containing quotes, got %d", w.Code)
 	}
 }
 

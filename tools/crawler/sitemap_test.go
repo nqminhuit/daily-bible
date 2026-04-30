@@ -66,3 +66,19 @@ func TestFetchSitemapAndParse(t *testing.T) {
 		t.Fatalf("expected 1 urls from server, got %d", len(urls))
 	}
 }
+
+func TestParseSitemap_DeduplicatesURLs(t *testing.T) {
+	xmlWithDup := `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/03/22.html</loc></url>
+  <url><loc>https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/03/22.html</loc></url>
+</urlset>`
+
+	urls, err := parseSitemap(0, strings.NewReader(xmlWithDup), cst.VaticanPrefix)
+	if err != nil {
+		t.Fatalf("parseSitemap failed: %v", err)
+	}
+	if len(urls) != 1 {
+		t.Fatalf("expected 1 unique URL, got %d", len(urls))
+	}
+}

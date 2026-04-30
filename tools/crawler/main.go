@@ -235,7 +235,7 @@ func missingVerseNumWriter(ch <-chan string) {
 }
 
 func resultsWriter(ch <-chan string) {
-	f, err := os.OpenFile(cst.OutFilename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(outFilename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -307,7 +307,9 @@ func main() {
 	if urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client); err != nil {
 		log.Fatalf("Failed to fetch and parse sitemap: %v", err)
 	} else {
-		writeLinksToFile(urls)
+		if err := writeLinksToFile(urls); err != nil {
+			log.Fatalf("Failed to write links: %v", err)
+		}
 	}
 
 	urls, err := loadLinks(cst.LinkFile)
