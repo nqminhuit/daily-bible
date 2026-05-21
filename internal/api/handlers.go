@@ -18,7 +18,7 @@ import (
 	"github.com/minh/daily-bible/internal/model"
 )
 
-var verseSegmentRe = regexp.MustCompile(`^(\d+)([a-z]?)$`)
+var verseSegmentRe = regexp.MustCompile(`^(\d+)([a-zA-Z]?)$`)
 
 func parseVerseSegments(seg string) (startNum int, startLetter string, endNum int, endLetter string, ok bool) {
 	parts := strings.SplitN(seg, "-", 2)
@@ -54,6 +54,9 @@ func buildVerseCondition(segments []string) (string, []any, error) {
 			if sLet == "" && eLet == "" {
 				clauses = append(clauses, "verse BETWEEN ? AND ?")
 				args = append(args, sNum, eNum)
+			} else if sNum == eNum {
+				clauses = append(clauses, "(verse = ? AND verse_suffix >= ? AND verse_suffix <= ?)")
+				args = append(args, sNum, sLet, eLet)
 			} else {
 				var innerClauses []string
 				var innerArgs []any
@@ -324,7 +327,7 @@ func makeTodayHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		if vStartSuffix != "" {
+		if vStartSuffix != "" || vEndSuffix != "" {
 			ref = fmt.Sprintf("%s %d,%d%s-%d%s", book, chapter, vStart, vStartSuffix, vEnd, vEndSuffix)
 		} else {
 			ref = fmt.Sprintf("%s %d,%d-%d", book, chapter, vStart, vEnd)
