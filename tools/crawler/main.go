@@ -15,8 +15,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"golang.org/x/net/html"
-
 	cst "github.com/minh/daily-bible/internal/constants"
 	"github.com/minh/daily-bible/internal/parser"
 )
@@ -450,32 +448,4 @@ func main() {
 	if err := runCrawler(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix, defaultWorkerSleep); err != nil {
 		log.Fatalf("crawl failed: %v", err)
 	}
-}
-
-func findNode(n *html.Node, match func(*html.Node) bool) *html.Node {
-	return parser.FindNode(n, match)
-}
-
-func findLastNode(n *html.Node, match func(*html.Node) bool) *html.Node {
-	return parser.FindLastNode(n, match)
-}
-
-func hasClass(n *html.Node, class string) bool {
-	return parser.HasClass(n, class)
-}
-
-func getText(n *html.Node) string {
-	return parser.GetText(n)
-}
-
-func isVerseParagraph(p *html.Node) bool {
-	return parser.IsVerseParagraph(p)
-}
-
-func isGospelHeader(p *html.Node) bool {
-	return parser.IsGospelHeader(p)
-}
-
-func extractGospelSection(content *html.Node) string {
-	return parser.ExtractGospelSection(content)
 }

@@ -105,7 +105,7 @@ func queryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, er
 	}
 	defer rows.Close()
 
-	var results []model.Gospel
+	results := make([]model.Gospel, 0)
 	for rows.Next() {
 		var g model.Gospel
 		var suffix sql.NullString
