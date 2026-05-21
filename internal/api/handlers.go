@@ -69,7 +69,7 @@ func buildVerseCondition(segments []string) (string, []any, error) {
 						innerClauses = append(innerClauses, "(verse = ? AND verse_suffix <= ?)")
 						innerArgs = append(innerArgs, v, eLet)
 					} else {
-						innerClauses = append(innerClauses, "verse = ?")
+						innerClauses = append(innerClauses, "(verse = ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
 						innerArgs = append(innerArgs, v)
 					}
 				}
@@ -311,8 +311,7 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 func makeTodayHandler(db *sql.DB) http.HandlerFunc {
 	loc, err := time.LoadLocation(constants.Timezone)
 	if err != nil {
-		log.Printf("time.Now() error: %v", err)
-		return nil
+		log.Fatalf("load timezone %q: %v", constants.Timezone, err)
 	}
 	return makeDateHandler(db, func() string {
 		return time.Now().In(loc).Format("2006-01-02")

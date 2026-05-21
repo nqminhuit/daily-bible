@@ -21,12 +21,12 @@ func main() {
 	defer db.Close()
 
 	rows, err := db.Query(`
-		SELECT DISTINCT c.lectionary_key, c.date
+		SELECT c.lectionary_key, MIN(c.date)
 		FROM calendar c
 		LEFT JOIN lectionary l ON c.lectionary_key = l.lectionary_key
 		WHERE l.lectionary_key IS NULL
 		GROUP BY c.lectionary_key
-		ORDER BY c.date
+		ORDER BY MIN(c.date)
 	`)
 	if err != nil {
 		log.Fatalf("query missing keys: %v", err)

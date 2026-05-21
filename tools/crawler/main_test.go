@@ -446,33 +446,32 @@ func TestLoadLinksFileMissing(t *testing.T) {
 
 // Test verse paragraph/header helpers
 func TestVerseHelpers(t *testing.T) {
-	// create a <p><sup>1</sup>..</p> node to check isVerseParagraph
 	h := `<p><sup>1</sup> Text</p><p>No sup here</p>`
 	doc, err := html.Parse(strings.NewReader(h))
 	if err != nil {
 		t.Fatalf("parse html: %v", err)
 	}
-	p1 := findNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
-	if !isVerseParagraph(p1) {
+	p1 := parser.FindNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	if !parser.IsVerseParagraph(p1) {
 		t.Fatalf("expected first p to be verse paragraph")
 	}
-	p2 := findNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "p" && strings.Contains(getText(n), "No sup")
+	p2 := parser.FindNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "p" && strings.Contains(parser.GetText(n), "No sup")
 	})
-	if isVerseParagraph(p2) {
+	if parser.IsVerseParagraph(p2) {
 		t.Fatalf("expected second p to NOT be verse paragraph")
 	}
 }
 
 // Test verse paragraph/header helpers
 func TestGospelHeader(t *testing.T) {
-	h := "<p><b>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô.       </b>Mc 1,14-20<b></b></p>"
+	h := "<p><b>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mác-cô.       </b>Mc 1,14-20<b></b></p>"
 	d2, err := html.Parse(strings.NewReader(h))
 	if err != nil {
 		t.Fatalf("parse html: %v", err)
 	}
-	ph := findNode(d2, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
-	if !isGospelHeader(ph) {
+	ph := parser.FindNode(d2, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	if !parser.IsGospelHeader(ph) {
 		t.Fatalf("isGospelHeader failed to detect header")
 	}
 }
@@ -487,10 +486,10 @@ func TestExtractGospelSectionBehavior(t *testing.T) {
 	</div>`
 
 	doc, _ := html.Parse(strings.NewReader(h))
-	div := findNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	div := parser.FindNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && parser.HasClass(n, "section__content")
 	})
-	res := extractGospelSection(div)
+	res := parser.ExtractGospelSection(div)
 	if !strings.Contains(res, "Tin Mừng Chúa Giê-su Ki-tô") {
 		t.Fatalf("expected header to be included: %q", res)
 	}
@@ -645,26 +644,26 @@ func TestFindNodeHelpers(t *testing.T) {
 	}
 
 	// getText on the first <p>
-	p := findNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
+	p := parser.FindNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "p" })
 	if p == nil {
 		t.Fatal("findNode did not find paragraph")
 	}
-	text := getText(p)
+	text := parser.GetText(p)
 	if !strings.Contains(text, "Tin Mừng") {
 		t.Fatalf("getText returned unexpected: %q", text)
 	}
 
 	// hasClass should detect section__content
-	div := findNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	div := parser.FindNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && parser.HasClass(n, "section__content")
 	})
 	if div == nil {
 		t.Fatal("div.section__content not found")
 	}
 
 	// findLastNode should find main.content (last occurrence)
-	last := findLastNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "main" && hasClass(n, "content")
+	last := parser.FindLastNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "main" && parser.HasClass(n, "content")
 	})
 	if last == nil {
 		t.Fatal("findLastNode failed to find main.content")
