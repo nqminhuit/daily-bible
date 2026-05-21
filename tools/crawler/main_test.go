@@ -151,9 +151,6 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	jobs <- s.URL + "/page2"
 	close(jobs)
 
-	// set workerSleep to zero to speed up test
-	
-
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 2, 0)
@@ -218,7 +215,6 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	jobs <- s.URL + "/bad"
 	close(jobs)
 
-	
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
@@ -540,7 +536,6 @@ func TestWorkerClientGetError(t *testing.T) {
 	jobs <- "http://example.invalid/"
 	close(jobs)
 
-	
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
@@ -578,7 +573,6 @@ func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
 	jobs <- srv.URL + "/"
 	close(jobs)
 
-	
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
@@ -618,7 +612,6 @@ func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
 	jobs <- srv.URL + "/"
 	close(jobs)
 
-	
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
