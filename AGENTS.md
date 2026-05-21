@@ -18,7 +18,7 @@ go build -tags "fts5" ./...
 | Tests with race detector | `make test-with-race-detector` |
 | Single test | `go test -tags "fts5" ./internal/api -run TestName` |
 | Build server binary | `make build` → `build/daily-bible` |
-| Dev server | `make dev` (listens on `:8080`) |
+| Dev server | `make dev` (listens on `:8090`, override with `PORT=:8080`) |
 | CI lint | `staticcheck ./...` |
 
 ## Data Pipeline

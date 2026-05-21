@@ -2,7 +2,7 @@ package constants
 
 const (
 	DBPath     = "build/bible.db"
-	ServerAddr = ":8080"
+	ServerAddr = ":8090"
 	Timezone   = "Asia/Ho_Chi_Minh"
 )
 
