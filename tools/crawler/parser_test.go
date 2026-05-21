@@ -1,9 +1,11 @@
-package main
+package main_test
 
 import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/minh/daily-bible/internal/parser"
 )
 
 func TestExtractGospelFromFixture(t *testing.T) {
@@ -13,7 +15,7 @@ func TestExtractGospelFromFixture(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read html fixture: %v", err)
 	}
-	actualContent, ref, err := ExtractGospel(string(b))
+	actualContent, ref, err := parser.ExtractGospel(string(b))
 	if err != nil {
 		t.Fatalf("ExtractGospel error: %v", err)
 	}
@@ -39,7 +41,7 @@ func TestExtractGospelFromFixture_2(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read html fixture: %v", err)
 	}
-	actualContent, ref, err := ExtractGospel(string(b))
+	actualContent, ref, err := parser.ExtractGospel(string(b))
 	if err != nil {
 		t.Fatalf("ExtractGospel error: %v", err)
 	}
@@ -49,7 +51,6 @@ func TestExtractGospelFromFixture_2(t *testing.T) {
 		t.Fatalf("unexpected reference: got %q, want %q", ref, want)
 	}
 
-	// previously expected empty; update to compare against full expected fixture
 	expected, err := os.ReadFile("../../test-data/expected_13jan2025.html")
 	if err != nil {
 		t.Fatalf("read expected content fixture: %v", err)
@@ -71,9 +72,9 @@ func TestFindReadingStartVatican(t *testing.T) {
 		{"tin mừng lowercase", true},
 	}
 	for _, c := range cases {
-		r := findReadingStartVatican(c.in)
+		r := parser.FindReadingStartVatican(c.in)
 		if (r >= 0) != c.want {
-			t.Fatalf("findReadingStartVatican(%q) = %d, want presence %v", c.in, r, c.want)
+			t.Fatalf("FindReadingStartVatican(%q) = %d, want presence %v", c.in, r, c.want)
 		}
 	}
 }
@@ -112,7 +113,7 @@ func TestExtractGospel_ReferenceVariants(t *testing.T) {
 				`<p>` + tc.headerLine + `</p>` +
 				`<p><sup>1</sup> Câu thử nghiệm.</p>` +
 				`</div></section></body></html>`
-			_, ref, err := ExtractGospel(htmlInput)
+			_, ref, err := parser.ExtractGospel(htmlInput)
 			if err != nil {
 				t.Fatalf("ExtractGospel returned error: %v", err)
 			}
@@ -124,10 +125,10 @@ func TestExtractGospel_ReferenceVariants(t *testing.T) {
 }
 
 func TestIsGospelHeaderText(t *testing.T) {
-	if isGospelHeaderText(`Hễ Tin Mừng được loan báo đến đâu trong khắp thiên hạ`) {
+	if parser.IsGospelHeaderText(`Hễ Tin Mừng được loan báo đến đâu trong khắp thiên hạ`) {
 		t.Fatalf("expected body sentence not to be detected as gospel header")
 	}
-	if !isGospelHeaderText(`✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Lu-ca. Lc 7, 11-17`) {
+	if !parser.IsGospelHeaderText(`✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Lu-ca. Lc 7, 11-17`) {
 		t.Fatalf("expected canonical header line to be detected")
 	}
 }

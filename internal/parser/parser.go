@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"fmt"
@@ -15,20 +15,19 @@ var commaSpacingRe = regexp.MustCompile(`\s*,\s*`)
 var dashSpacingRe = regexp.MustCompile(`\s*-\s*`)
 var dotSpacingRe = regexp.MustCompile(`\s*\.\s*`)
 
-// find last node matching condition
-func findLastNode(n *html.Node, match func(*html.Node) bool) *html.Node {
+func FindLastNode(n *html.Node, match func(*html.Node) bool) *html.Node {
 	if match(n) {
 		return n
 	}
 	for c := n.LastChild; c != nil; c = c.PrevSibling {
-		if res := findLastNode(c, match); res != nil {
+		if res := FindLastNode(c, match); res != nil {
 			return res
 		}
 	}
 	return nil
 }
 
-func hasClass(n *html.Node, class string) bool {
+func HasClass(n *html.Node, class string) bool {
 	for _, attr := range n.Attr {
 		if attr.Key == "class" && strings.Contains(attr.Val, class) {
 			return true
@@ -37,66 +36,58 @@ func hasClass(n *html.Node, class string) bool {
 	return false
 }
 
-// helper: get all text inside node
-func getText(n *html.Node) string {
+func GetText(n *html.Node) string {
 	if n.Type == html.TextNode {
 		return n.Data
 	}
 	var b strings.Builder
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		b.WriteString(getText(c))
+		b.WriteString(GetText(c))
 	}
 	return b.String()
 }
 
-// find node by condition
-func findNode(n *html.Node, match func(*html.Node) bool) *html.Node {
+func FindNode(n *html.Node, match func(*html.Node) bool) *html.Node {
 	if match(n) {
 		return n
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if res := findNode(c, match); res != nil {
+		if res := FindNode(c, match); res != nil {
 			return res
 		}
 	}
 	return nil
 }
 
-// main extractor
 func extractGospelRef(doc *html.Node) (string, error) {
-	content := findSectionContent(doc)
+	content := FindSectionContent(doc)
 	if content == nil {
 		return "", fmt.Errorf("div with class 'section__content' not found")
 	}
 
-	// 3. find <p> containing the gospel reference line
-	p := findNode(content, func(n *html.Node) bool {
+	p := FindNode(content, func(n *html.Node) bool {
 		if n.Type != html.ElementNode || n.Data != "p" {
 			return false
 		}
-		return isGospelHeaderText(getText(n))
+		return IsGospelHeaderText(GetText(n))
 	})
 
 	if p == nil {
-		// Fallback for templates where the header is outside the section__content.
-		p = findNode(doc, func(n *html.Node) bool {
+		p = FindNode(doc, func(n *html.Node) bool {
 			if n.Type != html.ElementNode || n.Data != "p" {
 				return false
 			}
-			return isGospelHeaderText(getText(n))
+			return IsGospelHeaderText(GetText(n))
 		})
 	}
 	if p == nil {
 		return "", fmt.Errorf("paragraph containing 'Tin Mừng' not found in content")
 	}
 
-	// 4. extract Bible reference from that paragraph
-	text := normalizeSpaces(getText(p))
+	text := NormalizeSpaces(GetText(p))
 	if match := bibleRefRe.FindString(text); match != "" {
 		return canonicalizeReference(match), nil
 	}
-	// Some pages omit book abbreviation in the reference (e.g. "2,1-12") while
-	// still stating the evangelist in the same header line.
 	if book := inferBookFromHeader(text); book != "" {
 		if cv := chapterVerseRe.FindString(text); cv != "" {
 			return canonicalizeReference(book + " " + cv), nil
@@ -105,7 +96,7 @@ func extractGospelRef(doc *html.Node) (string, error) {
 	return "", fmt.Errorf("no Bible reference found in text: %q", text)
 }
 
-func isVerseParagraph(p *html.Node) bool {
+func IsVerseParagraph(p *html.Node) bool {
 	for c := p.FirstChild; c != nil; c = c.NextSibling {
 		if c.Type == html.ElementNode && c.Data == "sup" {
 			return true
@@ -114,11 +105,11 @@ func isVerseParagraph(p *html.Node) bool {
 	return false
 }
 
-func isGospelHeader(p *html.Node) bool {
-	return isGospelHeaderText(getText(p))
+func IsGospelHeader(p *html.Node) bool {
+	return IsGospelHeaderText(GetText(p))
 }
 
-func extractGospelSection(content *html.Node) string {
+func ExtractGospelSection(content *html.Node) string {
 	var b strings.Builder
 	started := false
 
@@ -128,52 +119,50 @@ func extractGospelSection(content *html.Node) string {
 		}
 
 		if !started {
-			if isGospelHeader(c) {
+			if IsGospelHeader(c) {
 				started = true
 				html.Render(&b, c)
 			}
 			continue
 		}
 
-		// after start
-		if isVerseParagraph(c) {
+		if IsVerseParagraph(c) {
 			html.Render(&b, c)
 			continue
 		}
 
-		// STOP at first non-verse paragraph
 		break
 	}
 
 	return b.String()
 }
 
-func findSectionContent(doc *html.Node) *html.Node {
-	section := findNode(doc, func(n *html.Node) bool {
+func FindSectionContent(doc *html.Node) *html.Node {
+	section := FindNode(doc, func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "section" {
-			return strings.Contains(getText(n), "Tin Mừng ngày hôm nay")
+			return strings.Contains(GetText(n), "Tin Mừng ngày hôm nay")
 		}
 		return false
 	})
 	if section != nil {
-		if content := findNode(section, func(n *html.Node) bool {
-			return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+		if content := FindNode(section, func(n *html.Node) bool {
+			return n.Type == html.ElementNode && n.Data == "div" && HasClass(n, "section__content")
 		}); content != nil {
 			return content
 		}
 	}
-	return findLastNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	return FindLastNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && HasClass(n, "section__content")
 	})
 }
 
-func normalizeSpaces(s string) string {
+func NormalizeSpaces(s string) string {
 	s = strings.ReplaceAll(s, "\u00A0", " ")
 	return strings.Join(strings.Fields(s), " ")
 }
 
 func canonicalizeReference(ref string) string {
-	ref = normalizeSpaces(ref)
+	ref = NormalizeSpaces(ref)
 	if parts := bookChapterSplitRe.FindStringSubmatch(ref); parts != nil {
 		ref = strings.TrimSpace(parts[1]) + " " + strings.TrimSpace(parts[2])
 	}
@@ -199,8 +188,8 @@ func inferBookFromHeader(text string) string {
 	}
 }
 
-func isGospelHeaderText(text string) bool {
-	txt := normalizeSpaces(text)
+func IsGospelHeaderText(text string) bool {
+	txt := NormalizeSpaces(text)
 	if txt == "" {
 		return false
 	}
@@ -213,9 +202,6 @@ func isGospelHeaderText(text string) bool {
 		strings.HasPrefix(txt, "Bài trích Tin Mừng")
 }
 
-// extract finds the <div class="section__content"> block the HTML and Bible reference if present.
-// fallback to <main class="content"> if the first block is not found.
-// Returns empty strings if not found, or an error if the HTML cannot be parsed.
 func extract(htmlStr string) (main, ref string, err error) {
 	doc, err := html.Parse(strings.NewReader(htmlStr))
 	if err != nil {
@@ -227,18 +213,16 @@ func extract(htmlStr string) (main, ref string, err error) {
 		return "", "", fmt.Errorf("failed to extract gospel reference: %w", err)
 	}
 
-	// find: <div class="section__content">
-	if div := findLastNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "div" && hasClass(n, "section__content")
+	if div := FindLastNode(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "div" && HasClass(n, "section__content")
 	}); div != nil {
-		main = extractGospelSection(div)
+		main = ExtractGospelSection(div)
 		return
 	}
 	return "", "", fmt.Errorf("div with class 'section__content' not found")
 }
 
-// findReadingStartVatican searches for typical starting keywords in lowered text.
-func findReadingStartVatican(s string) int {
+func FindReadingStartVatican(s string) int {
 	ls := strings.ToLower(s)
 	if i := strings.Index(ls, "tin mừng"); i != -1 {
 		return i
@@ -255,7 +239,6 @@ func findReadingStartVatican(s string) int {
 	return -1
 }
 
-// ExtractGospel extracts the gospel content and reference block (HTML) from a Vatican News article HTML.
 func ExtractGospel(htmlInput string) (section, ref string, err error) {
 	section, ref, err = extract(htmlInput)
 	if err != nil {
