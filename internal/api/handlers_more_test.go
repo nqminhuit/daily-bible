@@ -190,7 +190,7 @@ func TestGetGospel_ValidAndErrors(t *testing.T) {
 	// success
 	dbOK := setupTestDB(t)
 	defer dbOK.Close()
-	if _, err := dbOK.Exec(`INSERT INTO verses(book,chapter,verse,text) VALUES('Ga',10,31,'Jews picked up stones...')`); err != nil {
+	if _, err := dbOK.Exec(`INSERT INTO verses(book,chapter,verse,verse_suffix,text) VALUES('Ga',10,31,'','Jews picked up stones...')`); err != nil {
 		t.Fatal(err)
 	}
 	h = makeGetGospelHandler(dbOK)
@@ -349,7 +349,7 @@ func TestRandomHandler_Behavior(t *testing.T) {
 	}
 
 	// success
-	if _, err := db.Exec(`INSERT INTO verses(book,chapter,verse,text) VALUES('Ga',10,31,'random text')`); err != nil {
+	if _, err := db.Exec(`INSERT INTO verses(book,chapter,verse,verse_suffix,text) VALUES('Ga',10,31,'','random text')`); err != nil {
 		t.Fatal(err)
 	}
 	w = httptest.NewRecorder()
