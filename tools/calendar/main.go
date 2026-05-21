@@ -3,8 +3,12 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/minh/daily-bible/internal/constants"
 	dbpkg "github.com/minh/daily-bible/internal/db"
@@ -21,16 +25,28 @@ type CalendarEntry struct {
 
 func main() {
 	var jsonPath string
+	var jsonURL string
 	flag.StringVar(&jsonPath, "file", "", "path to liturgical calendar JSON file")
+	flag.StringVar(&jsonURL, "url", "", "URL to liturgical calendar JSON file")
 	flag.Parse()
 
-	if jsonPath == "" {
-		log.Fatal("--file required")
+	if jsonPath == "" && jsonURL == "" {
+		log.Fatal("--file or --url required")
 	}
 
-	data, err := os.ReadFile(jsonPath)
-	if err != nil {
-		log.Fatalf("read file: %v", err)
+	var data []byte
+	var err error
+
+	if jsonURL != "" {
+		data, err = fetchURL(jsonURL)
+		if err != nil {
+			log.Fatalf("fetch url: %v", err)
+		}
+	} else {
+		data, err = os.ReadFile(jsonPath)
+		if err != nil {
+			log.Fatalf("read file: %v", err)
+		}
 	}
 
 	var cal map[string]CalendarEntry
@@ -77,4 +93,23 @@ func main() {
 		log.Fatalf("commit: %v", err)
 	}
 	log.Printf("imported %d calendar entries", len(cal))
+}
+
+func fetchURL(url string) ([]byte, error) {
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 5<<20))
+	if err != nil {
+		return nil, fmt.Errorf("read body: %w", err)
+	}
+	return body, nil
 }
