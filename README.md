@@ -37,10 +37,16 @@ The lectionary system maps liturgical dates to Gospel readings. It requires:
 2. A crawl of Vatican News to resolve lectionary keys to Gospel references
 
 ```shell
+# 1) Download calendar JSON (e.g. for 2026):
 make import-calendar FILE=resources/liturgical-calendar-2026.json
+# or fetch directly from GitHub:
+make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json
+
+# 2) Crawl lectionary keys:
 make crawl-lectionary
+
 # or run both at once:
-make setup-lectionary FILE=resources/liturgical-calendar-2026.json
+make setup-lectionary URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json
 ```
 
 Calendar JSON files should be placed under `resources/`:

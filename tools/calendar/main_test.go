@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -181,5 +183,57 @@ func TestImportCalendarIgnoresDuplicates(t *testing.T) {
 	}
 	if count != 1 {
 		t.Fatalf("expected 1 row after re-import, got %d", count)
+	}
+}
+
+func TestFetchURL(t *testing.T) {
+	cal := map[string]CalendarEntry{
+		"2026-03-22": {
+			LectionaryKey: "lent_5_sun_A",
+			Season:        "lent",
+			SundayCycle:   "A",
+			WeekOfSeason:  5,
+			Weekday:       "sun",
+			WeekdayCycle:  "",
+		},
+	}
+	data, err := json.Marshal(cal)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(data)
+	}))
+	defer server.Close()
+
+	body, err := fetchURL(server.URL)
+	if err != nil {
+		t.Fatalf("fetchURL error: %v", err)
+	}
+
+	var got map[string]CalendarEntry
+	if err := json.Unmarshal(body, &got); err != nil {
+		t.Fatalf("unmarshal error: %v", err)
+	}
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(got))
+	}
+	if got["2026-03-22"].LectionaryKey != "lent_5_sun_A" {
+		t.Fatalf("expected lent_5_sun_A, got %q", got["2026-03-22"].LectionaryKey)
+	}
+}
+
+func TestFetchURLNotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
+
+	_, err := fetchURL(server.URL)
+	if err == nil {
+		t.Fatal("expected error for 404")
 	}
 }

@@ -55,14 +55,18 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 	sqlite3 $(DB) < data/migrations/003_calendar.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
-import-calendar: ## Import liturgical calendar JSON (FILE=path/to/file.json)
-	go run $(GOFLAGS) ./tools/calendar --file=$(FILE)
+import-calendar: ## Import liturgical calendar JSON (FILE=path or URL=https://...)
+	@if [ -n "$(URL)" ]; then \
+		go run $(GOFLAGS) ./tools/calendar --url=$(URL); \
+	else \
+		go run $(GOFLAGS) ./tools/calendar --file=$(FILE); \
+	fi
 
 crawl-lectionary: ## Populate lectionary table by crawling Vatican News
 	go run $(GOFLAGS) ./tools/lectionarycrawler
 
-setup-lectionary: ## Full lectionary setup (FILE=path/to/file.json)
-	$(MAKE) import-calendar FILE=$(FILE)
+setup-lectionary: ## Full lectionary setup (FILE=path or URL=https://...)
+	$(MAKE) import-calendar FILE=$(FILE) URL=$(URL)
 	$(MAKE) crawl-lectionary
 
 build: ## (5) Build the binary server file
