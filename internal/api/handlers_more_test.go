@@ -145,13 +145,13 @@ func TestGetGospel_ValidAndErrors(t *testing.T) {
 		t.Fatalf("expected 400 for invalid chapter, got %d", w.Code)
 	}
 
-	// invalid verse range (missing dash)
+	// single verse (no dash) is now valid, will return 404 when no rows match
 	req = httptest.NewRequest("GET", "/", nil)
 	req.URL.Path = "/api/v1/gospel/Ga%2010,31"
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, req)
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("expected 400 for invalid verse range, got %d", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for single verse with no matching rows, got %d", w.Code)
 	}
 
 	// invalid verse numbers
