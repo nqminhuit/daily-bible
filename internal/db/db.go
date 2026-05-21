@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -62,6 +65,40 @@ func InitDB(db *sql.DB, schemaPath string) error {
 	} else {
 		// RowsAffected may not be supported for DDL in some drivers; log and continue.
 		log.Printf("Schema applied; RowsAffected not available: %v", err)
+	}
+	return nil
+}
+
+// ApplyMigrations reads all .sql files from the migrations directory
+// and executes them in sorted order (001_, 002_, ...).
+func ApplyMigrations(db *sql.DB, migrationsDir string) error {
+	if db == nil {
+		return fmt.Errorf("nil db")
+	}
+
+	entries, err := os.ReadDir(migrationsDir)
+	if err != nil {
+		return fmt.Errorf("read migrations dir: %w", err)
+	}
+
+	var files []string
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".sql") {
+			files = append(files, e.Name())
+		}
+	}
+	sort.Strings(files)
+
+	for _, f := range files {
+		path := filepath.Join(migrationsDir, f)
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read migration %s: %w", f, err)
+		}
+		if _, err := db.Exec(string(content)); err != nil {
+			return fmt.Errorf("exec migration %s: %w", f, err)
+		}
+		log.Printf("Applied migration: %s", f)
 	}
 	return nil
 }

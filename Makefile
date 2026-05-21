@@ -37,11 +37,11 @@ tsv: build/gospels.txt ## (3) Convert the crawled data to TSV format
 	@mkdir -p build
 	go run ./tools/tsv
 
-import-db: data/schema.sql build/gospels.tsv ## (4) Import data into SQLite database, requires sqlite3 to be installed
+import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite database, requires sqlite3 to be installed
 	@mkdir -p build
 	@rm -f $(DB)
 
-	sqlite3 $(DB) < data/schema.sql
+	sqlite3 $(DB) < data/migrations/001_initial.sql
 
 	printf "%s\n" \
 	"PRAGMA journal_mode=OFF;" \
@@ -50,10 +50,18 @@ import-db: data/schema.sql build/gospels.tsv ## (4) Import data into SQLite data
 	".import build/gospels.tsv verses" \
 	| sqlite3 $(DB)
 
-	sqlite3 $(DB) < data/fts.sql
 	sqlite3 $(DB) "INSERT INTO verses_fts(verses_fts) VALUES('rebuild');"
-	sqlite3 $(DB) < data/triggers.sql
+	sqlite3 $(DB) < data/migrations/002_lectionary.sql
+	sqlite3 $(DB) < data/migrations/003_calendar.sql
 	@echo "✅ Database imported successfully to $(DB)"
+
+import-calendar: ## Import liturgical calendar JSON (FILE=path/to/file.json)
+	go run $(GOFLAGS) ./tools/calendar --file=$(FILE)
+
+crawl-lectionary: ## Populate lectionary table by crawling Vatican News
+	go run $(GOFLAGS) ./tools/lectionarycrawler
+
+setup-lectionary: import-calendar crawl-lectionary ## Full lectionary setup
 
 build: ## (5) Build the binary server file
 	@mkdir -p build

@@ -44,6 +44,7 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	mux.HandleFunc("/api/v1/search", makeSearchHandler(db))
 	mux.HandleFunc("/api/v1/random", makeRandomHandler(db, maxRowID))
 	mux.HandleFunc("/api/v1/today", makeTodayHandler(db))
+	mux.HandleFunc("/api/v1/date/", makeDateByPathHandler(db))
 	mux.Handle("/", http.NotFoundHandler())
 	return loggingMiddleware(corsMiddleware(mux)), nil
 }
