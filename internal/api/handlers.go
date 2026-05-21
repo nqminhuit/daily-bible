@@ -298,3 +298,37 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 		json.NewEncoder(w).Encode(text)
 	}
 }
+
+func makeTodayHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		today := time.Now().Format("2006-01-02")
+
+		var book, ref string
+		var chapter, vStart, vEnd int
+		var vStartSuffix, vEndSuffix string
+
+		err := db.QueryRowContext(r.Context(), `
+			SELECT book, chapter, verse_start, verse_start_suffix, verse_end, verse_end_suffix
+			FROM lectionary WHERE date = ?`, today).Scan(&book, &chapter, &vStart, &vStartSuffix, &vEnd, &vEndSuffix)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "no reading found for today", http.StatusNotFound)
+				return
+			}
+			http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		if vStartSuffix != "" {
+			ref = fmt.Sprintf("%s %d,%d%s-%d%s", book, chapter, vStart, vStartSuffix, vEnd, vEndSuffix)
+		} else {
+			ref = fmt.Sprintf("%s %d,%d-%d", book, chapter, vStart, vEnd)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"date":      today,
+			"reference": ref,
+		})
+	}
+}
