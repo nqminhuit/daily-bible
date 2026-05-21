@@ -10,7 +10,7 @@ import (
 	cst "github.com/minh/daily-bible/internal/constants"
 )
 
-var verseRE = regexp.MustCompile(`\{\{(\d+)\}\}\s*(.*)`)
+var verseRE = regexp.MustCompile(`\{\{(\d+[A-Za-z]?)\}\}\s*(.*)`)
 var refRE = regexp.MustCompile(`^\s*([A-Za-zÀ-ỹ]{1,12})\s*(\d+)\s*,`)
 
 var canonicalBooks = map[string]struct{}{
@@ -89,10 +89,21 @@ func main() {
 			if book == "" || chapter == "" {
 				continue
 			}
-			verse := m[1]
+			verseRaw := m[1]
 			text := m[2]
 			text = strings.ReplaceAll(text, "\t", " ")
-			key := fmt.Sprintf("%s\t%s\t%s", book, chapter, verse)
+
+			verseNum := ""
+			verseSuffix := ""
+			for _, r := range verseRaw {
+				if r >= '0' && r <= '9' {
+					verseNum += string(r)
+				} else {
+					verseSuffix += string(r)
+				}
+			}
+
+			key := fmt.Sprintf("%s\t%s\t%s\t%s", book, chapter, verseNum, verseSuffix)
 			if _, exists := seen[key]; exists {
 				continue
 			}

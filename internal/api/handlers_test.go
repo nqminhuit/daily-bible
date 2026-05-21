@@ -33,8 +33,8 @@ func TestGetGospel(t *testing.T) {
 	db := setupTestDB(t)
 
 	if _, err := db.Exec(`
-	INSERT INTO verses(book,chapter,verse,text)
-	VALUES('Ga',10,31,'Jews picked up stones...')`); err != nil {
+	INSERT INTO verses(book,chapter,verse,verse_suffix,text)
+	VALUES('Ga',10,31,'','Jews picked up stones...')`); err != nil {
 		t.Fatal(err)
 	}
 
