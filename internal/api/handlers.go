@@ -366,12 +366,19 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 			return
 		}
 
+		var sb strings.Builder
+		for _, v := range verses {
+			sb.WriteString(v.Text)
+			sb.WriteByte(' ')
+		}
+		combined := strings.TrimSpace(sb.String())
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
 			"date":           date,
 			"lectionary_key": lectionaryKey,
 			"ref":            gospelRef,
-			"verses":         verses,
+			"verses":         combined,
 		})
 	}
 }
