@@ -261,11 +261,7 @@ func TestSearchHandler_ValidationAndDB(t *testing.T) {
 func TestSearchHandler_SuccessFTS(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
-	// Require FTS5; skip the test if it's not available in the sqlite build.
-	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
-		t.Skipf("fts5 not available in sqlite build: %v", err)
-	}
-	if _, err := db.Exec("INSERT INTO verses_fts(text) VALUES(?)", "hello world"); err != nil {
+	if _, err := db.Exec("INSERT INTO verses(book, chapter, verse, text) VALUES('Ga', 1, 1, 'hello world')"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -290,10 +286,7 @@ func TestSearchHandler_SuccessFTS(t *testing.T) {
 func TestSearchHandler_QueryWithQuotes(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
-	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
-		t.Skipf("fts5 not available in sqlite build: %v", err)
-	}
-	if _, err := db.Exec("INSERT INTO verses_fts(text) VALUES(?)", `he said "hello"`); err != nil {
+	if _, err := db.Exec("INSERT INTO verses(book, chapter, verse, text) VALUES('Ga', 1, 1, ?)", `he said "hello"`); err != nil {
 		t.Fatal(err)
 	}
 
@@ -312,10 +305,6 @@ func TestSearchHandler_QueryWithQuotes(t *testing.T) {
 func TestSearchHandler_EmptyResults(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
-	// Require FTS5; skip the test if it's not available in the sqlite build.
-	if _, err := db.Exec("CREATE VIRTUAL TABLE IF NOT EXISTS verses_fts USING fts5(text);"); err != nil {
-		t.Skipf("fts5 not available in sqlite build: %v", err)
-	}
 
 	h := makeSearchHandler(db)
 	req := httptest.NewRequest("GET", "/", nil)

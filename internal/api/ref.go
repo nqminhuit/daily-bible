@@ -12,14 +12,14 @@ import (
 )
 
 type verseRange struct {
-	start     int
+	start       int
 	startSuffix string
-	end       int
+	end         int
 	endSuffix   string
 }
 
 var refPattern = regexp.MustCompile(`^([A-Za-zÀ-ỹ]{1,3})\s+(\d+),(.+)$`)
-var segPattern = regexp.MustCompile(`(\d+)([a-z]?)(?:-(\d+)([a-z]?))?`)
+var segPattern = regexp.MustCompile(`(\d+)([a-zA-Z]?)(?:-(\d+)([a-zA-Z]?))?`)
 
 func parseRef(ref string) (book string, chapter int, ranges []verseRange, err error) {
 	m := refPattern.FindStringSubmatch(strings.TrimSpace(ref))

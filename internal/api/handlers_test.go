@@ -11,19 +11,27 @@ import (
 )
 
 func setupTestDB(t *testing.T) *sql.DB {
+	t.Helper()
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	schema, err := os.ReadFile("../../data/schema.sql")
+	migrationsDir := "../../data/migrations"
+	entries, err := os.ReadDir(migrationsDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		t.Fatal(err)
+	for _, e := range entries {
+		if !e.IsDir() && len(e.Name()) > 0 && e.Name()[0] >= '0' && e.Name()[0] <= '9' {
+			content, err := os.ReadFile(migrationsDir + "/" + e.Name())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.Exec(string(content)); err != nil {
+				t.Fatalf("apply migration %s: %v", e.Name(), err)
+			}
+		}
 	}
 
 	return db
