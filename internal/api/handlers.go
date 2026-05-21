@@ -53,7 +53,7 @@ func buildVerseCondition(segments []string) (string, []any, error) {
 				return "", nil, fmt.Errorf("invalid verse segment: %s", seg)
 			}
 			if sLet == "" && eLet == "" {
-				clauses = append(clauses, "verse BETWEEN ? AND ?")
+				clauses = append(clauses, "(verse BETWEEN ? AND ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
 				args = append(args, sNum, eNum)
 			} else if sNum == eNum {
 				clauses = append(clauses, "(verse = ? AND verse_suffix >= ? AND verse_suffix <= ?)")
@@ -311,7 +311,8 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 func makeTodayHandler(db *sql.DB) http.HandlerFunc {
 	loc, err := time.LoadLocation(constants.Timezone)
 	if err != nil {
-		log.Fatalf("load timezone %q: %v", constants.Timezone, err)
+		log.Printf("load timezone %q: %v, falling back to UTC", constants.Timezone, err)
+		loc = time.UTC
 	}
 	return makeDateHandler(db, func() string {
 		return time.Now().In(loc).Format("2006-01-02")

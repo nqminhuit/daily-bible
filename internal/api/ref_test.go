@@ -40,16 +40,16 @@ func setupTestDBWithLectionary(t *testing.T) *sql.DB {
 
 func TestParseRef(t *testing.T) {
 	tests := []struct {
-		ref       string
-		wantBook  string
-		wantCh    int
+		ref        string
+		wantBook   string
+		wantCh     int
 		wantRanges []verseRange
-		wantErr   bool
+		wantErr    bool
 	}{
 		{
-			ref:      "Ga 11,1-45",
-			wantBook: "Ga",
-			wantCh:   11,
+			ref:        "Ga 11,1-45",
+			wantBook:   "Ga",
+			wantCh:     11,
 			wantRanges: []verseRange{{start: 1, end: 45}},
 		},
 		{
@@ -62,9 +62,9 @@ func TestParseRef(t *testing.T) {
 			},
 		},
 		{
-			ref:      "Lc 1,1",
-			wantBook: "Lc",
-			wantCh:   1,
+			ref:        "Lc 1,1",
+			wantBook:   "Lc",
+			wantCh:     1,
 			wantRanges: []verseRange{{start: 1, end: 1}},
 		},
 		{
@@ -149,7 +149,7 @@ func TestQueryByRef(t *testing.T) {
 			t.Fatalf("expected 5 verses, got %d: %+v", len(verses), verses)
 		}
 		expected := []struct {
-			verse int
+			verse  int
 			suffix string
 		}{
 			{20, ""}, {21, ""}, {22, "a"}, {27, ""}, {28, ""},

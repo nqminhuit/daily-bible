@@ -75,6 +75,7 @@ func main() {
 	}
 	defer stmt.Close()
 
+	inserted := 0
 	for date, entry := range cal {
 		if _, err := stmt.Exec(
 			date,
@@ -86,18 +87,20 @@ func main() {
 			entry.WeekOfSeason,
 		); err != nil {
 			log.Printf("insert %s: %v", date, err)
+		} else {
+			inserted++
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
 		log.Fatalf("commit: %v", err)
 	}
-	log.Printf("imported %d calendar entries", len(cal))
+	log.Printf("imported %d calendar entries", inserted)
 }
 
-func fetchURL(url string) ([]byte, error) {
+func fetchURL(rawURL string) ([]byte, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Get(url)
+	resp, err := client.Get(rawURL)
 	if err != nil {
 		return nil, err
 	}
