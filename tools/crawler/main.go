@@ -21,13 +21,6 @@ import (
 	"github.com/minh/daily-bible/internal/parser"
 )
 
-var bufPool = sync.Pool{
-	New: func() any {
-		b := make([]byte, 0, 256*1024)
-		return &b
-	},
-}
-
 var checked int64
 var matched int64
 var missingVerse int64
@@ -191,18 +184,14 @@ func worker(
 				return
 			}
 
-			buf := bufPool.Get().(*[]byte)
-			*buf = (*buf)[:0]
-			*buf, err = io.ReadAll(io.LimitReader(resp.Body, 10<<20))
+			body, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20))
 			resp.Body.Close()
 			if err != nil {
-				bufPool.Put(buf)
 				atomic.AddInt64(&failed, 1)
 				return
 			}
 
-			html := string(*buf)
-			bufPool.Put(buf)
+			html := string(body)
 
 			// Vatican-only parsing: require Vatican markers and paragraph extraction.
 			if idx := parser.FindReadingStartVatican(html); idx == -1 {
