@@ -61,7 +61,9 @@ import-calendar: ## Import liturgical calendar JSON (FILE=path/to/file.json)
 crawl-lectionary: ## Populate lectionary table by crawling Vatican News
 	go run $(GOFLAGS) ./tools/lectionarycrawler
 
-setup-lectionary: import-calendar crawl-lectionary ## Full lectionary setup
+setup-lectionary: ## Full lectionary setup (FILE=path/to/file.json)
+	$(MAKE) import-calendar FILE=$(FILE)
+	$(MAKE) crawl-lectionary
 
 build: ## (5) Build the binary server file
 	@mkdir -p build

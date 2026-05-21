@@ -3,6 +3,7 @@ package constants
 const (
 	DBPath     = "build/bible.db"
 	ServerAddr = ":8080"
+	Timezone   = "Asia/Ho_Chi_Minh"
 )
 
 // crawler constants
