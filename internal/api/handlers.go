@@ -275,27 +275,29 @@ func ftsPhraseQuery(q string) string {
 // The table "verses" is expected to be static, immutable,
 // and have a rowid column that is a dense sequence from 1 to maxRowID.
 func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
-	// Guard against invalid maxRowID to avoid rand.Int64N panic.
 	if maxRowID <= 0 {
 		return func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "no verses available", http.StatusNotFound)
 		}
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		randomID := 1 + rand.Int64N(maxRowID)
-		row := db.QueryRow("SELECT text FROM verses WHERE rowid >= ? LIMIT 1", randomID)
 		var text string
-		if err := row.Scan(&text); err != nil {
-			if err == sql.ErrNoRows {
-				http.Error(w, "not found", http.StatusNotFound)
+		for attempts := 0; attempts < 10; attempts++ {
+			randomID := 1 + rand.Int64N(maxRowID)
+			row := db.QueryRowContext(r.Context(), "SELECT text FROM verses WHERE rowid = ?", randomID)
+			if err := row.Scan(&text); err != nil {
+				if err == sql.ErrNoRows {
+					continue
+				}
+				log.Printf("random query error: %v", err)
+				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
-			log.Printf("random query error: %v", err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(text)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(text)
+		http.Error(w, "not found", http.StatusNotFound)
 	}
 }
 
