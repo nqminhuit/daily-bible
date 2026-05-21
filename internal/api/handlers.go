@@ -199,7 +199,7 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 
 		queryArgs := append([]any{book, chapter}, args...)
 
-		rows, err := db.Query(query, queryArgs...)
+		rows, err := db.QueryContext(r.Context(), query, queryArgs...)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
 			return
@@ -246,7 +246,7 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.Query(`SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
+		rows, err := db.QueryContext(r.Context(), `SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
 			ftsPhraseQuery(q))
 		if err != nil {
 			log.Printf("fts search error: %v", err)
