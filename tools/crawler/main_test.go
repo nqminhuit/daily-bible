@@ -743,19 +743,19 @@ func TestFetchSitemapAndParseNon200(t *testing.T) {
 // }
 
 func TestProcessedAndMissingWriters(t *testing.T) {
-	// ensure build dir exists
-	os.MkdirAll("build", 0755)
-	// cleanup files
-	os.Remove("build/processed.txt")
-	os.Remove("build/missing_verse_number.txt")
-	os.Remove("build/gospels.txt")
-	os.Remove("build/failed.txt")
+	tmp := t.TempDir()
+	buildDir := filepath.Join(tmp, "build")
+	os.MkdirAll(buildDir, 0755)
 
-	// processedWriter
+	processedPath := filepath.Join(buildDir, "processed.txt")
+	missingPath := filepath.Join(buildDir, "missing_verse_number.txt")
+	gospelsPath := filepath.Join(buildDir, "gospels.txt")
+	failedPath := filepath.Join(buildDir, "failed.txt")
+
 	procCh := make(chan string, 2)
 	var wg sync.WaitGroup
 	wg.Go(func() {
-		processedWriter("build/processed.txt", procCh)
+		processedWriter(processedPath, procCh)
 	})
 
 	procCh <- "u1"
@@ -763,7 +763,7 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	close(procCh)
 	wg.Wait()
 
-	b, err := os.ReadFile("build/processed.txt")
+	b, err := os.ReadFile(processedPath)
 	if err != nil {
 		t.Fatalf("read processed file: %v", err)
 	}
@@ -771,15 +771,14 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 		t.Fatalf("processed file empty")
 	}
 
-	// missingVerseNumWriter
 	missCh := make(chan string, 2)
 	wg.Go(func() {
-		missingVerseNumWriter("build/missing_verse_number.txt", missCh)
+		missingVerseNumWriter(missingPath, missCh)
 	})
 	missCh <- "m1"
 	close(missCh)
 	wg.Wait()
-	b2, err := os.ReadFile("build/missing_verse_number.txt")
+	b2, err := os.ReadFile(missingPath)
 	if err != nil {
 		t.Fatalf("read missing file: %v", err)
 	}
@@ -787,16 +786,15 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 		t.Fatalf("missing file empty")
 	}
 
-	// resultsWriter
 	resCh := make(chan string, 2)
 	wg.Go(func() {
-		resultsWriter("build/gospels.txt", resCh)
+		resultsWriter(gospelsPath, resCh)
 	})
 	resCh <- "entry1"
 	resCh <- "entry2"
 	close(resCh)
 	wg.Wait()
-	b3, err := os.ReadFile("build/gospels.txt")
+	b3, err := os.ReadFile(gospelsPath)
 	if err != nil {
 		t.Fatalf("read gospels file: %v", err)
 	}
@@ -804,25 +802,18 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 		t.Fatalf("gospels file empty")
 	}
 
-	// failedWriter
 	failCh := make(chan string, 2)
 	wg.Go(func() {
-		failedWriter("build/failed.txt", failCh)
+		failedWriter(failedPath, failCh)
 	})
 	failCh <- "https://example.invalid/page"
 	close(failCh)
 	wg.Wait()
-	b4, err := os.ReadFile("build/failed.txt")
+	b4, err := os.ReadFile(failedPath)
 	if err != nil {
 		t.Fatalf("read failed file: %v", err)
 	}
 	if len(b4) == 0 {
 		t.Fatalf("failed file empty")
 	}
-
-	// cleanup
-	os.Remove("build/processed.txt")
-	os.Remove("build/missing_verse_number.txt")
-	os.Remove("build/gospels.txt")
-	os.Remove("build/failed.txt")
 }
