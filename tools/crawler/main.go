@@ -35,8 +35,7 @@ var failed int64
 var verseLine = regexp.MustCompile(`\s*\{\{(\d+)\}\}`)
 var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>]+>\s*)*</sup>`)
 
-// workerSleep is the time the worker pauses between requests. Overridable in tests.
-var workerSleep = 300 * time.Millisecond
+const defaultWorkerSleep = 300 * time.Millisecond
 
 func wrapVerseHTML(s string) string {
 	return verseHTML.ReplaceAllString(s, "{{$1}}")
@@ -158,7 +157,8 @@ func worker(
 	missing chan<- string,
 	failedURLs chan<- string,
 	wg *sync.WaitGroup,
-	total int) {
+	total int,
+	sleepDuration time.Duration) {
 	defer wg.Done()
 
 	for url := range jobs {
@@ -251,7 +251,7 @@ func worker(
 				atomic.AddInt64(&matched, 1)
 			}
 			done <- url
-			time.Sleep(workerSleep)
+			time.Sleep(sleepDuration)
 		}()
 	}
 }
@@ -341,7 +341,7 @@ func writeLinksToFile(filename string, links []string) error {
 	return writer.Flush()
 }
 
-func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string) error {
+func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string, sleepDuration time.Duration) error {
 	atomic.StoreInt64(&checked, 0)
 	atomic.StoreInt64(&matched, 0)
 	atomic.StoreInt64(&missingVerse, 0)
@@ -416,7 +416,7 @@ func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, 
 	// start workers
 	for range cst.Workers {
 		workerWG.Add(1)
-		go worker(client, jobs, results, done, missing, failedCh, &workerWG, len(toProcess))
+		go worker(client, jobs, results, done, missing, failedCh, &workerWG, len(toProcess), defaultWorkerSleep)
 	}
 
 	// enqueue jobs
@@ -458,7 +458,7 @@ func main() {
 	flag.StringVar(&missingPath, "missing", missingPath, "missing verse file")
 	flag.Parse()
 
-	if err := runCrawler(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix); err != nil {
+	if err := runCrawler(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix, defaultWorkerSleep); err != nil {
 		log.Fatalf("crawl failed: %v", err)
 	}
 }
