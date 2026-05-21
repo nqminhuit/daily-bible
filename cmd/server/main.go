@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/minh/daily-bible/internal/api"
@@ -11,7 +12,12 @@ import (
 )
 
 func main() {
-	db, err := dbpkg.Open(constants.DBPath)
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = constants.DBPath
+	}
+
+	db, err := dbpkg.Open(dbPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
 	}
