@@ -4,6 +4,7 @@ PHONY_TARGETS := $(shell grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | cut -d
 .PHONY: $(PHONY_TARGETS)
 
 DB=build/bible.db
+PORT=:8090
 
 GOFLAGS=-tags "fts5"
 
@@ -73,9 +74,9 @@ build: ## (5) Build the binary server file
 	@mkdir -p build
 	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible ./cmd/server
 
-dev: ## (6) Run the server in development mode
+dev: ## (6) Run the server in development mode (PORT=:8090)
 	@mkdir -p build
-	go run $(GOFLAGS) ./cmd/server
+	go run $(GOFLAGS) ./cmd/server -port $(PORT)
 
 clean: ## (99) Clean the build artifacts
 	rm -rf build

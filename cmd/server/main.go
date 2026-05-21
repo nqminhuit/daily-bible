@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+	port := flag.String("port", constants.ServerAddr, "port to listen on (e.g. :8090)")
+	flag.Parse()
+
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
 		dbPath = constants.DBPath
@@ -29,13 +33,13 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         constants.ServerAddr,
+		Addr:         *port,
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
 
-	log.Printf("listening on %s", constants.ServerAddr)
+	log.Printf("listening on %s", *port)
 	log.Fatal(srv.ListenAndServe())
 }

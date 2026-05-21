@@ -12,12 +12,12 @@
 - Compile all packages: `make compile`
 - Build server binary: `make build`
 - Lint (same tool as CI): `go install honnef.co/go/tools/cmd/staticcheck@latest && staticcheck ./...`
-- Local API smoke checks (from README, after `make dev`):  
-  `curl 'http://localhost:8080/api/v1/gospel/Ga%209,1-41'`  
-  `curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'`  
-  `curl 'http://localhost:8080/api/v1/random'`  
-  `curl 'http://localhost:8080/liveness'`  
-  `curl 'http://localhost:8080/readiness'`
+- Local API smoke checks (from README, after `make dev`):
+  `curl 'http://localhost:8090/api/v1/gospel/Ga%209,1-41'`
+  `curl 'http://localhost:8090/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'`
+  `curl 'http://localhost:8090/api/v1/random'`
+  `curl 'http://localhost:8090/liveness'`
+  `curl 'http://localhost:8090/readiness'`
 
 ## High-level architecture
 
@@ -31,7 +31,7 @@
    - Runtime DB path is centralized in `internal/constants.DBPath` (`build/bible.db`).
 
 3. **HTTP API layer** (`cmd/server` + `internal/api`)
-   - `cmd/server/main.go` opens DB, builds router, and runs `net/http` server on `:8080`.
+   - `cmd/server/main.go` opens DB, builds router, and runs `net/http` server (default `:8090`, override with `-port`).
    - `NewRouter()` computes `MAX(rowid)` at startup and wires:
      - `GET /api/v1/gospel/{reference}`
      - `GET /api/v1/search?q=...`

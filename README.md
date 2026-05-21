@@ -74,20 +74,22 @@ The calendar JSON format (from [nqminhuit/liturgical-calendar](https://github.co
 
 ```shell
 make dev
+# or with a custom port:
+make dev PORT=:8080
 ```
 
-Server runs on `http://localhost:8080`.
+Server runs on `http://localhost:8090` by default.
 
 ### 3) Call API endpoints
 
 ```shell
-curl 'http://localhost:8080/api/v1/gospel/Ga%209,1-41'
-curl 'http://localhost:8080/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
-curl 'http://localhost:8080/api/v1/random'
-curl 'http://localhost:8080/api/v1/today'
-curl 'http://localhost:8080/api/v1/date/2026-03-22'
-curl 'http://localhost:8080/liveness'
-curl 'http://localhost:8080/readiness'
+curl 'http://localhost:8090/api/v1/gospel/Ga%209,1-41'
+curl 'http://localhost:8090/api/v1/search?q=Ch%C3%BAa+Gi%C3%AA-su'
+curl 'http://localhost:8090/api/v1/random'
+curl 'http://localhost:8090/api/v1/today'
+curl 'http://localhost:8090/api/v1/date/2026-03-22'
+curl 'http://localhost:8090/liveness'
+curl 'http://localhost:8090/readiness'
 ```
 
 #### Endpoints
@@ -170,5 +172,6 @@ make build
 | `make crawl-lectionary` | Populate lectionary table from Vatican News |
 | `make setup-lectionary FILE=...` | Full lectionary setup (calendar + crawl) |
 | `make build` | Build server binary |
-| `make dev` | Run server in development mode |
+| `make dev` | Run server in development mode (default `:8090`) |
+| `make dev PORT=:8080` | Run server on custom port |
 | `make clean` | Clean build artifacts |
