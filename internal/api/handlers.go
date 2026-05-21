@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/minh/daily-bible/internal/constants"
 	"github.com/minh/daily-bible/internal/model"
 )
 
@@ -308,8 +309,13 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 }
 
 func makeTodayHandler(db *sql.DB) http.HandlerFunc {
+	loc, err := time.LoadLocation(constants.Timezone)
+	if err != nil {
+		log.Printf("time.Now() error: %v", err)
+		return nil
+	}
 	return makeDateHandler(db, func() string {
-		return time.Now().Format("2006-01-02")
+		return time.Now().In(loc).Format("2006-01-02")
 	})
 }
 
