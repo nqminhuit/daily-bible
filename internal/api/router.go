@@ -3,10 +3,31 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/minh/daily-bible/internal/constants"
 )
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		wrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		next.ServeHTTP(wrapped, r)
+		log.Printf("%s %s %d %s", r.Method, r.URL.Path, wrapped.statusCode, time.Since(start))
+	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
 
 // NewRouter initializes HTTP handlers and returns an http.Handler. Returns an error
 // if required startup checks (like reading the max rowid) fail so the caller can
@@ -23,5 +44,5 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	mux.HandleFunc("/api/v1/search", makeSearchHandler(db))
 	mux.HandleFunc("/api/v1/random", makeRandomHandler(db, maxRowID))
 	mux.HandleFunc("/api/v1/today", makeTodayHandler(db))
-	return mux, nil
+	return loggingMiddleware(mux), nil
 }
