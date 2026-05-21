@@ -266,6 +266,9 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// ftsPhraseQuery wraps the query in double quotes for exact phrase matching in FTS5.
+// This is intentional: the search endpoint is designed for phrase-only search.
+// Users cannot search for individual tokens; the entire query is treated as a phrase.
 func ftsPhraseQuery(q string) string {
 	escaped := strings.ReplaceAll(q, `"`, `""`)
 	return fmt.Sprintf(`"%s"`, escaped)
