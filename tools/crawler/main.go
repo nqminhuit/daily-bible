@@ -15,7 +15,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"golang.org/x/net/html"
+
 	cst "github.com/minh/daily-bible/internal/constants"
+	"github.com/minh/daily-bible/internal/parser"
 )
 
 var bufPool = sync.Pool{
@@ -202,7 +205,7 @@ func worker(
 			bufPool.Put(buf)
 
 			// Vatican-only parsing: require Vatican markers and paragraph extraction.
-			if idx := findReadingStartVatican(html); idx == -1 {
+			if idx := parser.FindReadingStartVatican(html); idx == -1 {
 				log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
 				atomic.AddInt64(&failed, 1)
 				if failedURLs != nil {
@@ -210,7 +213,7 @@ func worker(
 				}
 				return
 			}
-			article, ref, err := ExtractGospel(html)
+			article, ref, err := parser.ExtractGospel(html)
 			if err != nil {
 				log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
 				atomic.AddInt64(&failed, 1)
@@ -219,7 +222,7 @@ func worker(
 				}
 				return
 			}
-			idx2 := findReadingStartVatican(article)
+			idx2 := parser.FindReadingStartVatican(article)
 			if idx2 == -1 {
 				log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
 				atomic.AddInt64(&failed, 1)
@@ -458,4 +461,32 @@ func main() {
 	if err := runCrawler(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix); err != nil {
 		log.Fatalf("crawl failed: %v", err)
 	}
+}
+
+func findNode(n *html.Node, match func(*html.Node) bool) *html.Node {
+	return parser.FindNode(n, match)
+}
+
+func findLastNode(n *html.Node, match func(*html.Node) bool) *html.Node {
+	return parser.FindLastNode(n, match)
+}
+
+func hasClass(n *html.Node, class string) bool {
+	return parser.HasClass(n, class)
+}
+
+func getText(n *html.Node) string {
+	return parser.GetText(n)
+}
+
+func isVerseParagraph(p *html.Node) bool {
+	return parser.IsVerseParagraph(p)
+}
+
+func isGospelHeader(p *html.Node) bool {
+	return parser.IsGospelHeader(p)
+}
+
+func extractGospelSection(content *html.Node) string {
+	return parser.ExtractGospelSection(content)
 }

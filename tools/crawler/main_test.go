@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"golang.org/x/net/html"
+
+	"github.com/minh/daily-bible/internal/parser"
 )
 
 // RoundTripper that always returns an error for testing client GET failures
@@ -429,7 +431,7 @@ func TestExtractMissingContentCausesError(t *testing.T) {
 	h := `<html><body>
 	<section>Tin Mừng ngày hôm nay</section>
 	</body></html>`
-	_, _, err := ExtractGospel(h)
+	_, _, err := parser.ExtractGospel(h)
 	if err == nil {
 		t.Fatalf("ExtractGospel expected to error when content missing")
 	}
