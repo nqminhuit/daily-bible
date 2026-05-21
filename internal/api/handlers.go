@@ -288,7 +288,7 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		var text string
-		for attempts := 0; attempts < 10; attempts++ {
+		for range 10 {
 			randomID := 1 + rand.Int64N(maxRowID)
 			row := db.QueryRowContext(r.Context(), "SELECT text FROM verses WHERE rowid = ?", randomID)
 			if err := row.Scan(&text); err != nil {
@@ -308,35 +308,64 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 }
 
 func makeTodayHandler(db *sql.DB) http.HandlerFunc {
+	return makeDateHandler(db, func() string {
+		return time.Now().Format("2006-01-02")
+	})
+}
+
+func makeDateByPathHandler(db *sql.DB) http.HandlerFunc {
+	return makeDateHandler(db, func() string {
+		return ""
+	})
+}
+
+func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		today := time.Now().Format("2006-01-02")
-
-		var book, ref string
-		var chapter, vStart, vEnd int
-		var vStartSuffix, vEndSuffix string
-
-		err := db.QueryRowContext(r.Context(), `
-			SELECT book, chapter, verse_start, verse_start_suffix, verse_end, verse_end_suffix
-			FROM lectionary WHERE date = ?`, today).Scan(&book, &chapter, &vStart, &vStartSuffix, &vEnd, &vEndSuffix)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				http.Error(w, "no reading found for today", http.StatusNotFound)
+		date := getDate()
+		if date == "" {
+			prefix := "/api/v1/date/"
+			if !strings.HasPrefix(r.URL.Path, prefix) {
+				http.NotFound(w, r)
 				return
 			}
-			http.Error(w, fmt.Sprintf("db error: %v", err), http.StatusInternalServerError)
+			date = strings.TrimPrefix(r.URL.Path, prefix)
+			if date == "" {
+				http.Error(w, "date required", http.StatusBadRequest)
+				return
+			}
+		}
+
+		var lectionaryKey, gospelRef string
+		err := db.QueryRowContext(r.Context(), `
+			SELECT c.lectionary_key, l.gospel_ref
+			FROM calendar c
+			JOIN lectionary l ON c.lectionary_key = l.lectionary_key
+			WHERE c.date = ?
+		`, date).Scan(&lectionaryKey, &gospelRef)
+
+		if err == sql.ErrNoRows {
+			http.Error(w, "no reading found for date", http.StatusNotFound)
+			return
+		}
+		if err != nil {
+			log.Printf("today query error: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		if vStartSuffix != "" || vEndSuffix != "" {
-			ref = fmt.Sprintf("%s %d,%d%s-%d%s", book, chapter, vStart, vStartSuffix, vEnd, vEndSuffix)
-		} else {
-			ref = fmt.Sprintf("%s %d,%d-%d", book, chapter, vStart, vEnd)
+		verses, err := queryByRef(r.Context(), db, gospelRef)
+		if err != nil {
+			log.Printf("verses query error for ref %q: %v", gospelRef, err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"date":      today,
-			"reference": ref,
+		json.NewEncoder(w).Encode(map[string]any{
+			"date":           date,
+			"lectionary_key": lectionaryKey,
+			"ref":            gospelRef,
+			"verses":         verses,
 		})
 	}
 }
