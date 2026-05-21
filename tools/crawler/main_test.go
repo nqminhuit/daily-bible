@@ -152,11 +152,11 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	close(jobs)
 
 	// set workerSleep to zero to speed up test
-	workerSleep = 0
+	
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 2)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 2, 0)
 
 	// wait for worker
 	wg.Wait()
@@ -218,10 +218,10 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	jobs <- s.URL + "/bad"
 	close(jobs)
 
-	workerSleep = 0
+	
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
 	wg.Wait()
 
 	close(resultsCh)
@@ -327,12 +327,6 @@ func TestMainRun(t *testing.T) {
 	_ = os.Chdir(tmp)
 	_ = os.MkdirAll("build", 0755)
 
-	oldWorkerSleep := workerSleep
-	workerSleep = 0
-	defer func() {
-		workerSleep = oldWorkerSleep
-	}()
-
 	if err := runCrawler(
 		0,
 		"build/gospels.txt",
@@ -341,6 +335,7 @@ func TestMainRun(t *testing.T) {
 		"build/missing_verse_number.txt",
 		srv.URL+"/sitemap.xml",
 		srv.URL+"/",
+		0,
 	); err != nil {
 		t.Fatalf("runCrawler failed: %v", err)
 	}
@@ -375,12 +370,6 @@ func TestMainRun_PersistsFailedURL(t *testing.T) {
 	_ = os.Chdir(tmp)
 	_ = os.MkdirAll("build", 0755)
 
-	oldWorkerSleep := workerSleep
-	workerSleep = 0
-	defer func() {
-		workerSleep = oldWorkerSleep
-	}()
-
 	if err := runCrawler(
 		0,
 		"build/gospels.txt",
@@ -389,6 +378,7 @@ func TestMainRun_PersistsFailedURL(t *testing.T) {
 		"build/missing_verse_number.txt",
 		srv.URL+"/sitemap.xml",
 		srv.URL+"/",
+		0,
 	); err != nil {
 		t.Fatalf("runCrawler failed: %v", err)
 	}
@@ -550,10 +540,10 @@ func TestWorkerClientGetError(t *testing.T) {
 	jobs <- "http://example.invalid/"
 	close(jobs)
 
-	workerSleep = 0
+	
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -588,10 +578,10 @@ func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
 	jobs <- srv.URL + "/"
 	close(jobs)
 
-	workerSleep = 0
+	
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -628,10 +618,10 @@ func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
 	jobs <- srv.URL + "/"
 	close(jobs)
 
-	workerSleep = 0
+	
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1)
+	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
 	wg.Wait()
 
 	select {
@@ -738,7 +728,7 @@ func TestFetchSitemapAndParseNon200(t *testing.T) {
 // 	atomic.StoreInt64(&matched, 0)
 // 	atomic.StoreInt64(&missingVerse, 0)
 
-// 	workerSleep = 0
+// 	
 // 	var wg sync.WaitGroup
 // 	wg.Add(1)
 // 	go worker(client, jobs, resultsCh, doneCh, missingCh, &wg, 4)
