@@ -28,9 +28,11 @@ jobs:
 
       - name: Fetch today's quote
         id: quote
+        shell: bash
         env:
           DB_PATH: resources/bible.db
         run: |
+          set -euo pipefail
           DATE=${{ inputs.date || '' }}
           CMD="./daily-bible ${DATE:-today}"
           JSON=$($CMD)
