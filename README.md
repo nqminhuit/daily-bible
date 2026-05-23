@@ -148,10 +148,7 @@ curl 'http://localhost:8090/readiness'
   "date": "2026-03-22",
   "lectionary_key": "lent_5_sun_A",
   "ref": "Ga 11,1-45",
-  "verses": [
-    {"book": "Ga", "chapter": 11, "verse": 1, "text": "..."},
-    {"book": "Ga", "chapter": 11, "verse": 2, "text": "..."}
-  ]
+  "verses": "verse one text verse two text ..."
 }
 ```
 
