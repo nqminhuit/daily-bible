@@ -54,7 +54,11 @@ func main() {
 		log.Fatalf("parse json: %v", err)
 	}
 
-	db, err := dbpkg.Open(constants.DBPath)
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = constants.DBPath
+	}
+	db, err := dbpkg.Open(dbPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
 	}

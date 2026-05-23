@@ -23,6 +23,12 @@ make tsv            # convert build/gospels.txt -> build/gospels.tsv
 make import-db      # create build/bible.db and load schema + FTS
 ```
 
+By default the database is created at `build/bible.db`. Override with `DB_PATH`:
+
+```shell
+DB_PATH=/path/to/bible.db make import-db
+```
+
 Crawler state files are kept under `build/`:
 - `processed.txt`: URLs successfully parsed
 - `failed.txt`: URLs that failed parsing and are skipped on next runs
@@ -41,6 +47,8 @@ The lectionary system maps liturgical dates to Gospel readings. It requires:
 make import-calendar FILE=resources/liturgical-calendar-2026.json
 # or fetch directly from GitHub:
 make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json
+# or point to an existing database to import:
+DB_PATH=/path/to/bible.db make import-calendar URL=https://...
 
 # 2) Crawl lectionary keys:
 make crawl-lectionary
@@ -76,6 +84,8 @@ The calendar JSON format (from [nqminhuit/liturgical-calendar](https://github.co
 make dev
 # or with a custom port:
 make dev PORT=:8080
+# or with a custom database:
+DB_PATH=/path/to/bible.db make dev
 ```
 
 Server runs on `http://localhost:8090` by default.
@@ -168,7 +178,7 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make import-calendar FILE=...` | Import liturgical calendar JSON |
+| `make import-calendar FILE=...` | Import liturgical calendar JSON (override DB path with `DB_PATH`) |
 | `make crawl-lectionary` | Populate lectionary table from Vatican News |
 | `make setup-lectionary FILE=...` | Full lectionary setup (calendar + crawl) |
 | `make build` | Build server binary |

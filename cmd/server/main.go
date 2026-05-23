@@ -21,6 +21,8 @@ func main() {
 		dbPath = constants.DBPath
 	}
 
+	log.Printf("using database at %s", dbPath)
+
 	db, err := dbpkg.Open(dbPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
