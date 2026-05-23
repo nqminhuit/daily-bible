@@ -24,9 +24,10 @@ jobs:
         run: go mod download
 
       - name: Run staticcheck
-        run: |
-          go install honnef.co/go/tools/cmd/staticcheck@latest
-          staticcheck ./...
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: "2025.1"
+          install-go: false
 
       - name: Run unit tests
         run: make test-with-race-detector

@@ -84,20 +84,30 @@ func main() {
 }
 
 func fetchGospelRef(client *http.Client, url string) (string, error) {
-	resp, err := client.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("status %d", resp.StatusCode)
-	}
+	var lastErr error
+	for attempt := range 3 {
+		if attempt > 0 {
+			time.Sleep(time.Duration(100*(1<<attempt)) * time.Millisecond)
+		}
+		resp, err := client.Get(url)
+		if err != nil {
+			lastErr = err
+			continue
+		}
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
-	if err != nil {
-		return "", fmt.Errorf("read body: %w", err)
-	}
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
+		resp.Body.Close()
+		if err != nil {
+			lastErr = fmt.Errorf("read body: %w", err)
+			continue
+		}
+		if resp.StatusCode != http.StatusOK {
+			lastErr = fmt.Errorf("status %d", resp.StatusCode)
+			continue
+		}
 
-	_, ref, err := parser.ExtractGospel(string(body))
-	return ref, err
+		_, ref, err := parser.ExtractGospel(string(body))
+		return ref, err
+	}
+	return "", lastErr
 }
