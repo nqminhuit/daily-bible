@@ -14,6 +14,7 @@ import (
 	"github.com/minh/daily-bible/internal/api"
 	"github.com/minh/daily-bible/internal/constants"
 	dbpkg "github.com/minh/daily-bible/internal/db"
+	"github.com/minh/daily-bible/internal/query"
 )
 
 func main() {
@@ -147,7 +148,7 @@ func handleSearch(ctx context.Context, db *sql.DB, q string) {
 	}
 
 	rows, err := db.QueryContext(ctx, `SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
-		api.FtsPhraseQuery(q))
+		query.FtsPhraseQuery(q))
 	if err != nil {
 		log.Fatalf("search error: %v", err)
 	}
