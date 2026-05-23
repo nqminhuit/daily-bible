@@ -115,14 +115,10 @@ func TestMissingKeysQuery(t *testing.T) {
 	defer db.Close()
 
 	_, err = db.Exec(`
-		CREATE TABLE calendar (
+		CREATE TABLE daily_readings (
 			date TEXT NOT NULL PRIMARY KEY,
 			lectionary_key TEXT NOT NULL,
-			season TEXT NOT NULL,
-			sunday_cycle TEXT NOT NULL,
-			weekday TEXT NOT NULL,
-			weekday_cycle TEXT NOT NULL,
-			week_of_season INTEGER NOT NULL
+			gospel_ref TEXT
 		)
 	`)
 	if err != nil {
@@ -130,41 +126,22 @@ func TestMissingKeysQuery(t *testing.T) {
 	}
 
 	_, err = db.Exec(`
-		CREATE TABLE lectionary (
-			lectionary_key TEXT NOT NULL PRIMARY KEY,
-			gospel_ref TEXT NOT NULL
-		)
-	`)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = db.Exec(`
-		INSERT INTO calendar (date, lectionary_key, season, sunday_cycle, weekday, weekday_cycle, week_of_season)
+		INSERT INTO daily_readings (date, lectionary_key, gospel_ref)
 		VALUES
-			('2026-01-26', 'ordinary_3_mon_II', 'ordinary', '', 'mon', 'II', 3),
-			('2026-01-27', 'ordinary_3_tue_II', 'ordinary', '', 'tue', 'II', 3),
-			('2026-03-22', 'lent_5_sun_A', 'lent', 'A', 'sun', '', 5)
-	`)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = db.Exec(`
-		INSERT INTO lectionary (lectionary_key, gospel_ref)
-		VALUES ('lent_5_sun_A', 'Ga 11,1-45')
+			('2026-01-26', 'ordinary_3_mon_II', NULL),
+			('2026-01-27', 'ordinary_3_tue_II', NULL),
+			('2026-03-22', 'lent_5_sun_A', 'Ga 11,1-45')
 	`)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rows, err := db.Query(`
-		SELECT DISTINCT c.lectionary_key, c.date
-		FROM calendar c
-		LEFT JOIN lectionary l ON c.lectionary_key = l.lectionary_key
-		WHERE l.lectionary_key IS NULL
-		GROUP BY c.lectionary_key
-		ORDER BY c.date
+		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
+		FROM daily_readings dr
+		WHERE dr.gospel_ref IS NULL
+		GROUP BY dr.lectionary_key
+		ORDER BY MIN(dr.date)
 	`)
 	if err != nil {
 		t.Fatal(err)

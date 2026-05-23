@@ -78,17 +78,9 @@ func setupTestDB(t *testing.T) string {
 
 	today := time.Now().Format("2006-01-02")
 	_, err = database.Exec(`
-		INSERT INTO calendar (date, lectionary_key, season, sunday_cycle, weekday, weekday_cycle, week_of_season)
-		VALUES (?, 'lent_5_sun_A', 'lent', 'A', 'sun', '', 5)
+		INSERT INTO daily_readings (date, lectionary_key, gospel_ref)
+		VALUES (?, 'lent_5_sun_A', 'Ga 11,1-2')
 	`, today)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = database.Exec(`
-		INSERT INTO lectionary (lectionary_key, gospel_ref)
-		VALUES ('lent_5_sun_A', 'Ga 11,1-2')
-	`)
 	if err != nil {
 		t.Fatal(err)
 	}
