@@ -346,6 +346,11 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 			}
 		}
 
+		if _, err := time.Parse("2006-01-02", date); err != nil {
+			http.Error(w, "invalid date format, expected YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+
 		var lectionaryKey, gospelRef string
 		err := db.QueryRowContext(r.Context(), `
 			SELECT c.lectionary_key, l.gospel_ref
