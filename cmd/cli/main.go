@@ -92,10 +92,9 @@ func handleDate(ctx context.Context, db *sql.DB, date string) {
 func outputDateReading(ctx context.Context, db *sql.DB, date string) {
 	var lectionaryKey, gospelRef string
 	err := db.QueryRowContext(ctx, `
-		SELECT c.lectionary_key, l.gospel_ref
-		FROM calendar c
-		JOIN lectionary l ON c.lectionary_key = l.lectionary_key
-		WHERE c.date = ?
+		SELECT lectionary_key, gospel_ref
+		FROM daily_readings
+		WHERE date = ? AND gospel_ref IS NOT NULL
 	`, date).Scan(&lectionaryKey, &gospelRef)
 
 	if err == sql.ErrNoRows {
