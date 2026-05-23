@@ -19,12 +19,28 @@ import (
 	"github.com/minh/daily-bible/internal/parser"
 )
 
-var checked int64
-var matched int64
-var missingVerse int64
-var failed int64
 var verseLine = regexp.MustCompile(`\s*\{\{(\d+)\}\}`)
 var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>]+>\s*)*</sup>`)
+
+type crawlCounters struct {
+	checked      int64
+	matched      int64
+	missingVerse int64
+	failed       int64
+}
+
+type workerConfig struct {
+	client        *http.Client
+	jobs          <-chan string
+	results       chan<- string
+	done          chan<- string
+	missing       chan<- string
+	failedURLs    chan<- string
+	wg            *sync.WaitGroup
+	total         int
+	sleepDuration time.Duration
+	counters      *crawlCounters
+}
 
 const defaultWorkerSleep = 300 * time.Millisecond
 
@@ -140,52 +156,43 @@ func cleanText(s string) string {
 	return strings.Join(out, "\n")
 }
 
-func worker(
-	client *http.Client,
-	jobs <-chan string,
-	results chan<- string,
-	done chan<- string,
-	missing chan<- string,
-	failedURLs chan<- string,
-	wg *sync.WaitGroup,
-	total int,
-	sleepDuration time.Duration) {
-	defer wg.Done()
+func worker(cfg workerConfig) {
+	defer cfg.wg.Done()
 
-	for url := range jobs {
+	for url := range cfg.jobs {
 		func() {
 			defer func() {
-				c := atomic.AddInt64(&checked, 1)
-				if total <= 0 || c%cst.Progress != 0 {
+				c := atomic.AddInt64(&cfg.counters.checked, 1)
+				if cfg.total <= 0 || c%cst.Progress != 0 {
 					return
 				}
 				log.Printf(
 					"Progress: %d / %d (%.2f%%) | Matches: %d | Missing Verse markers: %d | Failed: %d\n",
 					c,
-					total,
-					float64(c)*100/float64(total),
-					atomic.LoadInt64(&matched),
-					atomic.LoadInt64(&missingVerse),
-					atomic.LoadInt64(&failed),
+					cfg.total,
+					float64(c)*100/float64(cfg.total),
+					atomic.LoadInt64(&cfg.counters.matched),
+					atomic.LoadInt64(&cfg.counters.missingVerse),
+					atomic.LoadInt64(&cfg.counters.failed),
 				)
 			}()
 
-			resp, err := client.Get(url)
+			resp, err := cfg.client.Get(url)
 			if err != nil {
-				atomic.AddInt64(&failed, 1)
+				atomic.AddInt64(&cfg.counters.failed, 1)
 				return
 			}
 
 			if resp.StatusCode != http.StatusOK {
 				resp.Body.Close()
-				atomic.AddInt64(&failed, 1)
+				atomic.AddInt64(&cfg.counters.failed, 1)
 				return
 			}
 
 			body, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20))
 			resp.Body.Close()
 			if err != nil {
-				atomic.AddInt64(&failed, 1)
+				atomic.AddInt64(&cfg.counters.failed, 1)
 				return
 			}
 
@@ -194,27 +201,27 @@ func worker(
 			// Vatican-only parsing: require Vatican markers and paragraph extraction.
 			if idx := parser.FindReadingStartVatican(html); idx == -1 {
 				log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
-				atomic.AddInt64(&failed, 1)
-				if failedURLs != nil {
-					failedURLs <- url
+				atomic.AddInt64(&cfg.counters.failed, 1)
+				if cfg.failedURLs != nil {
+					cfg.failedURLs <- url
 				}
 				return
 			}
 			article, ref, err := parser.ExtractGospel(html)
 			if err != nil {
 				log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
-				atomic.AddInt64(&failed, 1)
-				if failedURLs != nil {
-					failedURLs <- url
+				atomic.AddInt64(&cfg.counters.failed, 1)
+				if cfg.failedURLs != nil {
+					cfg.failedURLs <- url
 				}
 				return
 			}
 			idx2 := parser.FindReadingStartVatican(article)
 			if idx2 == -1 {
 				log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
-				atomic.AddInt64(&failed, 1)
-				if failedURLs != nil {
-					failedURLs <- url
+				atomic.AddInt64(&cfg.counters.failed, 1)
+				if cfg.failedURLs != nil {
+					cfg.failedURLs <- url
 				}
 				return
 			}
@@ -231,14 +238,14 @@ func worker(
 			b.WriteString(content)
 			b.WriteString("\n")
 			if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
-				missing <- b.String()
-				atomic.AddInt64(&missingVerse, 1)
+				cfg.missing <- b.String()
+				atomic.AddInt64(&cfg.counters.missingVerse, 1)
 			} else {
-				results <- b.String()
-				atomic.AddInt64(&matched, 1)
+				cfg.results <- b.String()
+				atomic.AddInt64(&cfg.counters.matched, 1)
 			}
-			done <- url
-			time.Sleep(sleepDuration)
+			cfg.done <- url
+			time.Sleep(cfg.sleepDuration)
 		}()
 	}
 }
@@ -330,10 +337,7 @@ func writeLinksToFile(filename string, links []string) error {
 }
 
 func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string, sleepDuration time.Duration) error {
-	atomic.StoreInt64(&checked, 0)
-	atomic.StoreInt64(&matched, 0)
-	atomic.StoreInt64(&missingVerse, 0)
-	atomic.StoreInt64(&failed, 0)
+	counters := &crawlCounters{}
 
 	startTime := time.Now()
 
@@ -404,7 +408,18 @@ func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, 
 	// start workers
 	for range cst.Workers {
 		workerWG.Add(1)
-		go worker(client, jobs, results, done, missing, failedCh, &workerWG, len(toProcess), defaultWorkerSleep)
+		go worker(workerConfig{
+			client:        client,
+			jobs:          jobs,
+			results:       results,
+			done:          done,
+			missing:       missing,
+			failedURLs:    failedCh,
+			wg:            &workerWG,
+			total:         len(toProcess),
+			sleepDuration: defaultWorkerSleep,
+			counters:      counters,
+		})
 	}
 
 	// enqueue jobs
@@ -422,10 +437,10 @@ func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, 
 
 	log.Println()
 	log.Println("Crawl finished")
-	log.Println("Checked pages:", checked)
-	log.Println("Matched pages:", matched)
-	log.Println("Missing verse number pages:", missingVerse)
-	log.Println("Failed pages:", failed)
+	log.Println("Checked pages:", atomic.LoadInt64(&counters.checked))
+	log.Println("Matched pages:", atomic.LoadInt64(&counters.matched))
+	log.Println("Missing verse number pages:", atomic.LoadInt64(&counters.missingVerse))
+	log.Println("Failed pages:", atomic.LoadInt64(&counters.failed))
 	log.Println("Time elapsed:", time.Since(startTime))
 	return nil
 }
