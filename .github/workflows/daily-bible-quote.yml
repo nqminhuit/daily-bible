@@ -2,6 +2,11 @@ name: Daily Bible Quote
 
 on:
   workflow_dispatch:
+    inputs:
+      date:
+        description: 'Date (YYYY-MM-DD). Leave empty for today.'
+        required: false
+        type: string
   schedule:
     - cron: '0 8 * * *'  # 08:00 UTC = 15:00 ICT
 
@@ -26,14 +31,17 @@ jobs:
         env:
           DB_PATH: resources/bible.db
         run: |
-          JSON=$(./daily-bible today)
+          DATE=${{ inputs.date || '' }}
+          CMD="./daily-bible ${DATE:-today}"
+          JSON=$($CMD)
           REF=$(echo "$JSON" | jq -r '.ref')
           TEXT=$(echo "$JSON" | jq -r '.verses')
           {
-            echo "ref=$REF"
-            echo "text<<EOF"
-            echo "$REF: $TEXT"
-            echo "EOF"
+          echo "ref=$REF"
+          echo "text<<EOF"
+          echo "$REF"
+          echo "$TEXT"
+          echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Send via XMPP
