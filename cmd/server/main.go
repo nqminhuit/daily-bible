@@ -29,10 +29,7 @@ func main() {
 	}
 	defer db.Close()
 
-	mux, err := api.NewRouter(db)
-	if err != nil {
-		log.Fatalf("init router: %v", err)
-	}
+	mux := api.NewRouter(db)
 
 	srv := &http.Server{
 		Addr:         *port,
