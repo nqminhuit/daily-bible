@@ -80,6 +80,7 @@ func main() {
 	defer stmt.Close()
 
 	inserted := 0
+	var failed int
 	for date, entry := range cal {
 		if _, err := stmt.Exec(
 			date,
@@ -91,6 +92,7 @@ func main() {
 			entry.WeekOfSeason,
 		); err != nil {
 			log.Printf("insert %s: %v", date, err)
+			failed++
 		} else {
 			inserted++
 		}
@@ -99,7 +101,10 @@ func main() {
 	if err := tx.Commit(); err != nil {
 		log.Fatalf("commit: %v", err)
 	}
-	log.Printf("imported %d calendar entries", inserted)
+	log.Printf("imported %d calendar entries (%d failed)", inserted, failed)
+	if failed > 0 {
+		os.Exit(1)
+	}
 }
 
 func fetchURL(rawURL string) ([]byte, error) {
