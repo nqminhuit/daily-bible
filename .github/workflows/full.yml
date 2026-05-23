@@ -22,7 +22,7 @@ jobs:
 
       - name: Run
         run: |
-          make crawler
+          make crawler-all-urls
           make tsv
           make import-db
           make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2023.json
