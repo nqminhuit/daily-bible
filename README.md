@@ -38,23 +38,14 @@ If you want to retry previously failed URLs after parser updates, delete `build/
 
 ### 1b) Set up the lectionary (optional)
 
-The lectionary system maps liturgical dates to Gospel readings. It requires:
-1. A liturgical calendar JSON file (one per year)
-2. A crawl of Vatican News to resolve lectionary keys to Gospel references
+The lectionary system maps liturgical dates to Gospel readings. It fetches a liturgical calendar JSON (one per year) and crawls Vatican News to resolve lectionary keys to Gospel references.
 
 ```shell
-# 1) Download calendar JSON (e.g. for 2026):
-make import-calendar FILE=resources/liturgical-calendar-2026.json
-# or fetch directly from GitHub:
-make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json
-# or point to an existing database to import:
-DB_PATH=/path/to/bible.db make import-calendar URL=https://...
+# Download calendar JSON(s) + crawl in one step (comma-separate multiple years):
+make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
 
-# 2) Crawl lectionary keys:
-make crawl-lectionary
-
-# or run both at once:
-make setup-lectionary URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json
+# Or run both at once (alias):
+make setup-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
 ```
 
 Calendar JSON files should be placed under `resources/`:
@@ -166,15 +157,14 @@ Useful sqlite commands:
 .tables
 .schema verses
 .schema verses_fts
-.schema lectionary
-.schema calendar
+.schema daily_readings
 .mode column
 .headers on
 
 SELECT book, chapter, verse, text FROM verses LIMIT 10;
 SELECT text FROM verses_fts WHERE verses_fts MATCH 'Giêsu' LIMIT 10;
-SELECT * FROM lectionary LIMIT 5;
-SELECT * FROM calendar WHERE date = '2026-03-22';
+SELECT * FROM daily_readings LIMIT 5;
+SELECT * FROM daily_readings WHERE date = '2026-03-22';
 ```
 
 Run query directly from shell:
@@ -202,9 +192,8 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make import-calendar FILE=...` | Import liturgical calendar JSON (override DB path with `DB_PATH`) |
-| `make crawl-lectionary` | Populate lectionary table from Vatican News |
-| `make setup-lectionary FILE=...` | Full lectionary setup (calendar + crawl) |
+| `make crawl-lectionary CALENDAR_URLS=...` | Populate daily_readings from calendar JSON and Vatican News |
+| `make setup-lectionary CALENDAR_URLS=...` | Full lectionary setup (download + crawl) |
 | `make build` | Build server binary (`build/daily-bible-server`) |
 | `make build-cli` | Build CLI binary (`build/daily-bible`) |
 | `make dev` | Run server in development mode (default `:8090`) |

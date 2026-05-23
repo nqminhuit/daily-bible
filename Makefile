@@ -52,23 +52,14 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 	| sqlite3 $(DB)
 
 	sqlite3 $(DB) "INSERT INTO verses_fts(verses_fts) VALUES('rebuild');"
-	sqlite3 $(DB) < data/migrations/002_lectionary.sql
-	sqlite3 $(DB) < data/migrations/003_calendar.sql
+	sqlite3 $(DB) < data/migrations/002_daily_readings.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
-import-calendar: ## Import liturgical calendar JSON (FILE=path or URL=https://...)
-	@if [ -n "$(URL)" ]; then \
-		go run $(GOFLAGS) ./tools/calendar --url=$(URL); \
-	else \
-		go run $(GOFLAGS) ./tools/calendar --file=$(FILE); \
-	fi
+crawl-lectionary: ## Populate daily_readings (CALENDAR_URLS=comma-separated JSON URLs)
+	go run $(GOFLAGS) ./tools/lectionarycrawler -calendar-urls="$(CALENDAR_URLS)"
 
-crawl-lectionary: ## Populate lectionary table by crawling Vatican News
-	go run $(GOFLAGS) ./tools/lectionarycrawler
-
-setup-lectionary: ## Full lectionary setup (FILE=path or URL=https://...)
-	$(MAKE) import-calendar FILE=$(FILE) URL=$(URL)
-	$(MAKE) crawl-lectionary
+setup-lectionary: ## Full lectionary setup (CALENDAR_URLS=comma-separated JSON URLs)
+	$(MAKE) crawl-lectionary CALENDAR_URLS="$(CALENDAR_URLS)"
 
 build: ## (5) Build the server binary
 	@mkdir -p build
