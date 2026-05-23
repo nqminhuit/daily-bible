@@ -1,6 +1,9 @@
 package main
 
 import (
+	"database/sql"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -13,20 +16,47 @@ import (
 	"github.com/minh/daily-bible/internal/parser"
 )
 
+type CalendarEntry struct {
+	LectionaryKey string `json:"lectionary_key"`
+}
+
 func main() {
+	var calendarURLs string
+	flag.StringVar(&calendarURLs, "calendar-urls", "", "comma-separated list of liturgical calendar JSON URLs")
+	flag.Parse()
+
+	if calendarURLs == "" {
+		log.Fatal("--calendar-urls is required")
+	}
+
+	urls := strings.Split(calendarURLs, ",")
+	for i := range urls {
+		urls[i] = strings.TrimSpace(urls[i])
+	}
+
 	db, err := dbpkg.Open(constants.DBPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
 	}
 	defer db.Close()
 
+	client := &http.Client{Timeout: 30 * time.Second}
+
+	totalInserted := 0
+	for _, url := range urls {
+		if err := importCalendarURL(client, db, url); err != nil {
+			log.Fatalf("import %s: %v", url, err)
+		}
+		totalInserted++
+	}
+	log.Printf("imported %d calendar files", totalInserted)
+
 	rows, err := db.Query(`
-		SELECT c.lectionary_key, MIN(c.date)
-		FROM calendar c
-		LEFT JOIN lectionary l ON c.lectionary_key = l.lectionary_key
-		WHERE l.lectionary_key IS NULL
-		GROUP BY c.lectionary_key
-		ORDER BY MIN(c.date)
+		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
+		FROM daily_readings dr
+		WHERE dr.gospel_ref IS NULL
+		GROUP BY dr.lectionary_key
+		ORDER BY MIN(dr.date)
 	`)
 	if err != nil {
 		log.Fatalf("query missing keys: %v", err)
@@ -50,7 +80,7 @@ func main() {
 
 	log.Printf("found %d lectionary keys to populate", len(jobs))
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	crawlClient := &http.Client{Timeout: 10 * time.Second}
 
 	for i, j := range jobs {
 		parts := strings.SplitN(j.date, "-", 3)
@@ -63,7 +93,7 @@ func main() {
 			parts[0], parts[1], parts[2],
 		)
 
-		ref, err := fetchGospelRef(client, url)
+		ref, err := fetchGospelRef(crawlClient, url)
 		if err != nil {
 			log.Printf("[%d/%d] FAIL key=%s date=%s: %v", i+1, len(jobs), j.key, j.date, err)
 			time.Sleep(500 * time.Millisecond)
@@ -71,16 +101,73 @@ func main() {
 		}
 
 		if _, err := db.Exec(
-			`INSERT OR IGNORE INTO lectionary (lectionary_key, gospel_ref) VALUES (?, ?)`,
-			j.key, ref,
+			`UPDATE daily_readings SET gospel_ref = ? WHERE lectionary_key = ? AND gospel_ref IS NULL`,
+			ref, j.key,
 		); err != nil {
-			log.Printf("insert %s: %v", j.key, err)
+			log.Printf("update %s: %v", j.key, err)
 			continue
 		}
 
 		log.Printf("[%d/%d] OK key=%s ref=%s", i+1, len(jobs), j.key, ref)
 		time.Sleep(300 * time.Millisecond)
 	}
+}
+
+func importCalendarURL(client *http.Client, db *sql.DB, url string) error {
+	data, err := fetchURL(client, url)
+	if err != nil {
+		return fmt.Errorf("fetch url: %w", err)
+	}
+
+	var cal map[string]CalendarEntry
+	if err := json.Unmarshal(data, &cal); err != nil {
+		return fmt.Errorf("parse json: %w", err)
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+
+	stmt, err := tx.Prepare(`INSERT OR IGNORE INTO daily_readings (date, lectionary_key) VALUES (?, ?)`)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("prepare: %w", err)
+	}
+	defer stmt.Close()
+
+	inserted := 0
+	for date, entry := range cal {
+		if _, err := stmt.Exec(date, entry.LectionaryKey); err != nil {
+			log.Printf("insert %s: %v", date, err)
+			continue
+		}
+		inserted++
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit: %w", err)
+	}
+	log.Printf("imported %d dates from %s", inserted, url)
+	return nil
+}
+
+func fetchURL(client *http.Client, rawURL string) ([]byte, error) {
+	resp, err := client.Get(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 5<<20))
+	if err != nil {
+		return nil, fmt.Errorf("read body: %w", err)
+	}
+	return body, nil
 }
 
 func fetchGospelRef(client *http.Client, url string) (string, error) {
