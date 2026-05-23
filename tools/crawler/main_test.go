@@ -153,7 +153,18 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 2, 0)
+	go worker(workerConfig{
+		client:        client,
+		jobs:          jobs,
+		results:       resultsCh,
+		done:          doneCh,
+		missing:       missingCh,
+		failedURLs:    failedCh,
+		wg:            &wg,
+		total:         2,
+		sleepDuration: 0,
+		counters:      &crawlCounters{},
+	})
 
 	// wait for worker
 	wg.Wait()
@@ -217,9 +228,23 @@ func TestWorkerSkipsNon200(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
+	go worker(workerConfig{
+		client:        client,
+		jobs:          jobs,
+		results:       resultsCh,
+		done:          doneCh,
+		missing:       missingCh,
+		failedURLs:    failedCh,
+		wg:            &wg,
+		total:         1,
+		sleepDuration: 0,
+		counters:      &crawlCounters{},
+	})
+
+	// wait for worker
 	wg.Wait()
 
+	// close writer channels
 	close(resultsCh)
 	close(doneCh)
 	close(missingCh)
@@ -537,7 +562,18 @@ func TestWorkerClientGetError(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
+	go worker(workerConfig{
+		client:        client,
+		jobs:          jobs,
+		results:       resultsCh,
+		done:          doneCh,
+		missing:       missingCh,
+		failedURLs:    failedCh,
+		wg:            &wg,
+		total:         1,
+		sleepDuration: 0,
+		counters:      &crawlCounters{},
+	})
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -574,7 +610,18 @@ func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
+	go worker(workerConfig{
+		client:        client,
+		jobs:          jobs,
+		results:       resultsCh,
+		done:          doneCh,
+		missing:       missingCh,
+		failedURLs:    failedCh,
+		wg:            &wg,
+		total:         1,
+		sleepDuration: 0,
+		counters:      &crawlCounters{},
+	})
 	wg.Wait()
 	select {
 	case <-resultsCh:
@@ -613,7 +660,18 @@ func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go worker(client, jobs, resultsCh, doneCh, missingCh, failedCh, &wg, 1, 0)
+	go worker(workerConfig{
+		client:        client,
+		jobs:          jobs,
+		results:       resultsCh,
+		done:          doneCh,
+		missing:       missingCh,
+		failedURLs:    failedCh,
+		wg:            &wg,
+		total:         1,
+		sleepDuration: 0,
+		counters:      &crawlCounters{},
+	})
 	wg.Wait()
 
 	select {
