@@ -3,7 +3,7 @@
 PHONY_TARGETS := $(shell grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | cut -d: -f1)
 .PHONY: $(PHONY_TARGETS)
 
-DB=build/bible.db
+DB=resources/bible.db
 PORT=:8090
 
 GOFLAGS=-tags "fts5"
@@ -39,7 +39,7 @@ tsv: build/gospels.txt ## (3) Convert the crawled data to TSV format
 	go run ./tools/tsv
 
 import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite database, requires sqlite3 to be installed
-	@mkdir -p build
+	@mkdir -p resources
 	@rm -f $(DB)
 
 	sqlite3 $(DB) < data/migrations/001_initial.sql
