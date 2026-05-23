@@ -173,10 +173,9 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 
 		var lectionaryKey, gospelRef string
 		err := db.QueryRowContext(r.Context(), `
-			SELECT c.lectionary_key, l.gospel_ref
-			FROM calendar c
-			JOIN lectionary l ON c.lectionary_key = l.lectionary_key
-			WHERE c.date = ?
+			SELECT lectionary_key, gospel_ref
+			FROM daily_readings
+			WHERE date = ? AND gospel_ref IS NOT NULL
 		`, date).Scan(&lectionaryKey, &gospelRef)
 
 		if err == sql.ErrNoRows {
