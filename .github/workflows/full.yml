@@ -1,0 +1,37 @@
+name: Build Full DB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run
+        run: |
+          make crawler
+          make tsv
+          make import-db
+          make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2023.json
+          make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2024.json
+          make import-calendar URL=https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2025.json
+          make crawl-lectionary
+
+      - name: Upload DB artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          path: build/
+          name: gospel-db
