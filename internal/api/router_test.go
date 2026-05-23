@@ -53,11 +53,11 @@ func TestNewRouter_HealthHandlers(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	buildDir := "build"
-	if err := os.MkdirAll(buildDir, 0o755); err != nil {
+	resourcesDir := "resources"
+	if err := os.MkdirAll(resourcesDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	dbFile := filepath.Join(buildDir, "bible.db")
+	dbFile := filepath.Join(resourcesDir, "bible.db")
 	if err := os.WriteFile(dbFile, []byte("ready"), 0o644); err != nil {
 		t.Fatal(err)
 	}
