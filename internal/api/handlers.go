@@ -17,6 +17,7 @@ import (
 
 	"github.com/minh/daily-bible/internal/constants"
 	"github.com/minh/daily-bible/internal/model"
+	"github.com/minh/daily-bible/internal/query"
 )
 
 var verseSegmentRe = regexp.MustCompile(`^(\d+)([a-zA-Z]?)$`)
@@ -248,7 +249,7 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		rows, err := db.QueryContext(r.Context(), `SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
-			FtsPhraseQuery(q))
+			query.FtsPhraseQuery(q))
 		if err != nil {
 			log.Printf("fts search error: %v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -268,14 +269,6 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(results)
 	}
-}
-
-// ftsPhraseQuery wraps the query in double quotes for exact phrase matching in FTS5.
-// This is intentional: the search endpoint is designed for phrase-only search.
-// Users cannot search for individual tokens; the entire query is treated as a phrase.
-func FtsPhraseQuery(q string) string {
-	escaped := strings.ReplaceAll(q, `"`, `""`)
-	return fmt.Sprintf(`"%s"`, escaped)
 }
 
 // maxRandomRetries is the number of random rowid attempts before giving up.
