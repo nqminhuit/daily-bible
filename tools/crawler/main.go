@@ -298,21 +298,29 @@ func resultsWriter(filename string, ch <-chan string) {
 
 	w := bufio.NewWriter(f)
 	count := 0
+	writeFailed := false
 	for r := range ch {
+		if writeFailed {
+			continue
+		}
+
 		if _, err := w.WriteString(r); err != nil {
-			log.Printf("Failed writing crawler result payload: %v, aborting writer\n", err)
-			return
+			log.Printf("Failed writing crawler result payload: %v, draining remaining results\n", err)
+			writeFailed = true
+			continue
 		}
 		count++
 		if count%10 == 0 {
 			if err := w.Flush(); err != nil {
-				log.Printf("Failed flushing crawler results writer: %v, aborting writer\n", err)
-				return
+				log.Printf("Failed flushing crawler results writer: %v, draining remaining results\n", err)
+				writeFailed = true
 			}
 		}
 	}
-	if err := w.Flush(); err != nil {
-		log.Printf("Failed final flush for crawler results writer: %v\n", err)
+	if !writeFailed {
+		if err := w.Flush(); err != nil {
+			log.Printf("Failed final flush for crawler results writer: %v\n", err)
+		}
 	}
 }
 
