@@ -36,7 +36,7 @@ Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → b
 
 - **Runtime path**: `build/bible.db`, overridable via `DB_PATH` env var
 - **Schema**: `verses(book, chapter, verse, verse_suffix, text)` — composite PK includes `verse_suffix`
-- **Lectionary**: `lectionary(date, book, chapter, verse_start, verse_start_suffix, verse_end, verse_end_suffix)`
+- **Lectionary**: `lectionary(lectionary_key TEXT PRIMARY KEY, gospel_ref TEXT NOT NULL)` maps a liturgical key to a Gospel reference
 - **FTS**: `verses_fts` uses `unicode61 remove_diacritics 2` with prefix indexing, synced by triggers
 - **Connection pool**: `SetMaxOpenConns(1)` — SQLite is single-connection
 
@@ -64,7 +64,7 @@ Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → b
 ```
 cmd/server/main.go          — HTTP server entrypoint
 cmd/cli/main.go             — CLI entrypoint (`today`, `gospel`, `search`, `random`, date)
-internal/api/               — handlers, router, middleware
+internal/api/               — handlers, router, middleware, ref parsing + query
 internal/db/                — DB open + schema init
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
