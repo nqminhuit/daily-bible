@@ -285,15 +285,20 @@ func FtsPhraseQuery(q string) string {
 const maxRandomRetries = 10
 
 // makeRandomHandler returns a handler that serves a random verse from the database.
-// The table "verses" is expected to be static, immutable,
-// and have a rowid column that is a dense sequence from 1 to maxRowID.
-func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
-	if maxRowID <= 0 {
-		return func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "no verses available", http.StatusNotFound)
-		}
-	}
+// MAX(rowid) is queried per-request so the handler works correctly even if
+// rows are inserted after server startup.
+func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var maxRowID int64
+		if err := db.QueryRowContext(r.Context(), "SELECT IFNULL(MAX(rowid), 0) FROM verses").Scan(&maxRowID); err != nil {
+			log.Printf("query max rowid: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		if maxRowID <= 0 {
+			http.Error(w, "no verses available", http.StatusNotFound)
+			return
+		}
 		var text string
 		for range maxRandomRetries {
 			randomID := 1 + rand.Int64N(maxRowID)

@@ -328,7 +328,7 @@ func TestRandomHandler_Behavior(t *testing.T) {
 	// no rows -> 404
 	db := setupTestDB(t)
 	defer db.Close()
-	h := makeRandomHandler(db, 1)
+	h := makeRandomHandler(db)
 	req := httptest.NewRequest("GET", "/", nil)
 	req.URL.Path = "/api/v1/random"
 	w := httptest.NewRecorder()
@@ -357,7 +357,7 @@ func TestRandomHandler_Behavior(t *testing.T) {
 	// db error
 	dbErr := setupTestDB(t)
 	dbErr.Close()
-	h = makeRandomHandler(dbErr, 1)
+	h = makeRandomHandler(dbErr)
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, req)
 	if w.Code != http.StatusInternalServerError {

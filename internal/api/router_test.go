@@ -14,10 +14,7 @@ func TestNewRouter_RegistersHandlers_404(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	r, err := NewRouter(db)
-	if err != nil {
-		t.Fatal(err)
-	}
+	r := NewRouter(db)
 
 	// no rows -> 404
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
@@ -37,10 +34,7 @@ func TestNewRouter_RegistersHandlers_Ok(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r, err := NewRouter(db)
-	if err != nil {
-		t.Fatal(err)
-	}
+	r := NewRouter(db)
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -63,10 +57,7 @@ func TestNewRouter_HealthHandlers(t *testing.T) {
 	}
 	defer os.Remove(dbFile)
 
-	r, err := NewRouter(db)
-	if err != nil {
-		t.Fatal(err)
-	}
+	r := NewRouter(db)
 
 	for path, want := range map[string]int{
 		"/liveness":  http.StatusOK,
