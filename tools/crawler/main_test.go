@@ -684,6 +684,20 @@ func TestFetchSitemapAndParseNon200(t *testing.T) {
 	}
 }
 
+func waitWithTimeout(wg *sync.WaitGroup, timeout time.Duration) error {
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+		return nil
+	case <-time.After(timeout):
+		return fmt.Errorf("timed out after %v", timeout)
+	}
+}
+
 func TestProcessedAndMissingWriters(t *testing.T) {
 	tmp := t.TempDir()
 	buildDir := filepath.Join(tmp, "build")
@@ -694,6 +708,8 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	gospelsPath := filepath.Join(buildDir, "gospels.txt")
 	failedPath := filepath.Join(buildDir, "failed.txt")
 
+	timeout := 5 * time.Second
+
 	procCh := make(chan string, 2)
 	var wg sync.WaitGroup
 	wg.Go(func() {
@@ -703,7 +719,9 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	procCh <- "u1"
 	procCh <- "u2"
 	close(procCh)
-	wg.Wait()
+	if err := waitWithTimeout(&wg, timeout); err != nil {
+		t.Fatal(err)
+	}
 
 	b, err := os.ReadFile(processedPath)
 	if err != nil {
@@ -719,7 +737,9 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	})
 	missCh <- "m1"
 	close(missCh)
-	wg.Wait()
+	if err := waitWithTimeout(&wg, timeout); err != nil {
+		t.Fatal(err)
+	}
 	b2, err := os.ReadFile(missingPath)
 	if err != nil {
 		t.Fatalf("read missing file: %v", err)
@@ -735,7 +755,9 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	resCh <- "entry1"
 	resCh <- "entry2"
 	close(resCh)
-	wg.Wait()
+	if err := waitWithTimeout(&wg, timeout); err != nil {
+		t.Fatal(err)
+	}
 	b3, err := os.ReadFile(gospelsPath)
 	if err != nil {
 		t.Fatalf("read gospels file: %v", err)
@@ -750,7 +772,9 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 	})
 	failCh <- "https://example.invalid/page"
 	close(failCh)
-	wg.Wait()
+	if err := waitWithTimeout(&wg, timeout); err != nil {
+		t.Fatal(err)
+	}
 	b4, err := os.ReadFile(failedPath)
 	if err != nil {
 		t.Fatalf("read failed file: %v", err)
