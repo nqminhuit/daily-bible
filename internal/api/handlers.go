@@ -278,6 +278,12 @@ func FtsPhraseQuery(q string) string {
 	return fmt.Sprintf(`"%s"`, escaped)
 }
 
+// maxRandomRetries is the number of random rowid attempts before giving up.
+// The retry loop handles rowid gaps caused by deleted rows; 10 retries
+// provides sufficient probability of finding an existing row even with
+// moderate deletion density.
+const maxRandomRetries = 10
+
 // makeRandomHandler returns a handler that serves a random verse from the database.
 // The table "verses" is expected to be static, immutable,
 // and have a rowid column that is a dense sequence from 1 to maxRowID.
@@ -289,7 +295,7 @@ func makeRandomHandler(db *sql.DB, maxRowID int64) http.HandlerFunc {
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		var text string
-		for range 10 {
+		for range maxRandomRetries {
 			randomID := 1 + rand.Int64N(maxRowID)
 			row := db.QueryRowContext(r.Context(), "SELECT text FROM verses WHERE rowid = ?", randomID)
 			if err := row.Scan(&text); err != nil {
