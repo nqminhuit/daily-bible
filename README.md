@@ -90,7 +90,34 @@ DB_PATH=/path/to/bible.db make dev
 
 Server runs on `http://localhost:8090` by default.
 
-### 3) Call API endpoints
+### 3) Use the CLI tool
+
+Build the CLI:
+
+```shell
+make build-cli
+# or build manually:
+go build -tags "fts5" -o build/daily-bible ./cmd/cli
+```
+
+The CLI outputs JSON to stdout:
+
+```shell
+./build/daily-bible today
+./build/daily-bible 2026-03-22
+./build/daily-bible gospel "Ga 9,1-41"
+./build/daily-bible search "Chúa Giê-su"
+./build/daily-bible random
+./build/daily-bible help
+```
+
+Override the database path:
+
+```shell
+DB_PATH=/path/to/bible.db ./build/daily-bible today
+```
+
+### 4) Call API endpoints
 
 ```shell
 curl 'http://localhost:8090/api/v1/gospel/Ga%209,1-41'
@@ -181,7 +208,8 @@ make build
 | `make import-calendar FILE=...` | Import liturgical calendar JSON (override DB path with `DB_PATH`) |
 | `make crawl-lectionary` | Populate lectionary table from Vatican News |
 | `make setup-lectionary FILE=...` | Full lectionary setup (calendar + crawl) |
-| `make build` | Build server binary |
+| `make build` | Build server binary (`build/daily-bible-server`) |
+| `make build-cli` | Build CLI binary (`build/daily-bible`) |
 | `make dev` | Run server in development mode (default `:8090`) |
 | `make dev PORT=:8080` | Run server on custom port |
 | `make clean` | Clean build artifacts |
