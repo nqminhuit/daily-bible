@@ -78,8 +78,7 @@ Commands:
 func handleToday(ctx context.Context, db *sql.DB) {
 	loc, err := time.LoadLocation(constants.Timezone)
 	if err != nil {
-		log.Printf("load timezone %q: %v, falling back to UTC", constants.Timezone, err)
-		loc = time.UTC
+		log.Fatalf("fatal: load timezone %q: %v", constants.Timezone, err)
 	}
 	date := time.Now().In(loc).Format("2006-01-02")
 	outputDateReading(ctx, db, date)
