@@ -293,13 +293,14 @@ func resultsWriter(filename string, ch <-chan string) {
 	count := 0
 	for r := range ch {
 		if _, err := w.WriteString(r); err != nil {
-			log.Printf("Failed writing crawler result payload: %v\n", err)
-			continue
+			log.Printf("Failed writing crawler result payload: %v, aborting writer\n", err)
+			return
 		}
 		count++
 		if count%10 == 0 {
 			if err := w.Flush(); err != nil {
-				log.Printf("Failed flushing crawler results writer: %v\n", err)
+				log.Printf("Failed flushing crawler results writer: %v, aborting writer\n", err)
+				return
 			}
 		}
 	}
