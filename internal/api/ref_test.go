@@ -43,29 +43,29 @@ func TestParseRef(t *testing.T) {
 		ref        string
 		wantBook   string
 		wantCh     int
-		wantRanges []verseRange
+		wantRanges []VerseRange
 		wantErr    bool
 	}{
 		{
 			ref:        "Ga 11,1-45",
 			wantBook:   "Ga",
 			wantCh:     11,
-			wantRanges: []verseRange{{start: 1, end: 45}},
+			wantRanges: []VerseRange{{Start: 1, End: 45}},
 		},
 		{
 			ref:      "Mt 5,20-22a.27-28",
 			wantBook: "Mt",
 			wantCh:   5,
-			wantRanges: []verseRange{
-				{start: 20, startSuffix: "", end: 22, endSuffix: "a"},
-				{start: 27, end: 28},
+			wantRanges: []VerseRange{
+				{Start: 20, StartSuffix: "", End: 22, EndSuffix: "a"},
+				{Start: 27, End: 28},
 			},
 		},
 		{
 			ref:        "Lc 1,1",
 			wantBook:   "Lc",
 			wantCh:     1,
-			wantRanges: []verseRange{{start: 1, end: 1}},
+			wantRanges: []VerseRange{{Start: 1, End: 1}},
 		},
 		{
 			ref:     "invalid",
@@ -79,7 +79,7 @@ func TestParseRef(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.ref, func(t *testing.T) {
-			book, chapter, ranges, err := parseRef(tc.ref)
+			book, chapter, ranges, err := ParseRef(tc.ref)
 			if tc.wantErr {
 				if err == nil {
 					t.Fatalf("expected error for ref %q", tc.ref)
@@ -100,7 +100,7 @@ func TestParseRef(t *testing.T) {
 			}
 			for i, r := range ranges {
 				w := tc.wantRanges[i]
-				if r.start != w.start || r.end != w.end || r.startSuffix != w.startSuffix || r.endSuffix != w.endSuffix {
+				if r.Start != w.Start || r.End != w.End || r.StartSuffix != w.StartSuffix || r.EndSuffix != w.EndSuffix {
 					t.Errorf("range[%d]: got %+v, want %+v", i, r, w)
 				}
 			}
@@ -128,9 +128,9 @@ func TestQueryByRef(t *testing.T) {
 	}
 
 	t.Run("simple range", func(t *testing.T) {
-		verses, err := queryByRef(t.Context(), db, "Ga 11,1-3")
+		verses, err := QueryByRef(t.Context(), db, "Ga 11,1-3")
 		if err != nil {
-			t.Fatalf("queryByRef error: %v", err)
+			t.Fatalf("QueryByRef error: %v", err)
 		}
 		if len(verses) != 3 {
 			t.Fatalf("expected 3 verses, got %d", len(verses))
@@ -141,9 +141,9 @@ func TestQueryByRef(t *testing.T) {
 	})
 
 	t.Run("non-contiguous ranges", func(t *testing.T) {
-		verses, err := queryByRef(t.Context(), db, "Mt 5,20-22a.27-28")
+		verses, err := QueryByRef(t.Context(), db, "Mt 5,20-22a.27-28")
 		if err != nil {
-			t.Fatalf("queryByRef error: %v", err)
+			t.Fatalf("QueryByRef error: %v", err)
 		}
 		if len(verses) != 5 {
 			t.Fatalf("expected 5 verses, got %d: %+v", len(verses), verses)
@@ -162,9 +162,9 @@ func TestQueryByRef(t *testing.T) {
 	})
 
 	t.Run("single verse", func(t *testing.T) {
-		verses, err := queryByRef(t.Context(), db, "Ga 11,45-45")
+		verses, err := QueryByRef(t.Context(), db, "Ga 11,45-45")
 		if err != nil {
-			t.Fatalf("queryByRef error: %v", err)
+			t.Fatalf("QueryByRef error: %v", err)
 		}
 		if len(verses) != 1 {
 			t.Fatalf("expected 1 verse, got %d", len(verses))

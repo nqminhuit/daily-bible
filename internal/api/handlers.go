@@ -248,7 +248,7 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		rows, err := db.QueryContext(r.Context(), `SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
-			ftsPhraseQuery(q))
+			FtsPhraseQuery(q))
 		if err != nil {
 			log.Printf("fts search error: %v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -273,7 +273,7 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 // ftsPhraseQuery wraps the query in double quotes for exact phrase matching in FTS5.
 // This is intentional: the search endpoint is designed for phrase-only search.
 // Users cannot search for individual tokens; the entire query is treated as a phrase.
-func ftsPhraseQuery(q string) string {
+func FtsPhraseQuery(q string) string {
 	escaped := strings.ReplaceAll(q, `"`, `""`)
 	return fmt.Sprintf(`"%s"`, escaped)
 }
@@ -359,7 +359,7 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 			return
 		}
 
-		verses, err := queryByRef(r.Context(), db, gospelRef)
+		verses, err := QueryByRef(r.Context(), db, gospelRef)
 		if err != nil {
 			log.Printf("verses query error for ref %q: %v", gospelRef, err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)

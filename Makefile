@@ -70,9 +70,13 @@ setup-lectionary: ## Full lectionary setup (FILE=path or URL=https://...)
 	$(MAKE) import-calendar FILE=$(FILE) URL=$(URL)
 	$(MAKE) crawl-lectionary
 
-build: ## (5) Build the binary server file
+build: ## (5) Build the server binary
 	@mkdir -p build
-	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible ./cmd/server
+	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible-server ./cmd/server
+
+build-cli: ## Build the CLI binary
+	@mkdir -p build
+	go build $(GOFLAGS) -ldflags="-s -w" -o build/daily-bible ./cmd/cli
 
 dev: ## (6) Run the server in development mode (PORT=:8090)
 	@mkdir -p build

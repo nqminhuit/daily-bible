@@ -11,17 +11,17 @@ import (
 	"github.com/minh/daily-bible/internal/model"
 )
 
-type verseRange struct {
-	start       int
-	startSuffix string
-	end         int
-	endSuffix   string
+type VerseRange struct {
+	Start       int
+	StartSuffix string
+	End         int
+	EndSuffix   string
 }
 
 var refPattern = regexp.MustCompile(`^([A-Za-zÀ-ỹ]{1,3})\s+(\d+),(.+)$`)
 var segPattern = regexp.MustCompile(`(\d+)([a-zA-Z]?)(?:-(\d+)([a-zA-Z]?))?`)
 
-func parseRef(ref string) (book string, chapter int, ranges []verseRange, err error) {
+func ParseRef(ref string) (book string, chapter int, ranges []VerseRange, err error) {
 	m := refPattern.FindStringSubmatch(strings.TrimSpace(ref))
 	if m == nil {
 		return "", 0, nil, fmt.Errorf("invalid ref: %q", ref)
@@ -40,7 +40,7 @@ func parseRef(ref string) (book string, chapter int, ranges []verseRange, err er
 		if seg[3] != "" {
 			end, _ = strconv.Atoi(seg[3])
 		}
-		ranges = append(ranges, verseRange{start, startSuffix, end, endSuffix})
+		ranges = append(ranges, VerseRange{Start: start, StartSuffix: startSuffix, End: end, EndSuffix: endSuffix})
 	}
 	if len(ranges) == 0 {
 		return "", 0, nil, fmt.Errorf("no verse ranges in ref %q", ref)
@@ -48,8 +48,8 @@ func parseRef(ref string) (book string, chapter int, ranges []verseRange, err er
 	return
 }
 
-func queryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, error) {
-	book, chapter, ranges, err := parseRef(ref)
+func QueryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, error) {
+	book, chapter, ranges, err := ParseRef(ref)
 	if err != nil {
 		return nil, err
 	}
@@ -58,30 +58,30 @@ func queryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, er
 	var args []any
 	args = append(args, book, chapter)
 	for _, r := range ranges {
-		if r.startSuffix == "" && r.endSuffix == "" {
+		if r.StartSuffix == "" && r.EndSuffix == "" {
 			conditions = append(conditions, "(verse BETWEEN ? AND ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
-			args = append(args, r.start, r.end)
-		} else if r.start == r.end {
-			if r.startSuffix != "" && r.endSuffix != "" {
+			args = append(args, r.Start, r.End)
+		} else if r.Start == r.End {
+			if r.StartSuffix != "" && r.EndSuffix != "" {
 				conditions = append(conditions, "(verse = ? AND verse_suffix >= ? AND verse_suffix <= ?)")
-				args = append(args, r.start, r.startSuffix, r.endSuffix)
-			} else if r.startSuffix != "" {
+				args = append(args, r.Start, r.StartSuffix, r.EndSuffix)
+			} else if r.StartSuffix != "" {
 				conditions = append(conditions, "(verse = ? AND verse_suffix >= ?)")
-				args = append(args, r.start, r.startSuffix)
+				args = append(args, r.Start, r.StartSuffix)
 			} else {
 				conditions = append(conditions, "(verse = ? AND verse_suffix <= ?)")
-				args = append(args, r.start, r.endSuffix)
+				args = append(args, r.Start, r.EndSuffix)
 			}
 		} else {
 			var innerClauses []string
 			var innerArgs []any
-			for v := r.start; v <= r.end; v++ {
-				if v == r.start && r.startSuffix != "" {
+			for v := r.Start; v <= r.End; v++ {
+				if v == r.Start && r.StartSuffix != "" {
 					innerClauses = append(innerClauses, "(verse = ? AND verse_suffix >= ?)")
-					innerArgs = append(innerArgs, v, r.startSuffix)
-				} else if v == r.end && r.endSuffix != "" {
+					innerArgs = append(innerArgs, v, r.StartSuffix)
+				} else if v == r.End && r.EndSuffix != "" {
 					innerClauses = append(innerClauses, "(verse = ? AND verse_suffix <= ?)")
-					innerArgs = append(innerArgs, v, r.endSuffix)
+					innerArgs = append(innerArgs, v, r.EndSuffix)
 				} else {
 					innerClauses = append(innerClauses, "(verse = ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
 					innerArgs = append(innerArgs, v)

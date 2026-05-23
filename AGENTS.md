@@ -17,7 +17,8 @@ go build -tags "fts5" ./...
 | Run tests | `make test` |
 | Tests with race detector | `make test-with-race-detector` |
 | Single test | `go test -tags "fts5" ./internal/api -run TestName` |
-| Build server binary | `make build` → `build/daily-bible` |
+| Build server binary | `make build` → `build/daily-bible-server` |
+| Build CLI binary | `make build-cli` → `build/daily-bible` |
 | Dev server | `make dev` (listens on `:8090`, override with `PORT=:8080`) |
 | CI lint | `staticcheck ./...` |
 
@@ -39,6 +40,16 @@ Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → b
 - **FTS**: `verses_fts` uses `unicode61 remove_diacritics 2` with prefix indexing, synced by triggers
 - **Connection pool**: `SetMaxOpenConns(1)` — SQLite is single-connection
 
+## CLI
+
+- `build/daily-bible today` — same as `GET /api/v1/today`
+- `build/daily-bible gospel <ref>` — same as `GET /api/v1/gospel/{ref}`
+- `build/daily-bible search <query>` — same as `GET /api/v1/search?q=...`
+- `build/daily-bible random` — same as `GET /api/v1/random`
+- `build/daily-bible <date>` — same as `GET /api/v1/date/{date}`
+- Uses same `DB_PATH` env var as the server
+- Outputs JSON to stdout
+
 ## API Layer
 
 - All routes wrapped in `corsMiddleware` then `loggingMiddleware`
@@ -52,6 +63,7 @@ Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → b
 
 ```
 cmd/server/main.go          — HTTP server entrypoint
+cmd/cli/main.go             — CLI entrypoint (`today`, `gospel`, `search`, `random`, date)
 internal/api/               — handlers, router, middleware
 internal/db/                — DB open + schema init
 internal/parser/            — HTML parsing (extracted from tools/crawler)
