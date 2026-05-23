@@ -48,15 +48,22 @@ func parseReference(ref string) (book, chapter string, ok bool) {
 }
 
 func main() {
-	file, err := os.Open(cst.OutFilename)
-	if err != nil {
+	if err := convert(cst.OutFilename, cst.OutTsvFilename); err != nil {
 		panic(err)
+	}
+}
+
+// convert reads gospels from inputPath and writes TSV to outputPath.
+func convert(inputPath, outputPath string) error {
+	file, err := os.Open(inputPath)
+	if err != nil {
+		return err
 	}
 	defer file.Close()
 
-	out, err := os.Create(cst.OutTsvFilename)
+	out, err := os.Create(outputPath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer out.Close()
 
@@ -67,12 +74,10 @@ func main() {
 	book := ""
 	chapter := ""
 
-	// deduplicate (book, chapter, verse) and keep the first occurrence
 	seen := make(map[string]struct{})
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		// detect gospel line
 		if after, ok := strings.CutPrefix(line, "__ref__: "); ok {
 			ref := strings.TrimSpace(after)
 			var valid bool
@@ -112,6 +117,7 @@ func main() {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
