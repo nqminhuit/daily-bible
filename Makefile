@@ -55,11 +55,11 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 	sqlite3 $(DB) < data/migrations/002_daily_readings.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
-crawl-lectionary: ## Populate daily_readings (CALENDAR_URLS=comma-separated JSON URLs)
-	go run $(GOFLAGS) ./tools/lectionarycrawler -calendar-urls="$(CALENDAR_URLS)"
+crawl-lectionary: ## Populate daily_readings via algorithmic calendar generation (YEARS=2026,2027)
+	go run $(GOFLAGS) ./tools/lectionarycrawler -years="$(YEARS)"
 
-setup-lectionary: ## Full lectionary setup (CALENDAR_URLS=comma-separated JSON URLs)
-	$(MAKE) crawl-lectionary CALENDAR_URLS="$(CALENDAR_URLS)"
+setup-lectionary: ## Full lectionary setup (YEARS=2026,2027)
+	$(MAKE) crawl-lectionary YEARS="$(YEARS)"
 
 build: ## (5) Build the server binary
 	@mkdir -p build

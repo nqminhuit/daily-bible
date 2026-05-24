@@ -20,14 +20,14 @@ go build -tags "fts5" ./...
 | Build server binary | `make build` → `build/daily-bible-server` |
 | Build CLI binary | `make build-cli` → `build/daily-bible` |
 | Dev server | `make dev` (listens on `:8090`, override with `PORT=:8080`) |
-| Populate daily readings | `make crawl-lectionary CALENDAR_URLS="url1,url2"` |
+| Populate daily readings | `make crawl-lectionary YEARS="2026,2027"` |
 | CI lint | `staticcheck ./...` |
 
 ## Data Pipeline
 
 ```
 Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → build/gospels.tsv → make import-db → build/bible.db
-Liturgical calendar JSON URL → make crawl-lectionary → daily_readings table
+Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily_readings table
 ```
 
 - Crawler state lives in `build/` (`processed.txt`, `failed.txt`, `missing_verse_number.txt`)
@@ -71,7 +71,9 @@ internal/db/                — DB open + schema init
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
 internal/constants/         — DB path, server addr, crawler config
+internal/lectionary/        — Liturgical calendar generation (Easter, seasons, lectionary keys)
 tools/crawler/              — Vatican News sitemap crawler
+tools/lectionarycrawler/    — Generates daily_readings (algorithmic → Vatican News crawl for gospel_ref)
 tools/tsv/                  — gospels.txt → TSV converter
 data/                       — migration SQL files
 test-data/                  — HTML fixtures for parser/crawler tests
