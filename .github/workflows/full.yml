@@ -20,17 +20,6 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Cache crawler state
-        uses: actions/cache@v5
-        with:
-          path: |
-            build/processed.txt
-            build/failed.txt
-            build/missing_verse_number.txt
-          key: crawler-state-${{ hashFiles('tools/crawler/**') }}
-          restore-keys: |
-            crawler-state-
-
       - name: Run
         run: |
           make crawler-all-urls
