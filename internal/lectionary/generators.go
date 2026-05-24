@@ -26,6 +26,7 @@ func GenerateYear(year int) map[string]DayInfo {
 			Season:      season,
 			SundayCycle: sundayCycle(d),
 			Weekday:     weekday,
+			MonthDay:    d.Format("01-02"),
 		}
 		if season == SeasonOrdinary {
 			dayInfo.WeekdayCycle = weekdayCycle(year)

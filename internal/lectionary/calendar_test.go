@@ -147,6 +147,8 @@ func TestLectionaryKey(t *testing.T) {
 		{DayInfo{Season: SeasonEaster, WeekOfSeason: 2, Weekday: "sun", SundayCycle: "A"}, "easter_2_sun_A"},
 		{DayInfo{Season: SeasonOrdinary, WeekOfSeason: 1, Weekday: "mon", WeekdayCycle: "I"}, "ordinary_1_mon_I"},
 		{DayInfo{Season: SeasonLent, WeekOfSeason: 1, Weekday: "mon", WeekdayCycle: ""}, "lent_1_mon"},
+		{DayInfo{Season: SeasonLent, WeekOfSeason: 4, Weekday: "thu", MonthDay: "03-19"}, "lent_4_thu_03-19"},
+		{DayInfo{Season: SeasonChristmas, WeekOfSeason: 1, Weekday: "mon", MonthDay: "01-01"}, "christmas_1_mon_01-01"},
 		{DayInfo{Season: SeasonOrdinary, WeekOfSeason: 1, Weekday: "sun", SundayCycle: "A"}, "ordinary_1_sun_A"},
 	}
 
