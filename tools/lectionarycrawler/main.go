@@ -2,36 +2,28 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/minh/daily-bible/internal/constants"
 	dbpkg "github.com/minh/daily-bible/internal/db"
+	"github.com/minh/daily-bible/internal/lectionary"
 	"github.com/minh/daily-bible/internal/parser"
 )
 
-type CalendarEntry struct {
-	LectionaryKey string `json:"lectionary_key"`
-}
-
 func main() {
-	var calendarURLs string
-	flag.StringVar(&calendarURLs, "calendar-urls", "", "comma-separated list of liturgical calendar JSON URLs")
+	var years string
+	flag.StringVar(&years, "years", "", "comma-separated list of years (e.g. 2026,2027)")
 	flag.Parse()
 
-	if calendarURLs == "" {
-		log.Fatal("--calendar-urls is required")
-	}
-
-	urls := strings.Split(calendarURLs, ",")
-	for i := range urls {
-		urls[i] = strings.TrimSpace(urls[i])
+	if years == "" {
+		log.Fatal("--years is required (e.g. -years=2026,2027)")
 	}
 
 	db, err := dbpkg.Open(constants.DBPath)
@@ -40,47 +32,22 @@ func main() {
 	}
 	defer db.Close()
 
-	client := &http.Client{Timeout: 30 * time.Second}
-
-	fileCount := 0
-	for _, url := range urls {
-		if err := importCalendarURL(client, db, url); err != nil {
-			log.Fatalf("import %s: %v", url, err)
+	yearStrs := strings.Split(years, ",")
+	for _, ys := range yearStrs {
+		ys = strings.TrimSpace(ys)
+		year, err := strconv.Atoi(ys)
+		if err != nil {
+			log.Fatalf("invalid year %q: %v", ys, err)
 		}
-		fileCount++
+		if err := importYear(db, year); err != nil {
+			log.Fatalf("import year %d: %v", year, err)
+		}
 	}
-	log.Printf("imported %d calendar files", fileCount)
 
-	rows, err := db.Query(`
-		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
-		FROM daily_readings dr
-		WHERE dr.gospel_ref IS NULL
-		GROUP BY dr.lectionary_key
-		ORDER BY MIN(dr.date)
-	`)
+	jobs, err := missingGospelRefs(db)
 	if err != nil {
 		log.Fatalf("query missing keys: %v", err)
 	}
-	defer rows.Close()
-
-	type job struct {
-		key  string
-		date string
-	}
-	var jobs []job
-	for rows.Next() {
-		var j job
-		if err := rows.Scan(&j.key, &j.date); err != nil {
-			log.Printf("scan: %v", err)
-			continue
-		}
-		jobs = append(jobs, j)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatalf("rows iteration: %v", err)
-	}
-	rows.Close()
-
 	log.Printf("found %d lectionary keys to populate", len(jobs))
 
 	crawlClient := &http.Client{Timeout: 10 * time.Second}
@@ -116,16 +83,14 @@ func main() {
 	}
 }
 
-func importCalendarURL(client *http.Client, db *sql.DB, url string) error {
-	data, err := fetchURL(client, url)
-	if err != nil {
-		return fmt.Errorf("fetch url: %w", err)
-	}
+type dateKey struct {
+	key  string
+	date string
+}
 
-	var cal map[string]CalendarEntry
-	if err := json.Unmarshal(data, &cal); err != nil {
-		return fmt.Errorf("parse json: %w", err)
-	}
+func importYear(db *sql.DB, year int) error {
+	cal := lectionary.GenerateLectionary(year)
+	log.Printf("generated %d dates for year %d", len(cal), year)
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -140,8 +105,8 @@ func importCalendarURL(client *http.Client, db *sql.DB, url string) error {
 	defer stmt.Close()
 
 	inserted := 0
-	for date, entry := range cal {
-		if _, err := stmt.Exec(date, entry.LectionaryKey); err != nil {
+	for date, key := range cal {
+		if _, err := stmt.Exec(date, key); err != nil {
 			log.Printf("insert %s: %v", date, err)
 			continue
 		}
@@ -152,26 +117,33 @@ func importCalendarURL(client *http.Client, db *sql.DB, url string) error {
 		tx.Rollback()
 		return fmt.Errorf("commit: %w", err)
 	}
-	log.Printf("imported %d dates from %s", inserted, url)
+	log.Printf("imported %d dates for year %d", inserted, year)
 	return nil
 }
 
-func fetchURL(client *http.Client, rawURL string) ([]byte, error) {
-	resp, err := client.Get(rawURL)
+func missingGospelRefs(db *sql.DB) ([]dateKey, error) {
+	rows, err := db.Query(`
+		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
+		FROM daily_readings dr
+		WHERE dr.gospel_ref IS NULL
+		GROUP BY dr.lectionary_key
+		ORDER BY MIN(dr.date)
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer rows.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status %d", resp.StatusCode)
+	var jobs []dateKey
+	for rows.Next() {
+		var j dateKey
+		if err := rows.Scan(&j.key, &j.date); err != nil {
+			log.Printf("scan: %v", err)
+			continue
+		}
+		jobs = append(jobs, j)
 	}
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 5<<20))
-	if err != nil {
-		return nil, fmt.Errorf("read body: %w", err)
-	}
-	return body, nil
+	return jobs, rows.Err()
 }
 
 func fetchGospelRef(client *http.Client, url string) (string, error) {
@@ -194,8 +166,6 @@ func fetchGospelRef(client *http.Client, url string) (string, error) {
 		}
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("status %d", resp.StatusCode)
-			// Only short-circuit on permanent not-found responses.
-			// Transient 4xx statuses like 408/429 should still use retries.
 			if resp.StatusCode == http.StatusNotFound {
 				return "", lastErr
 			}

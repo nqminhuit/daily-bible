@@ -107,7 +107,47 @@ func TestFetchGospelRefNonContiguous(t *testing.T) {
 	}
 }
 
-func TestMissingKeysQuery(t *testing.T) {
+func TestImportYear(t *testing.T) {
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		CREATE TABLE daily_readings (
+			date TEXT NOT NULL PRIMARY KEY,
+			lectionary_key TEXT NOT NULL,
+			gospel_ref TEXT
+		)
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := importYear(db, 2026); err != nil {
+		t.Fatalf("importYear(2026): %v", err)
+	}
+
+	var count int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM daily_readings`).Scan(&count); err != nil {
+		t.Fatal(err)
+	}
+	if count != 365 {
+		t.Fatalf("expected 365 rows, got %d", count)
+	}
+
+	var key string
+	err = db.QueryRow(`SELECT lectionary_key FROM daily_readings WHERE date = '2026-04-05'`).Scan(&key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if key != "easter_sunday_A" {
+		t.Fatalf("expected easter_sunday_A, got %q", key)
+	}
+}
+
+func TestMissingGospelRefs(t *testing.T) {
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatal(err)
@@ -136,35 +176,19 @@ func TestMissingKeysQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rows, err := db.Query(`
-		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
-		FROM daily_readings dr
-		WHERE dr.gospel_ref IS NULL
-		GROUP BY dr.lectionary_key
-		ORDER BY MIN(dr.date)
-	`)
+	jobs, err := missingGospelRefs(db)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer rows.Close()
 
-	var keys []string
-	for rows.Next() {
-		var key, date string
-		if err := rows.Scan(&key, &date); err != nil {
-			t.Fatal(err)
-		}
-		keys = append(keys, key)
-	}
-
-	if len(keys) != 2 {
-		t.Fatalf("expected 2 missing keys, got %d: %v", len(keys), keys)
+	if len(jobs) != 2 {
+		t.Fatalf("expected 2 missing keys, got %d: %v", len(jobs), jobs)
 	}
 
 	expected := []string{"ordinary_3_mon_II", "ordinary_3_tue_II"}
-	for i, k := range keys {
-		if k != expected[i] {
-			t.Errorf("key[%d]: got %q, want %q", i, k, expected[i])
+	for i, j := range jobs {
+		if j.key != expected[i] {
+			t.Errorf("job[%d].key = %q, want %q", i, j.key, expected[i])
 		}
 	}
 }
