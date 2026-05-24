@@ -36,7 +36,7 @@ jobs:
           make crawler-all-urls
           make tsv
           make import-db
-          make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2023.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2024.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2025.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
+          make crawl-lectionary YEARS="2023,2024,2025,2026"
 
       - name: Upload DB artifacts
         uses: actions/upload-artifact@v7
