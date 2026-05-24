@@ -106,11 +106,14 @@ func importYear(db *sql.DB, year int) error {
 
 	inserted := 0
 	for date, key := range cal {
-		if _, err := stmt.Exec(date, key); err != nil {
+		result, err := stmt.Exec(date, key)
+		if err != nil {
 			log.Printf("insert %s: %v", date, err)
 			continue
 		}
-		inserted++
+		if n, _ := result.RowsAffected(); n > 0 {
+			inserted++
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
