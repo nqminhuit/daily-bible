@@ -194,7 +194,9 @@ func fetchGospelRef(client *http.Client, url string) (string, error) {
 		}
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("status %d", resp.StatusCode)
-			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			// Only short-circuit on permanent not-found responses.
+			// Transient 4xx statuses like 408/429 should still use retries.
+			if resp.StatusCode == http.StatusNotFound {
 				return "", lastErr
 			}
 			continue
