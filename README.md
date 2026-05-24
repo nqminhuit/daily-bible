@@ -40,19 +40,17 @@ If you want to retry previously failed URLs after parser updates, delete `build/
 
 The lectionary system maps liturgical dates to Gospel readings. It fetches a liturgical calendar JSON (one per year) and crawls Vatican News to resolve lectionary keys to Gospel references.
 
+`CALENDAR_URLS` is a comma-separated list of URLs — one per year. Re-running is idempotent (`INSERT OR IGNORE`):
+
 ```shell
-# Download calendar JSON(s) + crawl in one step (comma-separate multiple years):
+# Single year:
 make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
 
-# Or run both at once (alias):
-make setup-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
-```
+# Multiple years (comma-separated, no spaces):
+make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2025.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2027.json"
 
-Calendar JSON files should be placed under `resources/`:
-```
-resources/
-  liturgical-calendar-2025.json
-  liturgical-calendar-2026.json
+# Alias:
+make setup-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
 ```
 
 The calendar JSON format (from [nqminhuit/liturgical-calendar](https://github.com/nqminhuit/liturgical-calendar)):
@@ -192,8 +190,8 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make crawl-lectionary CALENDAR_URLS=...` | Populate daily_readings from calendar JSON and Vatican News |
-| `make setup-lectionary CALENDAR_URLS=...` | Full lectionary setup (download + crawl) |
+| `make crawl-lectionary CALENDAR_URLS=...` | Populate daily_readings (comma-separated URLs, one per year) |
+| `make setup-lectionary CALENDAR_URLS=...` | Full lectionary setup (alias for crawl-lectionary) |
 | `make build` | Build server binary (`build/daily-bible-server`) |
 | `make build-cli` | Build CLI binary (`build/daily-bible`) |
 | `make dev` | Run server in development mode (default `:8090`) |
