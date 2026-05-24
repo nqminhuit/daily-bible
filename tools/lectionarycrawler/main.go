@@ -42,14 +42,14 @@ func main() {
 
 	client := &http.Client{Timeout: 30 * time.Second}
 
-	totalInserted := 0
+	fileCount := 0
 	for _, url := range urls {
 		if err := importCalendarURL(client, db, url); err != nil {
 			log.Fatalf("import %s: %v", url, err)
 		}
-		totalInserted++
+		fileCount++
 	}
-	log.Printf("imported %d calendar files", totalInserted)
+	log.Printf("imported %d calendar files", fileCount)
 
 	rows, err := db.Query(`
 		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
@@ -75,6 +75,9 @@ func main() {
 			continue
 		}
 		jobs = append(jobs, j)
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatalf("rows iteration: %v", err)
 	}
 	rows.Close()
 
@@ -146,6 +149,7 @@ func importCalendarURL(client *http.Client, db *sql.DB, url string) error {
 	}
 
 	if err := tx.Commit(); err != nil {
+		tx.Rollback()
 		return fmt.Errorf("commit: %w", err)
 	}
 	log.Printf("imported %d dates from %s", inserted, url)
@@ -190,6 +194,9 @@ func fetchGospelRef(client *http.Client, url string) (string, error) {
 		}
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("status %d", resp.StatusCode)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				return "", lastErr
+			}
 			continue
 		}
 
