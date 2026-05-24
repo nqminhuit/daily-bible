@@ -38,34 +38,22 @@ If you want to retry previously failed URLs after parser updates, delete `build/
 
 ### 1b) Set up the lectionary (optional)
 
-The lectionary system maps liturgical dates to Gospel readings. It fetches a liturgical calendar JSON (one per year) and crawls Vatican News to resolve lectionary keys to Gospel references.
+The lectionary system maps liturgical dates to Gospel readings, then crawls Vatican News to resolve them to Gospel references (biblical book/chapter/verse).
 
-`CALENDAR_URLS` is a comma-separated list of URLs — one per year. Re-running is idempotent (`INSERT OR IGNORE`):
+Dates are generated algorithmically using the built-in `internal/lectionary` package (Easter computed via the Meeus/Jones/Butcher algorithm, seasons, cycles, and week numbers). No external calendar data is needed.
 
 ```shell
 # Single year:
-make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
+make crawl-lectionary YEARS="2026"
 
-# Multiple years (comma-separated, no spaces):
-make crawl-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2025.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json,https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2027.json"
+# Multiple years:
+make crawl-lectionary YEARS="2025,2026,2027"
 
 # Alias:
-make setup-lectionary CALENDAR_URLS="https://raw.githubusercontent.com/nqminhuit/liturgical-calendar/refs/heads/master/resources/liturgical-calendar-2026.json"
+make setup-lectionary YEARS="2026,2027"
 ```
 
-The calendar JSON format (from [nqminhuit/liturgical-calendar](https://github.com/nqminhuit/liturgical-calendar)):
-```json
-{
-  "2026-03-22": {
-    "lectionary_key": "lent_5_sun_A",
-    "season": "lent",
-    "sunday_cycle": "A",
-    "week_of_season": 5,
-    "weekday": "sun",
-    "weekday_cycle": ""
-  }
-}
-```
+Re-running is idempotent (`INSERT OR IGNORE`).
 
 ### 2) Start the API server
 
@@ -190,8 +178,8 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make crawl-lectionary CALENDAR_URLS=...` | Populate daily_readings (comma-separated URLs, one per year) |
-| `make setup-lectionary CALENDAR_URLS=...` | Full lectionary setup (alias for crawl-lectionary) |
+| `make crawl-lectionary YEARS=2026,2027` | Populate daily_readings via algorithmic calendar generation |
+| `make setup-lectionary YEARS=2026,2027` | Full lectionary setup (alias for crawl-lectionary) |
 | `make build` | Build server binary (`build/daily-bible-server`) |
 | `make build-cli` | Build CLI binary (`build/daily-bible`) |
 | `make dev` | Run server in development mode (default `:8090`) |
