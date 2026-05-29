@@ -19,24 +19,25 @@ go build -tags "fts5" ./...
 | Single test | `go test -tags "fts5" ./internal/api -run TestName` |
 | Build server binary | `make build` → `build/daily-bible-server` |
 | Build CLI binary | `make build-cli` → `build/daily-bible` |
-| Dev server | `make dev` (listens on `:8090`, override with `PORT=:8080`) |
+| Dev server | `make dev` (listens on `:8090`, override with `make dev PORT=:8080`) |
 | Populate daily readings | `make crawl-lectionary YEARS="2026,2027"` |
 | CI lint | `staticcheck ./...` |
 
 ## Data Pipeline
 
 ```
-Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → build/gospels.tsv → make import-db → build/bible.db
+Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → build/gospels.tsv → make import-db → resources/bible.db
 Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily_readings table
 ```
 
 - Crawler state lives in `build/` (`processed.txt`, `failed.txt`, `missing_verse_number.txt`)
 - To retry failed URLs after parser changes: delete `build/failed.txt` before re-running crawler
 - `build/` is gitignored — never commit generated artifacts
+- `tools/crawler` and `tools/tsv` do **not** need `-tags "fts5"` (no SQLite dependency); only `tools/lectionarycrawler` does
 
 ## Database
 
-- **Runtime path**: `build/bible.db`, overridable via `DB_PATH` env var
+- **Runtime path**: `resources/bible.db`, overridable via `DB_PATH` env var
 - **Schema**: `verses(book, chapter, verse, verse_suffix, text)` — composite PK includes `verse_suffix`
 - **Daily readings**: `daily_readings(date TEXT PRIMARY KEY, lectionary_key TEXT, gospel_ref TEXT)` — single table for date-based lookups; `gospel_ref` is NULL until crawled
 - **FTS**: `verses_fts` uses `unicode61 remove_diacritics 2` with prefix indexing, synced by triggers
@@ -54,7 +55,7 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 
 ## API Layer
 
-- All routes wrapped in `corsMiddleware` then `loggingMiddleware`
+- All routes wrapped in `loggingMiddleware(corsMiddleware(mux))` — logging is outermost
 - **All DB queries use `QueryContext`/`QueryRowContext`** with `r.Context()` for cancellation
 - `GET /api/v1/gospel/{ref}` — supports dot-separated non-contiguous segments (e.g. `Mt 5,20-22a.27-28`)
 - `GET /api/v1/today` — queries `daily_readings` table for today's reading (returns 404 if empty)
@@ -67,7 +68,8 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 cmd/server/main.go          — HTTP server entrypoint
 cmd/cli/main.go             — CLI entrypoint (`today`, `gospel`, `search`, `random`, date)
 internal/api/               — handlers, router, middleware, ref parsing + query
-internal/db/                — DB open + schema init
+internal/db/                — DB open + schema init (ApplyMigrations used in tests only; server assumes DB exists)
+internal/query/             — FtsPhraseQuery: wraps FTS search terms in double quotes
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
 internal/constants/         — DB path, server addr, crawler config
