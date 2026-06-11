@@ -1,5 +1,171 @@
 # daily-bible
 
+A Vietnamese daily Gospel reader with full-text search, powered by SQLite FTS5.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Data Pipeline                            │
+│                                                                 │
+│  Vatican News ──► tools/crawler ──► build/gospels.txt           │
+│       sitemap              │                                    │
+│                            ▼                                    │
+│                      tools/tsv ──► build/gospels.tsv            │
+│                                        │                        │
+│                                        ▼                        │
+│                                  make import-db                 │
+│                                        │                        │
+│                                        ▼                        │
+│                                  resources/bible.db             │
+│                                   (verses + FTS)                │
+│                                                                 │
+│  internal/lectionary ──► lectionarycrawler ──► daily_readings   │
+│  (Easter algorithm,        (crawls Vatican      (date →         │
+│   seasons, cycles)          for gospel refs)      gospel ref)   │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      Application Layer                          │
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────────────────────────────┐   │
+│  │  cmd/server  │    │              internal/               │   │
+│  │  (HTTP API)  │    │                                      │   │
+│  │  :8090       │───►│  api/   router + handlers + ref      │   │
+│  └──────────────┘    │  db/    Open + pragmas + migrations  │   │
+│                      │  query/ FTS phrase query builder     │   │
+│  ┌──────────────┐    │  model/ Gospel struct                │   │
+│  │  cmd/cli     │    │  parser/ HTML parsing                │   │
+│  │  (CLI tool)  │───►│  constants/ paths, URLs, config      │   │
+│  └──────────────┘    │  lectionary/ liturgical calendar     │   │
+│                      └──────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Package Structure
+
+| Package | Purpose |
+|---------|---------|
+| `cmd/server` | HTTP server entrypoint, wires DB + router |
+| `cmd/cli` | CLI entrypoint (`today`, `gospel`, `search`, `random`, date) |
+| `internal/api` | HTTP handlers, router, middleware, reference parsing + query |
+| `internal/db` | SQLite connection (WAL, single-connection pool), schema init |
+| `internal/query` | FTS5 phrase query builder (wraps terms in double quotes) |
+| `internal/model` | Gospel struct |
+| `internal/parser` | HTML parsing for Vatican News pages |
+| `internal/constants` | DB path, server address, crawler config |
+| `internal/lectionary` | Liturgical calendar (Easter via Meeus/Jones/Butcher, seasons, cycles) |
+| `tools/crawler` | Vatican News sitemap crawler → `build/gospels.txt` |
+| `tools/lectionarycrawler` | Generates `daily_readings` from algorithmic calendar + Vatican crawl |
+| `tools/tsv` | Converts `gospels.txt` → `build/gospels.tsv` |
+
+## Data Pipeline Flow
+
+```
+Step 1: Crawl
+  make crawler          # fetch 3 latest readings
+  make crawler-all-urls # fetch all sitemap URLs
+
+  Vatican News sitemap
+       │
+       ▼
+  tools/crawler
+       │  - fetches HTML pages
+       │  - extracts Gospel text + verse numbers
+       │  - tracks processed/failed URLs in build/
+       ▼
+  build/gospels.txt
+
+Step 2: Transform
+  make tsv
+
+  build/gospels.txt
+       │
+       ▼
+  tools/tsv
+       │  - parses verse markers {{N}}
+       │  - canonicalizes book codes (Mt, Mc, Lc, Ga)
+       │  - deduplicates by book+chapter+verse
+       ▼
+  build/gospels.tsv
+
+Step 3: Import
+  make import-db
+
+  build/gospels.tsv
+       │
+       ▼
+  sqlite3 resources/bible.db
+       │  - creates verses table (book, chapter, verse, verse_suffix, text)
+       │  - creates verses_fts virtual table (unicode61, prefix indexing)
+       │  - syncs FTS via triggers
+       │  - creates daily_readings table
+       ▼
+  resources/bible.db  (ready to serve)
+
+Step 4: Lectionary (optional)
+  make crawl-lectionary YEARS="2026,2027"
+
+  internal/lectionary
+       │  - computes Easter (Meeus/Jones/Butcher)
+       │  - determines liturgical seasons + week numbers
+       │  - generates lectionary keys (e.g. lent_5_sun_A)
+       ▼
+  tools/lectionarycrawler
+       │  - maps lectionary keys → Vatican News URLs
+       │  - crawls to extract gospel_ref (e.g. "Ga 11,1-45")
+       ▼
+  daily_readings table  (date → lectionary_key → gospel_ref)
+```
+
+## Request Flow
+
+```
+                        ┌─────────┐
+                        │ Client  │
+                        └────┬────┘
+                             │
+              ┌──────────────┴──────────────┐
+              │                             │
+              ▼                             ▼
+       ┌─────────────┐             ┌─────────────┐
+       │  HTTP API   │             │  CLI tool   │
+       │  cmd/server │             │  cmd/cli    │
+       └──────┬──────┘             └──────┬──────┘
+              │                           │
+              └──────────┬────────────────┘
+                         │
+                         ▼
+              ┌─────────────────────┐
+              │    internal/api     │
+              │  router + handlers  │
+              │  ref parsing        │
+              └──────────┬──────────┘
+                         │
+                         ▼
+              ┌─────────────────────┐
+              │    internal/db      │
+              │  SQLite (WAL mode)  │
+              │  FTS5 search        │
+              │  daily_readings     │
+              └──────────┬──────────┘
+                         │
+                         ▼
+                   JSON response
+```
+
+### API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/gospel/{ref}` | Get verses by reference (e.g. `Ga 9,1-41`, `Mt 5,20-22a.27-28`) |
+| `GET /api/v1/search?q=...` | Full-text phrase search |
+| `GET /api/v1/random` | Random verse |
+| `GET /api/v1/today` | Today's Gospel reading (requires lectionary) |
+| `GET /api/v1/date/{date}` | Gospel reading for a specific date (requires lectionary) |
+| `GET /liveness` | Health check |
+| `GET /readiness` | Readiness check |
+
 ## How to use
 
 ### Prerequisites
@@ -105,18 +271,6 @@ curl 'http://localhost:8090/api/v1/date/2026-03-22'
 curl 'http://localhost:8090/liveness'
 curl 'http://localhost:8090/readiness'
 ```
-
-#### Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/v1/gospel/{ref}` | Get verses by reference (e.g. `Ga 9,1-41`, `Mt 5,20-22a.27-28`) |
-| `GET /api/v1/search?q=...` | Full-text phrase search |
-| `GET /api/v1/random` | Random verse |
-| `GET /api/v1/today` | Today's Gospel reading (requires lectionary setup) |
-| `GET /api/v1/date/{date}` | Gospel reading for a specific date (ISO 8601, requires lectionary setup) |
-| `GET /liveness` | Health check |
-| `GET /readiness` | Readiness check |
 
 #### Today/Date Response Format
 
