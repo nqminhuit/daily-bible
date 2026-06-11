@@ -103,7 +103,12 @@ Step 3: Import
        ▼
   resources/bible.db  (ready to serve)
 
-Step 4: Lectionary (optional)
+Step 4: Lectionary (auto-updated via GitHub Actions)
+  Automatically runs on Dec 24 and Dec 25 each year.
+  Generates lectionary keys + crawls Vatican News for gospel_refs.
+  Commits updated resources/bible.db via PR.
+
+  Manual:
   make crawl-lectionary YEARS="2026,2027"
 
   internal/lectionary
@@ -148,6 +153,7 @@ Step 4: Lectionary (optional)
               │  SQLite (WAL mode)  │
               │  FTS5 search        │
               │  daily_readings     │
+              │  verses             │
               └──────────┬──────────┘
                          │
                          ▼
@@ -202,11 +208,11 @@ Crawler state files are kept under `build/`:
 
 If you want to retry previously failed URLs after parser updates, delete `build/failed.txt` before running crawler again.
 
-### 1b) Set up the lectionary (optional)
+### 1b) Lectionary
 
-The lectionary system maps liturgical dates to Gospel readings, then crawls Vatican News to resolve them to Gospel references (biblical book/chapter/verse).
+The lectionary is **auto-updated via GitHub Actions** on Dec 24 and Dec 25 each year. A PR is created with the updated `resources/bible.db`.
 
-Dates are generated algorithmically using the built-in `internal/lectionary` package (Easter computed via the Meeus/Jones/Butcher algorithm, seasons, cycles, and week numbers). No external calendar data is needed.
+To manually update the lectionary:
 
 ```shell
 # Single year:
@@ -214,9 +220,6 @@ make crawl-lectionary YEARS="2026"
 
 # Multiple years:
 make crawl-lectionary YEARS="2025,2026,2027"
-
-# Alias:
-make setup-lectionary YEARS="2026,2027"
 ```
 
 Re-running is idempotent (`INSERT OR IGNORE`).
