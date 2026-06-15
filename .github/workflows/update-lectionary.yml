@@ -31,14 +31,25 @@ jobs:
 
       - name: Determine years
         id: years
+        env:
+          INPUT_YEARS: ${{ inputs.years }}
         run: |
-          if [ -n "${{ inputs.years }}" ]; then
-            echo "YEARS=${{ inputs.years }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_YEARS" ]; then
+            RAW_YEARS="$INPUT_YEARS"
           else
             CURRENT_YEAR=$(date +%Y)
             NEXT_YEAR=$((CURRENT_YEAR + 1))
-            echo "YEARS=${CURRENT_YEAR},${NEXT_YEAR}" >> "$GITHUB_OUTPUT"
+            RAW_YEARS="${CURRENT_YEAR},${NEXT_YEAR}"
           fi
+
+          YEARS=$(printf '%s' "$RAW_YEARS" | tr -d '[:space:]')
+          BRANCH_YEARS=$(printf '%s' "$YEARS" | tr -cs '[:alnum:]._-' '-' | sed -e 's/^-*//' -e 's/-*$//')
+          BRANCH="auto/update-lectionary-${BRANCH_YEARS}"
+
+          git check-ref-format --branch "$BRANCH" >/dev/null
+
+          echo "YEARS=${YEARS}" >> "$GITHUB_OUTPUT"
+          echo "BRANCH=${BRANCH}" >> "$GITHUB_OUTPUT"
 
       - name: Run lectionary crawler
         run: make crawl-lectionary YEARS="${{ steps.years.outputs.YEARS }}"
@@ -57,7 +68,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.CREATE_PR }}
-          branch: auto/update-lectionary-${{ steps.years.outputs.YEARS }}
+          branch: ${{ steps.years.outputs.BRANCH }}
           title: 'Update lectionary for ${{ steps.years.outputs.YEARS }}'
           body: |
             Auto-generated lectionary update for years: ${{ steps.years.outputs.YEARS }}
