@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
+	"github.com/minh/daily-bible/internal/dateutil"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -188,7 +188,7 @@ func TestTodayHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	today := time.Now().Format("2006-01-02")
+	today := dateutil.TodayDate()
 
 	_, err = db.Exec(`
 		INSERT INTO daily_readings (date, lectionary_key, gospel_ref)

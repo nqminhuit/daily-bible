@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"testing"
-	"time"
 
+	"github.com/minh/daily-bible/internal/dateutil"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -76,7 +76,7 @@ func setupTestDB(t *testing.T) string {
 		t.Fatal(err)
 	}
 
-	today := time.Now().Format("2006-01-02")
+	today := dateutil.TodayDate()
 	_, err = database.Exec(`
 		INSERT INTO daily_readings (date, lectionary_key, gospel_ref)
 		VALUES (?, 'lent_5_sun_A', 'Ga 11,1-2')
@@ -144,7 +144,7 @@ func TestCLI_Gospel_NotFound(t *testing.T) {
 
 func TestCLI_Date(t *testing.T) {
 	dbPath := setupTestDB(t)
-	today := time.Now().Format("2006-01-02")
+	today := dateutil.TodayDate()
 
 	out, err := runCLI(t, dbPath, today)
 	if err != nil {
@@ -165,7 +165,7 @@ func TestCLI_Date(t *testing.T) {
 
 func TestCLI_Today(t *testing.T) {
 	dbPath := setupTestDB(t)
-	today := time.Now().Format("2006-01-02")
+	today := dateutil.TodayDate()
 
 	out, err := runCLI(t, dbPath, "today")
 	if err != nil {

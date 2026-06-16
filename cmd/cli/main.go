@@ -13,6 +13,7 @@ import (
 
 	"github.com/minh/daily-bible/internal/api"
 	"github.com/minh/daily-bible/internal/constants"
+	"github.com/minh/daily-bible/internal/dateutil"
 	dbpkg "github.com/minh/daily-bible/internal/db"
 	"github.com/minh/daily-bible/internal/query"
 )
@@ -77,12 +78,7 @@ Commands:
 }
 
 func handleToday(ctx context.Context, db *sql.DB) {
-	loc, err := time.LoadLocation(constants.Timezone)
-	if err != nil {
-		log.Fatalf("fatal: load timezone %q: %v", constants.Timezone, err)
-	}
-	date := time.Now().In(loc).Format("2006-01-02")
-	outputDateReading(ctx, db, date)
+	outputDateReading(ctx, db, dateutil.TodayDate())
 }
 
 func handleDate(ctx context.Context, db *sql.DB, date string) {

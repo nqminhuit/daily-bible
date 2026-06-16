@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/minh/daily-bible/internal/constants"
+	"github.com/minh/daily-bible/internal/dateutil"
 	"github.com/minh/daily-bible/internal/query"
 )
 
@@ -135,12 +135,8 @@ func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 }
 
 func makeTodayHandler(db *sql.DB) http.HandlerFunc {
-	loc, err := time.LoadLocation(constants.Timezone)
-	if err != nil {
-		log.Fatalf("fatal: load timezone %q: %v", constants.Timezone, err)
-	}
 	return makeDateHandler(db, func() string {
-		return time.Now().In(loc).Format("2006-01-02")
+		return dateutil.TodayDate()
 	})
 }
 
