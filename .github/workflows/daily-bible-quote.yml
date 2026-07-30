@@ -21,9 +21,6 @@ jobs:
           go-version: '1.25'
           cache: true
 
-      - name: Install go-sendxmpp
-        run: sudo apt-get install -y go-sendxmpp
-
       - name: Build CLI
         run: go build -tags "fts5" -o daily-bible ./cmd/cli
 
@@ -47,13 +44,20 @@ jobs:
           echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Send via XMPP
-        env:
-          XMPP_JID: ${{ secrets.XMPP_JID }}
-          XMPP_PASS: ${{ secrets.XMPP_PASS }}
-          XMPP_RECIPIENTS: ${{ secrets.XMPP_RECIPIENTS }}
-          QUOTE: ${{ steps.quote.outputs.text }}
-        run: |
-          for recipient in $XMPP_RECIPIENTS; do
-            echo "$QUOTE" | go-sendxmpp -u "$XMPP_JID" -p "$XMPP_PASS" "$recipient"
-          done
+      - name: Send email
+        uses: dawidd6/action-send-mail@v18
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.SMTP_APP_PASSWORD }}
+
+          subject: "Daily Bible Quote: ${{ steps.quote.outputs.ref }}"
+
+          to: ${{ secrets.TO_EMAIL }}
+          from: GitHub Actions <${{ secrets.MAIL_USERNAME }}>
+
+          body: |
+            ${{ steps.quote.outputs.text }}
+            — ${{ steps.quote.outputs.ref }}
