@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -18,12 +19,13 @@ import (
 )
 
 func main() {
-	var years string
-	flag.StringVar(&years, "years", "", "comma-separated list of years (e.g. 2026,2027)")
+	var years, dates string
+	flag.StringVar(&years, "years", "", "comma-separated list of years to import and crawl (e.g. 2026,2027)")
+	flag.StringVar(&dates, "dates", "", "comma-separated list of specific dates to crawl (YYYY-MM-DD), importing their years if needed")
 	flag.Parse()
 
-	if years == "" {
-		log.Fatal("--years is required (e.g. -years=2026,2027)")
+	if years == "" && dates == "" {
+		log.Fatal("--years or --dates is required (e.g. -years=2026,2027 or -dates=2026-08-04)")
 	}
 
 	db, err := dbpkg.Open(constants.DBPath)
@@ -32,23 +34,15 @@ func main() {
 	}
 	defer db.Close()
 
-	yearStrs := strings.Split(years, ",")
-	for _, ys := range yearStrs {
-		ys = strings.TrimSpace(ys)
-		year, err := strconv.Atoi(ys)
-		if err != nil {
-			log.Fatalf("invalid year %q: %v", ys, err)
-		}
-		if err := importYear(db, year); err != nil {
-			log.Fatalf("import year %d: %v", year, err)
-		}
+	if err := importRequestedYears(db, years, dates); err != nil {
+		log.Fatal(err)
 	}
 
-	jobs, err := missingGospelRefs(db)
+	jobs, err := requestedGospelRefs(db, dates)
 	if err != nil {
-		log.Fatalf("query missing keys: %v", err)
+		log.Fatalf("query missing readings: %v", err)
 	}
-	log.Printf("found %d lectionary keys to populate", len(jobs))
+	log.Printf("found %d readings to populate", len(jobs))
 
 	crawlClient := &http.Client{Timeout: 10 * time.Second}
 
@@ -88,6 +82,70 @@ type dateKey struct {
 	date string
 }
 
+func importRequestedYears(db *sql.DB, years, dates string) error {
+	yearSet := map[int]struct{}{}
+
+	for _, ys := range strings.Split(years, ",") {
+		ys = strings.TrimSpace(ys)
+		if ys == "" {
+			continue
+		}
+		year, err := strconv.Atoi(ys)
+		if err != nil {
+			return fmt.Errorf("invalid year %q: %w", ys, err)
+		}
+		yearSet[year] = struct{}{}
+	}
+
+	parsedDates, err := parseDates(dates)
+	if err != nil {
+		return err
+	}
+	for _, d := range parsedDates {
+		yearSet[d.Year()] = struct{}{}
+	}
+
+	yearsToImport := make([]int, 0, len(yearSet))
+	for year := range yearSet {
+		yearsToImport = append(yearsToImport, year)
+	}
+	sort.Ints(yearsToImport)
+
+	for _, year := range yearsToImport {
+		if err := importYear(db, year); err != nil {
+			return fmt.Errorf("import year %d: %w", year, err)
+		}
+	}
+	return nil
+}
+
+func parseDates(dates string) ([]time.Time, error) {
+	if strings.TrimSpace(dates) == "" {
+		return nil, nil
+	}
+
+	parts := strings.Split(dates, ",")
+	result := make([]time.Time, 0, len(parts))
+	seen := map[string]struct{}{}
+	for _, part := range parts {
+		date := strings.TrimSpace(part)
+		if date == "" {
+			continue
+		}
+		parsed, err := time.Parse("2006-01-02", date)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date %q: expected YYYY-MM-DD", date)
+		}
+		key := parsed.Format("2006-01-02")
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		result = append(result, parsed)
+	}
+	return result, nil
+}
+
 func importYear(db *sql.DB, year int) error {
 	cal := lectionary.GenerateLectionary(year)
 	log.Printf("generated %d dates for year %d", len(cal), year)
@@ -124,6 +182,17 @@ func importYear(db *sql.DB, year int) error {
 	return nil
 }
 
+func requestedGospelRefs(db *sql.DB, dates string) ([]dateKey, error) {
+	parsedDates, err := parseDates(dates)
+	if err != nil {
+		return nil, err
+	}
+	if len(parsedDates) == 0 {
+		return missingGospelRefs(db)
+	}
+	return missingGospelRefsForDates(db, parsedDates)
+}
+
 func missingGospelRefs(db *sql.DB) ([]dateKey, error) {
 	rows, err := db.Query(`
 		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
@@ -147,6 +216,28 @@ func missingGospelRefs(db *sql.DB) ([]dateKey, error) {
 		jobs = append(jobs, j)
 	}
 	return jobs, rows.Err()
+}
+
+func missingGospelRefsForDates(db *sql.DB, dates []time.Time) ([]dateKey, error) {
+	jobs := make([]dateKey, 0, len(dates))
+	for _, d := range dates {
+		date := d.Format("2006-01-02")
+		var j dateKey
+		err := db.QueryRow(`
+			SELECT lectionary_key, date
+			FROM daily_readings
+			WHERE date = ? AND gospel_ref IS NULL
+		`, date).Scan(&j.key, &j.date)
+		if err == sql.ErrNoRows {
+			log.Printf("skip date=%s: reading is already populated or does not exist", date)
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs, nil
 }
 
 func fetchGospelRef(client *http.Client, url string) (string, error) {

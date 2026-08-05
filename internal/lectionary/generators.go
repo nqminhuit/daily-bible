@@ -45,15 +45,15 @@ func applyWeekNumbers(calendar map[string]DayInfo) {
 	sort.Strings(dates)
 
 	var (
-		adventWeek      int
-		christmasWeek   int
-		lentWeek        int
-		easterWeek      int
-		ordWeek         int
-		ordStarted      bool
-		prevSeason      Season = ""
-		pastLent        bool
-		adventStart     int = -1
+		adventWeek    int
+		christmasWeek int
+		lentWeek      int
+		easterWeek    int
+		ordWeek       int
+		ordStarted    bool
+		prevSeason    Season = ""
+		pastLent      bool
+		adventStart   int = -1
 	)
 
 	for i, key := range dates {

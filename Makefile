@@ -58,6 +58,9 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 crawl-lectionary: ## Populate daily_readings via algorithmic calendar generation (YEARS=2026,2027)
 	go run $(GOFLAGS) ./tools/lectionarycrawler -years="$(YEARS)"
 
+crawl-lectionary-dates: ## Crawl specific missing daily_readings dates (DATES=2026-08-04,2026-08-06)
+	go run $(GOFLAGS) ./tools/lectionarycrawler -dates="$(DATES)"
+
 setup-lectionary: ## Full lectionary setup (YEARS=2026,2027)
 	$(MAKE) crawl-lectionary YEARS="$(YEARS)"
 

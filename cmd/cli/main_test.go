@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/minh/daily-bible/internal/dateutil"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/minh/daily-bible/internal/dateutil"
 )
 
 var cliPath string

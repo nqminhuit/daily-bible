@@ -192,3 +192,64 @@ func TestMissingGospelRefs(t *testing.T) {
 		}
 	}
 }
+
+func TestParseDates(t *testing.T) {
+	dates, err := parseDates("2026-08-04, 2026-08-06,2026-08-04")
+	if err != nil {
+		t.Fatalf("parseDates returned error: %v", err)
+	}
+	if len(dates) != 2 {
+		t.Fatalf("expected 2 unique dates, got %d", len(dates))
+	}
+	if got := dates[0].Format("2006-01-02"); got != "2026-08-04" {
+		t.Fatalf("dates[0] = %q, want %q", got, "2026-08-04")
+	}
+	if got := dates[1].Format("2006-01-02"); got != "2026-08-06" {
+		t.Fatalf("dates[1] = %q, want %q", got, "2026-08-06")
+	}
+}
+
+func TestParseDatesInvalid(t *testing.T) {
+	if _, err := parseDates("08/04/2026"); err == nil {
+		t.Fatal("expected invalid date error")
+	}
+}
+
+func TestMissingGospelRefsForDates(t *testing.T) {
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		CREATE TABLE daily_readings (
+			date TEXT NOT NULL PRIMARY KEY,
+			lectionary_key TEXT NOT NULL,
+			gospel_ref TEXT
+		);
+		INSERT INTO daily_readings (date, lectionary_key, gospel_ref)
+		VALUES
+			('2026-08-04', 'ordinary_18_tue_II', NULL),
+			('2026-08-05', 'ordinary_18_wed_II', 'Mt 15,21-28')
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dates, err := parseDates("2026-08-04,2026-08-05,2026-08-06")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jobs, err := missingGospelRefsForDates(db, dates)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(jobs) != 1 {
+		t.Fatalf("expected 1 missing date job, got %d: %v", len(jobs), jobs)
+	}
+	if jobs[0].date != "2026-08-04" || jobs[0].key != "ordinary_18_tue_II" {
+		t.Fatalf("unexpected job: %+v", jobs[0])
+	}
+}
