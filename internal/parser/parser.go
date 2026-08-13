@@ -8,8 +8,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-var bibleRefRe = regexp.MustCompile(`((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10}\s*\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?)*)`)
-var chapterVerseRe = regexp.MustCompile(`(\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?)?)*)`)
+var bibleRefRe = regexp.MustCompile(`((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10}\s*\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?)*)`)
+var chapterVerseRe = regexp.MustCompile(`(\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?)*)`)
 var bookChapterSplitRe = regexp.MustCompile(`^((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10})\s*(\d.*)$`)
 var commaSpacingRe = regexp.MustCompile(`\s*,\s*`)
 var dashSpacingRe = regexp.MustCompile(`\s*-\s*`)

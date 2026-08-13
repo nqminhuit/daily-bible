@@ -44,7 +44,7 @@ func main() {
 		}
 	}
 
-	jobs, err := missingGospelRefs(db)
+	jobs, err := missingGospelRefs(db, yearStrs)
 	if err != nil {
 		log.Fatalf("query missing keys: %v", err)
 	}
@@ -124,14 +124,26 @@ func importYear(db *sql.DB, year int) error {
 	return nil
 }
 
-func missingGospelRefs(db *sql.DB) ([]dateKey, error) {
-	rows, err := db.Query(`
+func missingGospelRefs(db *sql.DB, years []string) ([]dateKey, error) {
+	// Build date range filters: date BETWEEN 'YYYY-01-01' AND 'YYYY-12-31'
+	var conditions []string
+	var args []interface{}
+	for _, ys := range years {
+		ys = strings.TrimSpace(ys)
+		conditions = append(conditions, "dr.date BETWEEN ? AND ?")
+		args = append(args, ys+"-01-01", ys+"-12-31")
+	}
+	dateFilter := "(" + strings.Join(conditions, " OR ") + ")"
+
+	query := fmt.Sprintf(`
 		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
 		FROM daily_readings dr
-		WHERE dr.gospel_ref IS NULL
+		WHERE dr.gospel_ref IS NULL AND %s
 		GROUP BY dr.lectionary_key
 		ORDER BY MIN(dr.date)
-	`)
+	`, dateFilter)
+
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

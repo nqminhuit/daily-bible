@@ -176,7 +176,7 @@ func TestMissingGospelRefs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	jobs, err := missingGospelRefs(db)
+	jobs, err := missingGospelRefs(db, []string{"2026"})
 	if err != nil {
 		t.Fatal(err)
 	}

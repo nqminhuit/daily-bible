@@ -54,6 +54,11 @@ func TestCanonicalizeReference(t *testing.T) {
 			want: "Lc 1,1-2,5",
 		},
 		{
+			name: "cross-chapter range",
+			ref:  "Mt 18,21-19,1",
+			want: "Mt 18,21-19,1",
+		},
+		{
 			name: "empty string",
 			ref:  "",
 			want: "",
@@ -64,6 +69,27 @@ func TestCanonicalizeReference(t *testing.T) {
 			got := canonicalizeReference(tt.ref)
 			if got != tt.want {
 				t.Fatalf("canonicalizeReference(%q) = %q, want %q", tt.ref, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBibleRefReMatchesCrossChapterRange(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"✠ Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu. Mt 18,21-19,1", "Mt 18,21-19,1"},
+		{"✠ Tin Mừng theo thánh Lu-ca. Lc 1,39-56", "Lc 1,39-56"},
+		{"✠ Tin Mừng theo thánh Mát-thêu. Mt 5,20-22a.27-28", "Mt 5,20-22a.27-28"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			normalized := NormalizeSpaces(tt.input)
+			got := bibleRefRe.FindString(normalized)
+			canonical := canonicalizeReference(got)
+			if canonical != tt.want {
+				t.Fatalf("from %q got %q, want %q", tt.input, canonical, tt.want)
 			}
 		})
 	}
