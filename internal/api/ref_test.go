@@ -121,7 +121,11 @@ func TestQueryByRef(t *testing.T) {
 		('Mt', 5, 21, '', 'You have heard...'),
 		('Mt', 5, 22, 'a', 'But I say to you...'),
 		('Mt', 5, 27, '', 'You have heard...'),
-		('Mt', 5, 28, '', 'But I say to you...')
+		('Mt', 5, 28, '', 'But I say to you...'),
+		('Mt', 18, 21, '', 'Peter came up...'),
+		('Mt', 18, 22, '', 'Jesus said seventy-seven...'),
+		('Mt', 18, 35, '', 'So also my heavenly Father...'),
+		('Mt', 19, 1, '', 'When Jesus finished...')
 	`)
 	if err != nil {
 		t.Fatal(err)
@@ -171,6 +175,23 @@ func TestQueryByRef(t *testing.T) {
 		}
 		if verses[0].Verse != 45 {
 			t.Fatalf("expected verse 45, got %d", verses[0].Verse)
+		}
+	})
+
+	t.Run("cross-chapter range", func(t *testing.T) {
+		verses, err := QueryByRef(t.Context(), db, "Mt 18,21-19,1")
+		if err != nil {
+			t.Fatalf("QueryByRef error: %v", err)
+		}
+		if len(verses) != 4 {
+			t.Fatalf("expected 4 verses, got %d: %+v", len(verses), verses)
+		}
+		// Should get Mt 18:21, 18:22, 18:35, 19:1
+		if verses[0].Chapter != 18 || verses[0].Verse != 21 {
+			t.Errorf("verse[0]: got %d:%d, want 18:21", verses[0].Chapter, verses[0].Verse)
+		}
+		if verses[len(verses)-1].Chapter != 19 || verses[len(verses)-1].Verse != 1 {
+			t.Errorf("last verse: got %d:%d, want 19:1", verses[len(verses)-1].Chapter, verses[len(verses)-1].Verse)
 		}
 	})
 }
