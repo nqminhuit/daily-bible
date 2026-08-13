@@ -158,6 +158,8 @@ func FindSectionContent(doc *html.Node) *html.Node {
 
 func NormalizeSpaces(s string) string {
 	s = strings.ReplaceAll(s, "\u00A0", " ")
+	s = strings.ReplaceAll(s, "\u2013", "-") // en-dash
+	s = strings.ReplaceAll(s, "\u2014", "-") // em-dash
 	return strings.Join(strings.Fields(s), " ")
 }
 

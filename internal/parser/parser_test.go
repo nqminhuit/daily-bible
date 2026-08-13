@@ -44,6 +44,16 @@ func TestCanonicalizeReference(t *testing.T) {
 			want: "Mt 5,20-22a.27-28",
 		},
 		{
+			name: "en-dash normalized to hyphen",
+			ref:  "Mt 18,21\u201319,1",
+			want: "Mt 18,21-19,1",
+		},
+		{
+			name: "em-dash normalized to hyphen",
+			ref:  "Lc 1,1\u20142,5",
+			want: "Lc 1,1-2,5",
+		},
+		{
 			name: "empty string",
 			ref:  "",
 			want: "",
