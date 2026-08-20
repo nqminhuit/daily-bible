@@ -51,8 +51,14 @@ func main() {
 	log.Printf("found %d lectionary keys to populate", len(jobs))
 
 	crawlClient := &http.Client{Timeout: 10 * time.Second}
+	today := time.Now().Format("2006-01-02")
 
 	for i, j := range jobs {
+		if j.date > today {
+			log.Printf("[%d/%d] SKIP key=%s date=%s: date is in the future, not yet published", i+1, len(jobs), j.key, j.date)
+			continue
+		}
+
 		parts := strings.SplitN(j.date, "-", 3)
 		if len(parts) != 3 {
 			log.Printf("invalid date %q", j.date)
