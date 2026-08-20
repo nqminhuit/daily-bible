@@ -69,7 +69,7 @@ func main() {
 			parts[0], parts[1], parts[2],
 		)
 
-		ref, err := fetchGospelRef(crawlClient, url)
+		ref, err := fetchGospelRef(crawlClient, url, j.date)
 		if err != nil {
 			log.Printf("[%d/%d] FAIL key=%s date=%s: %v", i+1, len(jobs), j.key, j.date, err)
 			time.Sleep(500 * time.Millisecond)
@@ -167,7 +167,7 @@ func missingGospelRefs(db *sql.DB, years []string) ([]dateKey, error) {
 	return jobs, rows.Err()
 }
 
-func fetchGospelRef(client *http.Client, url string) (string, error) {
+func fetchGospelRef(client *http.Client, url string, expectedDate string) (string, error) {
 	var lastErr error
 	for attempt := range 3 {
 		if attempt > 0 {
@@ -191,6 +191,14 @@ func fetchGospelRef(client *http.Client, url string) (string, error) {
 				return "", lastErr
 			}
 			continue
+		}
+
+		pageDate, err := parser.ExtractPageDate(string(body))
+		if err != nil {
+			return "", fmt.Errorf("extract page date: %w", err)
+		}
+		if pageDate != expectedDate {
+			return "", fmt.Errorf("page date mismatch: requested %s, page is for %s", expectedDate, pageDate)
 		}
 
 		_, ref, err := parser.ExtractGospel(string(body))

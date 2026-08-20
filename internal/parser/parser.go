@@ -9,6 +9,7 @@ import (
 )
 
 var bibleRefRe = regexp.MustCompile(`((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10}\s*\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?)*)`)
+var pageDateRe = regexp.MustCompile(`ngày\s+(\d{1,2})\s+tháng\s+(\d{1,2})\s+(\d{4})`)
 var chapterVerseRe = regexp.MustCompile(`(\d+\s*,\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?(?:\s*\.\s*\d+[A-Za-z]?(?:\s*-\s*\d+[A-Za-z]?(?:\s*,\s*\d+[A-Za-z]?)?)?)*)`)
 var bookChapterSplitRe = regexp.MustCompile(`^((?:[1-3]\s*)?[A-Za-zÀ-ỹ]{1,10})\s*(\d.*)$`)
 var commaSpacingRe = regexp.MustCompile(`\s*,\s*`)
@@ -239,6 +240,18 @@ func FindReadingStartVatican(s string) int {
 		return i
 	}
 	return -1
+}
+
+// ExtractPageDate reads the date the page itself claims to be for (from its
+// title, e.g. "... ngày 20 tháng 8 2026 ...") and returns it as "YYYY-MM-DD".
+// This lets callers verify a fetched page actually covers the date they
+// requested, rather than trusting the request URL alone.
+func ExtractPageDate(htmlStr string) (string, error) {
+	m := pageDateRe.FindStringSubmatch(htmlStr)
+	if m == nil {
+		return "", fmt.Errorf("no date found in page")
+	}
+	return fmt.Sprintf("%s-%02s-%02s", m[3], m[2], m[1]), nil
 }
 
 func ExtractGospel(htmlInput string) (section, ref string, err error) {

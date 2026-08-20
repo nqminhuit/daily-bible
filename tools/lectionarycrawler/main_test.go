@@ -13,7 +13,7 @@ func TestFetchGospelRef(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
-			<html><body>
+			<html><head><title>Tin Mừng và Lời Chúa ngày 05 tháng 4 2026 - Vatican News</title></head><body>
 			<section>
 			<div class="section__content">
 			<p>✠Bài trích Tin Mừng Chúa Giê-su Ki-tô theo thánh Gio-an. Ga 11,1-45</p>
@@ -27,12 +27,35 @@ func TestFetchGospelRef(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	ref, err := fetchGospelRef(client, server.URL)
+	ref, err := fetchGospelRef(client, server.URL, "2026-04-05")
 	if err != nil {
 		t.Fatalf("fetchGospelRef error: %v", err)
 	}
 	if ref != "Ga 11,1-45" {
 		t.Fatalf("expected Ga 11,1-45, got %q", ref)
+	}
+}
+
+func TestFetchGospelRefDateMismatch(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`
+			<html><head><title>Tin Mừng và Lời Chúa ngày 20 tháng 12 2025 - Vatican News</title></head><body>
+			<section>
+			<div class="section__content">
+			<p>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Lu-ca. Lc 1,26-38</p>
+			<p><sup>26</sup>Verse text.</p>
+			</div>
+			</section>
+			</body></html>
+		`))
+	}))
+	defer server.Close()
+
+	client := &http.Client{}
+	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
+	if err == nil {
+		t.Fatal("expected error when page date does not match requested date")
 	}
 }
 
@@ -43,7 +66,7 @@ func TestFetchGospelRefNotFound(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, server.URL)
+	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error for 404 response")
 	}
@@ -51,7 +74,7 @@ func TestFetchGospelRefNotFound(t *testing.T) {
 
 func TestFetchGospelRefConnectionError(t *testing.T) {
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, "http://localhost:1")
+	_, err := fetchGospelRef(client, "http://localhost:1", "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error for connection refused")
 	}
@@ -61,7 +84,7 @@ func TestFetchGospelRefMissingRef(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
-			<html><body>
+			<html><head><title>Tin Mừng và Lời Chúa ngày 20 tháng 8 2026 - Vatican News</title></head><body>
 			<section>
 			<div class="section__content">
 			<p>No bible reference here</p>
@@ -74,7 +97,7 @@ func TestFetchGospelRefMissingRef(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, server.URL)
+	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error when no gospel ref found")
 	}
@@ -84,7 +107,7 @@ func TestFetchGospelRefNonContiguous(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`
-			<html><body>
+			<html><head><title>Tin Mừng và Lời Chúa ngày 20 tháng 8 2026 - Vatican News</title></head><body>
 			<section>
 			<div class="section__content">
 			<p>✠Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu. Mt 5,20-22a.27-28</p>
@@ -98,7 +121,7 @@ func TestFetchGospelRefNonContiguous(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	ref, err := fetchGospelRef(client, server.URL)
+	ref, err := fetchGospelRef(client, server.URL, "2026-08-20")
 	if err != nil {
 		t.Fatalf("fetchGospelRef error: %v", err)
 	}
