@@ -2,3 +2,5 @@
 /coverage*.out
 /crawler
 /lectionarycrawler
+/resources/*.db-shm
+/resources/*.db-wal
