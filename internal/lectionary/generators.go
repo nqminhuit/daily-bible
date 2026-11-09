@@ -9,7 +9,8 @@ import (
 // GenerateYear builds the initial calendar with seasons, weekdays, and cycles.
 // It is an intermediate generation step: WeekOfSeason remains zero and
 // LectionaryKey remains empty until the internal week-number and lectionary
-// passes run. Use GenerateLectionary for the complete date-to-key mapping.
+// passes run. GenerateLectionary completes the legacy estimate; actual trusted
+// observances and reusable entries come from imported CalendarDay definitions.
 func GenerateYear(year int) map[string]DayInfo {
 	result := map[string]DayInfo{}
 
@@ -152,6 +153,7 @@ func lectionaryPass(calendar map[string]DayInfo) {
 	}
 }
 
+// GenerateLectionary returns compatibility estimates, never reading evidence.
 func GenerateLectionary(year int) map[string]string {
 	cal := GenerateYear(year)
 	applyWeekNumbers(cal)

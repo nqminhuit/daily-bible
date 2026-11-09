@@ -14,6 +14,9 @@ on:
 permissions:
   contents: write
 
+env:
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
+
 jobs:
   update-lectionary:
     runs-on: ubuntu-latest
@@ -44,12 +47,28 @@ jobs:
           YEARS=$(printf '%s' "$RAW_YEARS" | tr -d '[:space:]')
           echo "YEARS=${YEARS}" >> "$GITHUB_OUTPUT"
 
-      - name: Run lectionary crawler
+      - uses: actions/setup-node@v6
+        if: env.READING_CALENDAR != 'vatican-vi'
+        with:
+          node-version: '22'
+
+      - name: Generate calendar offline and classify cached readings
         id: crawl
         continue-on-error: true
+        env:
+          YEARS: ${{ steps.years.outputs.YEARS }}
         run: |
+          mkdir -p build
+          calendar_args=()
+          if [[ "$READING_CALENDAR" != 'vatican-vi' ]]; then
+            ./.github/scripts/prepare-calendar.sh "$YEARS"
+            calendar_args+=("-calendar-file=build/calendar.json")
+          fi
           crawl_status=0
-          make crawl-lectionary YEARS="${{ steps.years.outputs.YEARS }}" || crawl_status=$?
+          # Year extension must not trigger a crawl for every generated date.
+          go run -tags "fts5" ./tools/lectionarycrawler \
+            -years="$YEARS" -offline \
+            -audit-report=build/calendar-audit.json "${calendar_args[@]}" || crawl_status=$?
           # This database ships in WAL mode. Fold the write-ahead log back into
           # the main file so newly crawled data can't be left behind in an
           # uncommitted -wal sidecar.
@@ -65,5 +84,5 @@ jobs:
       - name: Report source verification failures
         if: steps.crawl.outcome == 'failure'
         run: |
-          echo "::error::Some exact-date sources could not be verified; partial verified progress was committed."
+          echo "::error::Calendar generation or offline audit failed; review the job logs before accepting the snapshot."
           exit 1

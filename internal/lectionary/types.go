@@ -36,6 +36,7 @@ var fixedCelebrationDates = map[string]struct{}{
 	"09-14": {}, // Exaltation of the Holy Cross
 	"11-01": {}, // All Saints
 	"11-02": {}, // Commemoration of All the Faithful Departed
+	"11-09": {}, // Dedication of the Lateran Basilica
 	"12-08": {}, // Immaculate Conception
 	"12-12": {}, // Our Lady of Guadalupe
 	"12-25": {}, // Nativity of the Lord
@@ -44,9 +45,19 @@ var fixedCelebrationDates = map[string]struct{}{
 	"12-28": {}, // Holy Innocents
 }
 
+// This improves legacy estimates only. Trusted reuse uses CalendarDay.Entry
+// after precedence/transfer resolution by the declared calendar provider.
+var ordinarySundayPropers = map[string]bool{
+	"02-02": true, "06-24": true, "06-29": true, "08-06": true,
+	"08-15": true, "09-14": true, "11-01": true, "11-02": true, "11-09": true,
+}
+
 func (d DayInfo) hasDateSpecificReadings() bool {
-	if d.MonthDay == "" || d.Weekday == "sun" {
+	if d.MonthDay == "" {
 		return false
+	}
+	if d.Weekday == "sun" {
+		return d.Season == SeasonOrdinary && ordinarySundayPropers[d.MonthDay]
 	}
 	if d.Season == SeasonChristmas {
 		return true

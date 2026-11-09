@@ -1,0 +1,64 @@
+name: Audit reading sources
+
+# Separate from availability/healing: compare a sample on a disposable DB.
+# No observations, reference corrections, or calendar changes are auto-published.
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Exact date to audit (YYYY-MM-DD); empty means today in Vietnam'
+        required: false
+        default: ''
+  schedule:
+    - cron: '20 03 * * 1'
+
+permissions:
+  contents: read
+
+env:
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
+  DB_PATH: build/source-audit.db
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache: true
+      - uses: actions/setup-node@v6
+        if: env.READING_CALENDAR != 'vatican-vi'
+        with:
+          node-version: '22'
+      - name: Audit an exact date on a database copy
+        env:
+          INPUT_DATE: ${{ inputs.date }}
+        run: |
+          set -euo pipefail
+          date=${INPUT_DATE:-$(TZ=Asia/Ho_Chi_Minh date +%F)}
+          [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || exit 2
+          mkdir -p build
+          sqlite3 -readonly resources/bible.db ".backup 'build/source-audit.db'"
+          go build -tags "fts5" -o build/lectionarycrawler ./tools/lectionarycrawler
+          calendar_args=()
+          if [[ "$READING_CALENDAR" != 'vatican-vi' ]]; then
+            ./.github/scripts/prepare-calendar.sh "${date%%-*}"
+            calendar_args+=("-calendar-file=build/calendar.json")
+          fi
+          status=0
+          ./build/lectionarycrawler -from="$date" -to="$date" -refresh \
+            "${calendar_args[@]}" > build/source-audit.log 2>&1 || status=$?
+          cat build/source-audit.log
+          ./build/lectionarycrawler -from="$date" -to="$date" -offline \
+            -audit-report=build/source-audit.json
+          exit "$status"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reading-source-audit
+          path: |
+            build/source-audit.log
+            build/source-audit.json
+          retention-days: 14

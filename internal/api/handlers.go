@@ -14,6 +14,7 @@ import (
 	"github.com/minh/daily-bible/internal/dateutil"
 	"github.com/minh/daily-bible/internal/query"
 	"github.com/minh/daily-bible/internal/reading"
+	"github.com/minh/daily-bible/internal/scripture"
 )
 
 // writeJSON logs output errors without attempting a second response: Encode
@@ -208,15 +209,16 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 		}
 		combined := strings.TrimSpace(sb.String())
 
-		writeJSON(w, r, map[string]any{
-			"date":           date,
-			"lectionary_key": metadata.LectionaryKey,
-			"ref":            gospelRef,
-			"verses":         combined,
-			"verified":       true,
-			"source_url":     metadata.SourceURL,
-			"verified_at":    metadata.VerifiedAt,
-			"celebration":    metadata.Celebration,
-		})
+		complete, err := scripture.HasText(r.Context(), db, gospelRef)
+		if err != nil {
+			log.Printf("reading text validation: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		if !complete {
+			http.Error(w, "not found: incomplete reading text", http.StatusNotFound)
+			return
+		}
+		writeJSON(w, r, metadata.Response(combined))
 	}
 }

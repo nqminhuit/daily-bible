@@ -48,7 +48,9 @@ A Vietnamese daily Gospel reader with full-text search, powered by SQLite FTS5.
 |---------|---------|
 | `cmd/server` | HTTP server entrypoint, wires DB + router |
 | `cmd/cli` | CLI entrypoint (`today`, `gospel`, `search`, `random`, date) |
-| `internal/api` | HTTP handlers, router, middleware, reference parsing + query |
+| `internal/api` | HTTP handlers, router, middleware, reference compatibility wrappers |
+| `internal/scripture` | Bounded reference parsing, normalization, verse queries and completeness |
+| `internal/reading` | Scoped calendar imports, reviewed entry/date caches, observations and offline audits |
 | `internal/db` | SQLite connection (WAL, single-connection pool), schema init |
 | `internal/query` | FTS5 phrase query builder (wraps terms in double quotes) |
 | `internal/model` | Gospel struct |
@@ -57,7 +59,8 @@ A Vietnamese daily Gospel reader with full-text search, powered by SQLite FTS5.
 | `internal/crawlerconfig` | Crawler settings, Vatican URLs, pipeline paths shared with the TSV converter |
 | `internal/lectionary` | Liturgical calendar (Easter via Meeus/Jones/Butcher, seasons, cycles) |
 | `tools/crawler` | Vatican News sitemap crawler → `build/gospels.txt` |
-| `tools/lectionarycrawler` | Generates `daily_readings` from algorithmic calendar + Vatican crawl |
+| `tools/lectionarycrawler` | Cache-first resolution, bounded observations/reviews and offline coverage audits |
+| `tools/calendar` | Pinned calendar-provider export/tests; maintenance-only Node dependency |
 | `tools/tsv` | Converts `gospels.txt` → `build/gospels.tsv` |
 
 ## Data Pipeline Flow
@@ -104,25 +107,26 @@ Step 3: Import
        ▼
   resources/bible.db  (ready to serve)
 
-Step 4: Lectionary (auto-updated via GitHub Actions)
-  Automatically runs on Dec 24 and Dec 25 each year.
-  Generates estimated calendar keys + verifies each exact date against Vatican News.
-  Commits updated resources/bible.db to the default branch.
+Step 4: Calendar-aware reading cache
+  The annual job extends definitions and writes an OFFLINE coverage audit;
+  it does not recrawl every generated date or approve predicted readings.
+  See data/calendar-policy.md for the safe, temporary-copy operator workflow.
 
-  Manual:
-  make crawl-lectionary YEARS="2026,2027"
-
-  internal/lectionary
-       │  - computes Easter (Meeus/Jones/Butcher)
-       │  - determines liturgical seasons + week numbers
-       │  - generates lectionary keys (e.g. lent_5_sun_A)
+  tools/calendar (pinned provider; maintenance-only Node dependency)
+       │  - exports selected observances, precedence, transfers, cycles
+       │  - explicit calendar profile and version; no reading approvals
        ▼
   tools/lectionarycrawler
-       │  - maps each exact date → its Vatican News URL
-       │  - validates the source page's title date and Gospel reference
-       │  - never copies a reference to another date with the same key
+       │  - imports versioned calendar days; retains legacy estimates for audit
+       │  - reuses reviewed date decisions / actual lectionary entries first
+       │  - checks shared verse completeness before declaring availability
+       │  - crawls gaps, explicit refreshes, and separate audit samples only
        ▼
-  daily_readings + daily_reading_sources (exact-date reference + provenance)
+  reading_calendar_days + reading_entries + retained reviews/observations
+       │  - evidence scope and real source dates are preserved
+       │  - warm supported windows, including future years: zero Gospel HTTP
+       ▼
+  API / CLI / gospel-site (same evidence contract; explicit calendar selection)
 ```
 
 ### Mass-reading correctness
@@ -136,37 +140,40 @@ rules, and permitted alternatives can legitimately differ. Confirm the intended
 calendar before applying an archive-wide repair; unresolved source/calendar
 conflicts must stay unavailable rather than silently replacing a local reading.
 
-Date/today API and CLI lookups require `daily_reading_sources` evidence matching
-the exact date, current reference, dated source URL, and verification timestamp.
-Legacy refs are preserved for audit but are **not served as verified readings**.
-An unavailable or wrong-date upstream page never blesses an existing prediction.
-Responses include `verified`, `source_url`, `verified_at`, and an optional reviewed
-`celebration`. Do not derive an authoritative feast label from `lectionary_key`.
+The default `READING_CALENDAR=vatican-vi` preserves the source-only contract:
+exact-date evidence must match the current reference and actual dated page.
+`roman-general` and `vietnam` are **explicit opt-in candidate profiles**, not a
+claim that the intended production calendar or local rules have been approved.
+They use imported, versioned calendar days and **explicitly reviewed reusable
+entry mappings**, with date-specific reviewed choices taking precedence. Only the
+`day` Mass option is currently supported; unspecified variants are not guessed.
 
-To upgrade and verify a small window without crawling the full archive:
+Sharing verse text and supported lectionary mappings is intentional. What is
+forbidden is treating an estimated seasonal key, legacy majority, or arbitrary
+source observation as proof of equivalent celebrations. Unreviewed references and
+all observed disagreements remain available for audit. Missing/partial verse text
+is reported separately rather than rendered as a complete Gospel.
 
-```sh
-make verify-readings FROM=2026-11-09 TO=2026-11-11
-# Recheck already verified dates:
-go run -tags "fts5" ./tools/lectionarycrawler -from=2026-11-09 -to=2026-11-11 -refresh
-# ONLY after reviewing each disagreement and the intended calendar:
-go run -tags "fts5" ./tools/lectionarycrawler -from=2026-11-09 -to=2026-11-11 -accept-corrections
-```
+Date/today responses identify `resolution_method` (`source_checked` or
+`calendar_resolved`), `calendar_id`, `mass_option`, `entry_key`, `rules_version`,
+`source_url`, `evidence_date`, `verified_at`, and the resolved/reviewed celebration.
+A reused entry points to its **actual evidence**, not a fabricated page for the
+requested future date. Compatibility `lectionary_key` values remain estimates.
 
-The crawler applies the idempotent provenance-table migration automatically.
-`DB_PATH` can point at a copy for auditing before changing a shipped snapshot.
-Without an explicit window, `-years` verifies dates through today in Vietnam;
-an explicit window can check future dates if the source has already published
-them. Failures are reported with a nonzero exit, preserving successful exact-date
-updates. A differing existing reference is recorded as a **conflict**, not replaced
-unless `-accept-corrections` is explicitly supplied after review. Its source evidence
-is retained, but lookups refuse the disagreement (even if the old ref previously
-had matching proof). This lets automation surface possible local-calendar choices
-without silently substituting ordinary readings. The healer probes **verification**,
-not merely reference availability.
-Older dates need an incremental source audit before they become available again.
-The `gospel-site` consumer must also require this provenance and suppress estimated
-labels; publishing this backend alone does not update the separate frontend code.
+Read [the policy and operator contract](data/calendar-policy.md) before importing
+calendars, reviewing mappings, or changing a shipped snapshot. It covers temporary
+copies, offline archive audits, `-review-entry`, `-accept-date`, scoped replacement,
+and explicit refreshes. `DB_PATH` selects the audit copy. A normal warm-cache run
+needs **zero Gospel HTTP requests**; unresolved entries fetch at most one reusable
+observation candidate and still require a review, not automatic promotion.
+
+Availability probes accept both supported evidence methods. Healing is bounded;
+annual extension is offline; a separate source-audit workflow checks samples on a
+disposable database. Missing-text repairs still use the verse import pipeline.
+The separate `gospel-site` frontend reads its own SQLite snapshot directly, so
+calendar settings, schema compatibility, coverage review, and release/rollback
+snapshots must be coordinated across both repositories. **Nothing here authorizes
+an archive-wide data promotion or deployment before those gates are satisfied.**
 
 ## Request Flow
 
@@ -189,7 +196,7 @@ labels; publishing this backend alone does not update the separate frontend code
               ┌─────────────────────┐
               │    internal/api     │
               │  router + handlers  │
-              │  ref parsing        │
+              │  reading resolution │
               └──────────┬──────────┘
                          │
                          ▼
@@ -265,9 +272,14 @@ If you want to retry previously failed URLs after parser updates, delete `build/
 
 ### 1b) Lectionary
 
-The lectionary is **auto-updated via GitHub Actions** on Dec 24 and Dec 25 each year. A PR is created with the updated `resources/bible.db`.
+The annual GitHub job extends calendar definitions and records an **offline** audit.
+It does not approve predicted references or crawl every date. Calendar imports and
+reviews are separate operations; follow [the operator workflow](data/calendar-policy.md)
+on a temporary database before proposing a snapshot change.
 
-To manually update the lectionary:
+The low-level command below generates estimates and fills gaps under the selected
+`READING_CALENDAR` (source-only unless explicitly configured). Prefer bounded
+`make verify-readings FROM=... TO=...` for a targeted investigation:
 
 ```shell
 # Single year:
@@ -277,7 +289,8 @@ make crawl-lectionary YEARS="2026"
 make crawl-lectionary YEARS="2025,2026,2027"
 ```
 
-Re-running is idempotent (`INSERT OR IGNORE`).
+Imports and identical reviews are idempotent. Existing Gospel references are
+retained; matching old keys never authorize copying a reference.
 
 ### 2) Start the API server
 
@@ -390,7 +403,7 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make crawl-lectionary YEARS=2026,2027` | Generate calendar estimates and verify exact-date readings through today |
+| `make crawl-lectionary YEARS=2026,2027` | Generate estimates and resolve/fill gaps under the explicitly selected reading policy |
 | `make verify-readings FROM=2026-11-09 TO=2026-11-11` | Verify a bounded date window against dated Vatican News pages |
 | `make setup-lectionary YEARS=2026,2027` | Full lectionary setup (alias for crawl-lectionary) |
 | `make build` | Build server binary (`build/daily-bible-server`) |

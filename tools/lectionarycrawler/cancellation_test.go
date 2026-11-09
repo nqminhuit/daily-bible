@@ -22,7 +22,7 @@ func newCrawlerTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	db.SetMaxOpenConns(1)
-	if err := dbpkg.EnsureReadingSources(t.Context(), db); err != nil {
+	if err := dbpkg.EnsureReadingCache(t.Context(), db); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { db.Close() })

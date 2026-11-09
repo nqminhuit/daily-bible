@@ -1,0 +1,10 @@
+{
+  "name": "daily-bible-calendar-export",
+  "private": true,
+  "scripts": { "export": "node export.cjs", "test": "node --test export.test.cjs" },
+  "dependencies": {
+    "romcal": "3.0.0-dev.144",
+    "@romcal/calendar.general-roman": "3.0.0-dev.144",
+    "@romcal/calendar.vietnam": "3.0.0-dev.144"
+  }
+}

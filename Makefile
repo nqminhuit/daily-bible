@@ -54,6 +54,7 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 	sqlite3 $(DB) "INSERT INTO verses_fts(verses_fts) VALUES('rebuild');"
 	sqlite3 $(DB) < data/migrations/002_daily_readings.sql
 	sqlite3 $(DB) < data/migrations/003_reading_sources.sql
+	sqlite3 $(DB) < data/migrations/004_reading_cache.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
 crawl-lectionary: ## Generate calendar estimates and verify exact-date readings (YEARS=2026,2027)

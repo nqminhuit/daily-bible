@@ -26,6 +26,8 @@ permissions:
 env:
   DB_PATH: resources/bible.db
   LOOKAHEAD_DAYS: ${{ inputs.lookahead_days || '2' }}
+  # Activate a national/local policy only after its scope/mappings are reviewed.
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
 
 jobs:
   heal:
@@ -52,17 +54,27 @@ jobs:
         continue-on-error: true
         run: ./.github/scripts/probe-readings.sh
 
-      - name: Crawl unverified readings by exact date
+      - uses: actions/setup-node@v6
+        if: steps.probe.outcome == 'failure' && env.READING_CALENDAR != 'vatican-vi'
+        with:
+          node-version: '22'
+
+      - name: Resolve from cache and crawl only gaps
         if: steps.probe.outcome == 'failure'
         continue-on-error: true
         run: |
           set -euo pipefail
-          # Never copy refs from dates that merely share a calendar key.
-          # Keep partial verified progress even if another source is unavailable.
+          # Imported definitions do not approve any Gospel mapping.
+          calendar_args=()
+          if [[ "$READING_CALENDAR" != 'vatican-vi' ]]; then
+            ./.github/scripts/prepare-calendar.sh "$(cat build/probe-years.txt)"
+            calendar_args+=("-calendar-file=build/calendar.json")
+          fi
           crawl_status=0
           ./build/lectionarycrawler \
             -from="$(cat build/probe-from.txt)" \
-            -to="$(cat build/probe-to.txt)" || crawl_status=$?
+            -to="$(cat build/probe-to.txt)" \
+            "${calendar_args[@]}" || crawl_status=$?
           # This database ships in WAL mode. Fold the write-ahead log back into
           # the main file before anything commits it, so newly crawled refs
           # can't be left behind in an uncommitted -wal sidecar.
@@ -92,5 +104,5 @@ jobs:
       - name: Fail if readings are still missing
         if: steps.reprobe.outcome == 'failure'
         run: |
-          echo "::error::Readings still missing after crawling — the upstream source may not have published them yet."
+          echo "::error::Readings still unavailable: check entry review, calendar scope, missing verse text, or unpublished sources."
           exit 1

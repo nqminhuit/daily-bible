@@ -21,7 +21,9 @@ func TestProbeDoesNotAcceptMereAvailability(t *testing.T) {
 	}{
 		{"legacy", `{"ref":"Lc 17,1-6"}`, false},
 		{"unverified", `{"ref":"Lc 17,1-6","verified":false,"source_url":"https://example.test"}`, false},
-		{"verified", `{"ref":"Ga 2,13-22","verified":true,"source_url":"https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/11/09.html"}`, true},
+		{"untyped", `{"ref":"Ga 2,13-22","verified":true,"source_url":"https://example.test"}`, false},
+		{"verified", `{"ref":"Ga 2,13-22","verified":true,"resolution_method":"source_checked","source_url":"https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/11/09.html"}`, true},
+		{"reused", `{"ref":"Ga 2,13-22","verified":true,"resolution_method":"calendar_resolved","source_url":"https://example.test/missal"}`, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()

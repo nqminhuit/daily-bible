@@ -16,13 +16,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/minh/daily-bible/internal/api"
 	"github.com/minh/daily-bible/internal/constants"
 	"github.com/minh/daily-bible/internal/dateutil"
 	dbpkg "github.com/minh/daily-bible/internal/db"
 	"github.com/minh/daily-bible/internal/lectionary"
 	"github.com/minh/daily-bible/internal/parser"
 	"github.com/minh/daily-bible/internal/reading"
+	"github.com/minh/daily-bible/internal/scripture"
 )
 
 func databasePath() string {
@@ -40,7 +40,28 @@ func main() {
 	flag.StringVar(&window.to, "to", "", "last date to verify (YYYY-MM-DD; requires -from)")
 	flag.BoolVar(&window.refresh, "refresh", false, "recheck already verified dates against the source")
 	flag.BoolVar(&window.acceptCorrections, "accept-corrections", false, "allow reviewed source references to replace differing stored refs")
+	flag.StringVar(&window.calendar, "calendar", reading.DefaultCalendar(), "calendar policy: vatican-vi, roman-general, or vietnam (explicit opt-in)")
+	flag.StringVar(&window.calendarFile, "calendar-file", "", "import a versioned calendar manifest; does not approve reading mappings")
+	flag.BoolVar(&window.offline, "offline", false, "resolve from local evidence only; never request source pages")
+	flag.StringVar(&window.auditReport, "audit-report", "", "write an offline classification report; does not repair legacy refs")
+	flag.StringVar(&window.reviewDate, "review-entry", "", "date identifying a reusable entry to explicitly review")
+	flag.StringVar(&window.reviewRef, "entry-ref", "", "reviewed Gospel reference (not inferred from the old key)")
+	flag.StringVar(&window.evidenceURL, "entry-evidence", "", "actual HTTPS evidence URL for the reviewed mapping")
+	flag.StringVar(&window.evidenceDate, "evidence-date", "", "actual evidence date, if the source is a dated page")
+	flag.StringVar(&window.reviewNote, "review-note", "", "explanation of the mapping's applicability and Mass option")
+	flag.BoolVar(&window.replaceEntry, "replace-entry", false, "explicitly replace a previously reviewed mapping (retains history)")
+	flag.StringVar(&window.acceptDate, "accept-date", "", "accept exact-date evidence for this calendar without approving its reusable entry")
+	flag.StringVar(&window.dateLabel, "date-label", "", "reviewed celebration label for -accept-date")
+	flag.BoolVar(&window.replaceDate, "replace-date", false, "explicitly replace a previously accepted date reference")
+	flag.StringVar(&window.reviewRef, "ref", "", "reviewed Gospel reference for -review-entry or -accept-date")
+	flag.StringVar(&window.evidenceURL, "evidence", "", "actual HTTPS evidence URL for the review")
 	flag.Parse()
+	if window.acceptDate != "" && window.from == "" && window.to == "" {
+		window.from, window.to = window.acceptDate, window.acceptDate
+	}
+	if window.reviewDate != "" && window.from == "" && window.to == "" {
+		window.from, window.to = window.reviewDate, window.reviewDate
+	}
 
 	var err error
 	years, err = validateWindow(years, window)
@@ -62,8 +83,23 @@ func run(ctx context.Context, years string, window crawlWindow) error {
 		return fmt.Errorf("open db: %w", err)
 	}
 	defer db.Close()
-	if err := dbpkg.EnsureReadingSources(ctx, db); err != nil {
-		return fmt.Errorf("upgrade reading provenance: %w", err)
+	if err := dbpkg.EnsureReadingCache(ctx, db); err != nil {
+		return fmt.Errorf("upgrade reading provenance/cache: %w", err)
+	}
+	if window.calendar == "" {
+		window.calendar = reading.DefaultCalendar()
+	}
+	if window.calendar != reading.SourceCalendar && !lectionary.CalendarSupported(window.calendar) {
+		return fmt.Errorf("unsupported calendar %q", window.calendar)
+	}
+	if err := prepareCalendar(ctx, db, window); err != nil {
+		return err
+	}
+	if window.acceptDate != "" {
+		return reading.ReviewDate(ctx, db, reading.EntryReview{CalendarID: window.calendar, Date: window.acceptDate, Ref: window.reviewRef, EvidenceURL: window.evidenceURL, EvidenceDate: window.evidenceDate, Note: window.reviewNote, Replace: window.replaceDate}, window.dateLabel)
+	}
+	if window.reviewDate != "" {
+		return reading.ReviewEntry(ctx, db, reading.EntryReview{CalendarID: window.calendar, Date: window.reviewDate, Ref: window.reviewRef, EvidenceURL: window.evidenceURL, EvidenceDate: window.evidenceDate, Note: window.reviewNote, Replace: window.replaceEntry})
 	}
 
 	yearStrs := strings.Split(years, ",")
@@ -78,7 +114,14 @@ func run(ctx context.Context, years string, window crawlWindow) error {
 		}
 	}
 
-	jobs, err := pendingDates(ctx, db, yearStrs, window)
+	if window.auditReport != "" {
+		return writeAudit(ctx, db, yearStrs, window)
+	}
+	jobWindow := window
+	if window.calendar != reading.SourceCalendar || window.offline {
+		jobWindow.refresh = true
+	}
+	jobs, err := pendingDates(ctx, db, yearStrs, jobWindow)
 	if err != nil {
 		return fmt.Errorf("query pending dates: %w", err)
 	}
@@ -86,6 +129,11 @@ func run(ctx context.Context, years string, window crawlWindow) error {
 
 	crawlClient := &http.Client{Timeout: 10 * time.Second}
 	defer crawlClient.CloseIdleConnections()
+	if window.calendar != reading.SourceCalendar || window.offline {
+		stats, err := populateCacheFirst(ctx, db, crawlClient, jobs, window)
+		log.Printf("cache summary: dates=%d cache_hits=%d http_requests=%d observation_candidates=%d unresolved=%d missing_text=%d source_differences=%d", stats.Dates, stats.CacheHits, stats.HTTPRequests, stats.Candidates, stats.Unresolved, stats.MissingText, stats.Differences)
+		return err
+	}
 	return populateRefs(ctx, db, crawlClient, jobs, window.acceptCorrections)
 }
 
@@ -279,16 +327,11 @@ func fetchGospelRef(ctx context.Context, client *http.Client, url string, expect
 		if err != nil {
 			return "", err
 		}
-		parsed, err := api.ParseRefMultiChapter(ref)
+		ref, err = scripture.NormalizeGospelRef(ref)
 		if err != nil {
 			return "", fmt.Errorf("invalid source reference: %w", err)
 		}
-		switch parsed[0].Book {
-		case "Mt", "Mc", "Lc", "Ga":
-			return ref, nil
-		default:
-			return "", fmt.Errorf("source reference is not a Gospel: %q", ref)
-		}
+		return ref, nil
 	}
 	if err := ctx.Err(); err != nil {
 		return "", err

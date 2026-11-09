@@ -17,7 +17,7 @@ Keep three responsibilities separate:
 A dated source page is useful evidence and an audit tool. It must not be a
 mandatory network dependency for every date.
 
-## Current State
+## Starting State (before implementation)
 
 - The original crawler copied references between dates sharing an estimated
   `lectionary_key`. Proper celebrations could therefore receive weekday readings.
@@ -39,6 +39,40 @@ mandatory network dependency for every date.
 publishing. Do not make nearly the entire archive unavailable merely because it
 lacks individual dated-page records if trustworthy calendar-based reuse can
 establish those readings.
+
+## Execution Status — 2026-11-09
+
+The implementation and temporary-copy validation are complete; **production
+calendar approval, remaining archive reviews, and rollout are not complete**.
+
+- Added additive reviewed-entry/date-decision/observation schemas and scoped,
+  versioned lookups. Existing `verses`/legacy refs and review history are retained.
+- Added a pinned, maintenance-only calendar adapter for candidate `roman-general`
+  and `vietnam` profiles, with precedence/transfer fixtures. These profiles are
+  not a substitute for approval of the intended national/diocesan calendar.
+- API, CLI and companion frontend now support both evidence methods and genuine
+  source dates; cache-first maintenance, offline annual extension, and separate
+  source-audit automation are implemented.
+- Audited 2,556 dates (2021–2027) on a consistent copy, preserving all 2,191
+  baseline dates and Gospel references. Eight reviewed reusable mappings plus
+  two date-only decisions support 34 dates, including three dates in 2027, with
+  zero reference-crawl requests. **2,508 entries remain unreviewed and 14 generic
+  daytime dates unsupported; this is not release-ready archive coverage.**
+- A separate 10-page source sample confirmed all references and Gospel words;
+  one cached passage differs only by its terminal closing quotation mark.
+- Uncached/race Go suites, builds, Staticcheck, workflow lint, calendar/frontend
+  tests and production build passed. All 34 available dates and three unavailable
+  controls agree across API, CLI, frontend lookup and production-mode pages.
+- Warm future-year reuse makes zero HTTP requests. Missing text is reported and
+  remains an operator repair through the existing verse pipeline; no automatic
+  missing-text ingestion or blanket legacy approval was introduced.
+- Default remains source-only `vatican-vi`; no intended local calendar has been
+  assumed. November 15 remains unresolved. Neither shipped database was modified,
+  and nothing was pushed/deployed.
+
+Details: [`data/calendar-policy.md`](data/calendar-policy.md) and
+[`data/reading-cache-audit.md`](data/reading-cache-audit.md). Unchecked items below
+are substantive approval/archive-release work, not permission to bypass evidence.
 
 ## Design Rules
 
@@ -67,9 +101,9 @@ establish those readings.
   document Vatican News's role and limitations.
 - [ ] Define the default Mass/reading option where alternatives are permitted.
   Distinguish a legitimate alternative from an incorrect selection.
-- [ ] Resolve the November 15 discrepancy against the chosen calendar, or retain
+- [x] Resolve the November 15 discrepancy against the chosen calendar, or retain
   an explicit unresolved status. Do not hard-code a presumed local explanation.
-- [ ] Record calendar identity, rules version, and supported exceptions. Unsupported
+- [x] Record calendar identity, rules version, and supported exceptions. Unsupported
   cases must be visible rather than falling back to an ordinary weekday.
 
 **Deliverable:** a documented calendar/source policy. Architecture and tests can
@@ -89,18 +123,18 @@ needs, but the model must distinguish:
 | Date resolution | Date + calendar + Mass option, selected entry, resolution method, rules/mapping versions |
 | Source observation | Requested date, actual page date, observed reference, source scope, retrieval time, conflict/review history |
 
-- [ ] Keep `verses` as the shared passage store; do not duplicate its text per date
+- [x] Keep `verses` as the shared passage store; do not duplicate its text per date
   or celebration.
-- [ ] Define reference normalization using the existing parser, preserving suffixes,
+- [x] Define reference normalization using the existing parser, preserving suffixes,
   discontiguous segments, and genuinely different long/short options.
-- [ ] Define statuses such as `source_checked`, `calendar_resolved`,
+- [x] Define statuses such as `source_checked`, `calendar_resolved`,
   `legacy_unverified`, `unresolved`, and `conflict`.
-- [ ] Retain multiple observations/review decisions where needed instead of
+- [x] Retain multiple observations/review decisions where needed instead of
   overwriting the only record of a disagreement.
-- [ ] Separate direct date evidence from entry-level evidence. A source from an
+- [x] Separate direct date evidence from entry-level evidence. A source from an
   earlier year may support an entry, but must never be presented as a page fetched
   for the newly resolved date.
-- [ ] Define dependency-based invalidation: changed rules or mappings affect their
+- [x] Define dependency-based invalidation: changed rules or mappings affect their
   dependent resolutions, not every cached reading.
 
 **Deliverable:** schema and lookup contract with explicit evidence semantics.
@@ -109,17 +143,17 @@ needs, but the model must distinguish:
 
 Primary files: `internal/lectionary/types.go`, `calendar.go`, and `generators.go`.
 
-- [ ] Separate the seasonal estimate from the actual selected observance/entry.
-- [ ] Implement precedence for the supported calendar, including proper feasts on
+- [x] Separate the seasonal estimate from the actual selected observance/entry.
+- [x] Implement precedence for the candidate calendars, including proper feasts on
   Sundays where allowed, protected Sundays/seasons, and transferred solemnities.
-- [ ] Fix the omissions exposed by November 9 and the blanket Sunday exclusion in
+- [x] Fix the omissions exposed by November 9 and the blanket Sunday exclusion in
   `hasDateSpecificReadings()`. Do not simply allow every fixed celebration to
   replace every Sunday.
 - [ ] Add approved national/local rules only within their declared calendar scope.
-- [ ] Resolve cycles and Mass options before constructing a reusable entry identity.
-- [ ] Produce a structured explanation: selected observance, displaced seasonal
+- [x] Resolve cycles and Mass options before constructing a reusable entry identity.
+- [x] Produce a structured explanation: selected observance, displaced seasonal
   entry where relevant, rules version, and any unsupported/ambiguous choice.
-- [ ] Derive celebration labels from the resolved observance, not the old key.
+- [x] Derive celebration labels from the resolved observance, not the old key.
 
 **Deliverable:** deterministic, offline calendar resolution with reviewed fixtures.
 
@@ -127,28 +161,29 @@ Primary files: `internal/lectionary/types.go`, `calendar.go`, and `generators.go
 
 Primary files: `tools/lectionarycrawler/main.go` and `verification.go`.
 
-- [ ] Use this sequence:
+- [x] Use this sequence:
   1. Reuse a valid accepted date resolution for the requested calendar/option.
   2. Otherwise resolve the date and reuse a trustworthy cached entry/reference.
-  3. Check local verse availability and fetch missing text only when necessary.
+  3. Check structural verse availability; report missing text for a necessary,
+     reviewed repair through the existing verse pipeline (not a reference recrawl).
   4. Crawl a dated page only for a genuine gap, supported ambiguity investigation,
      requested refresh, or selected audit.
   5. Retain unresolved cases when available sources cannot establish the target
      calendar's selection.
-- [ ] Do not treat an unavailable future page as a missing reading when calendar
+- [x] Do not treat an unavailable future page as a missing reading when calendar
   resolution and a trustworthy cached entry already establish it.
-- [ ] Keep exact page-date validation for every dated crawl. Wrong-date pages must
+- [x] Keep exact page-date validation for every dated crawl. Wrong-date pages must
   never become evidence for the requested date.
-- [ ] Keep reviewed-correction safeguards, but scope conflicts to calendar and Mass
+- [x] Keep reviewed-correction safeguards, but scope conflicts to calendar and Mass
   option; a different permitted option is not automatically a data error.
-- [ ] Preserve source observations independently of acceptance. Accepting a
+- [x] Preserve source observations independently of acceptance. Accepting a
   date-specific correction must not automatically change a reusable entry or all
   dates that depend on it.
-- [ ] Keep operations idempotent and transactional; never update references merely
+- [x] Keep operations idempotent and transactional; never update references merely
   by matching the old `lectionary_key`.
-- [ ] Preserve cancellation, request timeouts, bounded retries, rate limiting, and
+- [x] Preserve cancellation, request timeouts, bounded retries, rate limiting, and
   SQLite's single-connection behavior. Do not hold transactions during HTTP calls.
-- [ ] Report cache hits, resolved dates, HTTP requests, missing entries/text,
+- [x] Report cache hits, resolved dates, HTTP requests, missing entries/text,
   disagreements, and accepted corrections separately.
 
 **Deliverable:** a populated, supported calendar window resolves with zero HTTP
@@ -156,23 +191,25 @@ requests unless an audit or refresh is explicitly requested.
 
 ## Phase 5 — Audit and Reuse the Existing Database
 
-- [ ] Work on a consistent temporary copy of `resources/bible.db`; retain a baseline
+- [x] Work on a consistent temporary copy of `resources/bible.db`; retain a baseline
   hash/backup and produce a reviewable difference report.
-- [ ] Inventory existing refs, source records, recurring entries, and collisions.
-- [ ] Resolve all existing dates offline against the supported calendar first.
+- [x] Inventory existing refs, source records, recurring entries, and collisions.
+- [x] Resolve all existing dates offline against the candidate calendar first.
   Classify rows as supported matches, potential reusable candidates, disagreements,
   unsupported calendar cases, or missing text/reference data.
-- [ ] Seed reusable mappings from reviewed lectionary evidence and applicable
+- [x] Seed reusable mappings from reviewed lectionary evidence and applicable
   existing observations. Do not automatically trust each old key's first reference
   or its majority reference.
-- [ ] Restore date coverage through supported entry reuse without fetching a dated
-  page for each historical row.
+- [x] Demonstrate restored date coverage through supported entry reuse without
+  fetching a dated page for each historical row (34 supported candidate dates).
+- [ ] Review remaining archive mappings and restore production-policy coverage
+  after the intended calendar/local rules are confirmed.
 - [ ] Crawl only remaining gaps and a risk-based audit sample: proper celebrations,
   transferred dates, Sundays, local exceptions, and dates affected by prior key
   collisions. Audit ordinary dates as controls too.
 - [ ] Review disagreements before applying bounded corrections. Preserve legacy
   values and explanations; do not perform an unaudited archive-wide overwrite.
-- [ ] Report trusted coverage, unresolved coverage, reference/label changes, cache
+- [x] Report trusted coverage, unresolved coverage, reference/label changes, cache
   reuse, and actual crawl count. Repeat the run to confirm idempotence.
 
 **Deliverable:** a reviewed repair snapshot and evidence report, not a blanket
@@ -180,48 +217,51 @@ recrawl or an automatic promotion of legacy predictions.
 
 ## Phase 6 — Update Consumers and Scheduled Jobs
 
-- [ ] Update `internal/reading/reading.go`, API handlers, and CLI to accept either
+- [x] Update `internal/reading/reading.go`, API handlers, and CLI to accept either
   matching direct-date evidence or a supported resolution backed by a trustworthy
   cached entry. Simply removing the provenance guard is not sufficient.
-- [ ] Return the resolution method and genuine evidence. Define compatible
+- [x] Return the resolution method and genuine evidence. Define compatible
   semantics for `verified`, `source_url`, and `verified_at`; do not fabricate an
   exact-date source URL or a fresh crawl timestamp for a reused entry.
-- [ ] Update `gospel-site/lib/reading.js`, labels, source display, and tests to use
+- [x] Update `gospel-site/lib/reading.js`, labels, source display, and tests to use
   the same contract. Distinguish direct observation from calendar-based reuse.
-- [ ] Keep unsupported/conflicting selections unavailable with useful diagnostics;
+- [x] Keep unsupported/conflicting selections unavailable with useful diagnostics;
   absence of a dated page alone must no longer cause a 404/unavailable result.
-- [ ] Update `.github/scripts/probe-readings.sh` and the frontend checker to test
+- [x] Update `.github/scripts/probe-readings.sh` and the frontend checker to test
   supported resolution plus usable text, not require a dated crawl for every day.
-- [ ] Make healing fill the smallest actual gaps. Yearly calendar generation should
+- [x] Make healing fill the smallest actual gaps. Yearly calendar generation should
   reuse existing entries rather than crawl every generated date.
-- [ ] Keep scheduled source audits separate from availability probes. Compare
-  references/allowed alternatives and celebration identity, not only HTTP success.
-- [ ] Update `README.md` and `AGENTS.md` to explain reuse, evidence, calendar scope,
+- [x] Keep scheduled source audits separate from availability probes and compare
+  actual dated references, not merely HTTP success.
+- [ ] Add authoritative celebration/allowed-alternative comparison for the chosen
+  local calendar once its source contract is approved; do not infer a celebration
+  solely because a Gospel reference matches.
+- [x] Update `README.md` and `AGENTS.md` to explain reuse, evidence, calendar scope,
   correction review, and operator commands.
 
 ## Phase 7 — Tests and Controlled Rollout
 
 ### Regression and reuse tests
 
-- [ ] November 9 on a weekday (2026) and Ordinary Sunday (2025): resolve the Lateran
+- [x] November 9 on a weekday (2026) and Ordinary Sunday (2025): resolve the Lateran
   dedication and `Ga 2,13-22`, not the estimated weekday/Sunday entry.
-- [ ] November 1, 2026: reviewed All Saints selection `Mt 5,1-12a`.
-- [ ] April 8, 2024: transferred Annunciation selection `Lc 1,26-38`.
-- [ ] November 11, 2026: no leakage of the Lateran Gospel; reviewed `Lc 17,11-19`.
-- [ ] Same ordinary entry across eligible dates/years reuses one reference; a
+- [x] November 1, 2026: reviewed All Saints selection `Mt 5,1-12a`.
+- [x] April 8, 2024: transferred Annunciation selection `Lc 1,26-38`.
+- [x] November 11, 2026: no leakage of the Lateran Gospel; reviewed `Lc 17,11-19`.
+- [x] Same ordinary entry across eligible dates/years reuses one reference; a
   superseding celebration does not share that entry.
-- [ ] Different cycles, Mass options, and calendar scopes do not accidentally share
+- [x] Different cycles, Mass options, and calendar scopes do not accidentally share
   incompatible selections. Equivalent Gospel mappings may share text/reference
   storage without conflating their date-resolution rules.
-- [ ] November 15 remains explicitly unresolved until the calendar decision is
+- [x] November 15 remains explicitly unresolved until the calendar decision is
   supported; a wrong-scope observation cannot silently replace a local selection.
-- [ ] Future dates and historical dates resolve offline when dependencies are
+- [x] Future dates and historical dates resolve offline when dependencies are
   supported and cached. Assert zero HTTP requests on warm-cache runs.
-- [ ] Missing/partial text, wrong-date pages, stale rules/mappings, duplicate imports,
-  transaction failures, and cancellation behave safely.
-- [ ] Valid cached readings remain usable through a network outage; explicit
+- [x] Missing rows/suffixes/empty text, wrong-date pages, stale rules/mappings,
+  duplicate imports, transaction failures, and cancellation behave safely.
+- [x] Valid cached readings remain usable through a network outage; explicit
   invalidation is distinguished from an unsuccessful optional refresh.
-- [ ] API, CLI, frontend, and health probes agree on reference, label, resolution
+- [x] API, CLI, frontend, and health probes agree on reference, label, resolution
   method, evidence, and unavailable/conflict behavior.
 
 ### Validation
@@ -243,9 +283,10 @@ build, and production-mode page checks against the reviewed snapshot.
 ### Release gates
 
 - [ ] Calendar scope and evidence contract are approved.
-- [ ] The previous blanket key-based propagation and strict per-date-only
-  availability assumptions are both removed without introducing an unsafe legacy
-  fallback.
+- [x] Blanket key propagation is removed, and direct-date proof is no longer the
+  sole availability contract: explicit calendar profiles support reviewed reuse
+  without a legacy fallback. The deliberately source-only default stays date-bound
+  until an intended Mass calendar is approved.
 - [ ] Coverage and data differences are reviewed; any remaining unavailable dates
   are explicit, not a surprise caused by migration.
 - [ ] Representative source comparisons validate liturgical correctness, not merely

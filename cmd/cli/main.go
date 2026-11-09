@@ -17,6 +17,7 @@ import (
 	dbpkg "github.com/minh/daily-bible/internal/db"
 	"github.com/minh/daily-bible/internal/query"
 	"github.com/minh/daily-bible/internal/reading"
+	"github.com/minh/daily-bible/internal/scripture"
 )
 
 func main() {
@@ -118,16 +119,14 @@ func outputDateReading(ctx context.Context, db *sql.DB, date string) {
 	}
 	combined := strings.TrimSpace(sb.String())
 
-	outputJSON(map[string]any{
-		"date":           date,
-		"lectionary_key": metadata.LectionaryKey,
-		"ref":            gospelRef,
-		"verses":         combined,
-		"verified":       true,
-		"source_url":     metadata.SourceURL,
-		"verified_at":    metadata.VerifiedAt,
-		"celebration":    metadata.Celebration,
-	})
+	complete, err := scripture.HasText(ctx, db, gospelRef)
+	if err != nil {
+		log.Fatalf("reading text validation: %v", err)
+	}
+	if !complete {
+		log.Fatal("not found: incomplete reading text")
+	}
+	outputJSON(metadata.Response(combined))
 }
 
 func handleGospel(ctx context.Context, db *sql.DB, ref string) {

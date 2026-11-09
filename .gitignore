@@ -2,5 +2,6 @@
 /coverage*.out
 /crawler
 /lectionarycrawler
+/tools/calendar/node_modules/
 /resources/*.db-shm
 /resources/*.db-wal

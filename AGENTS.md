@@ -27,7 +27,8 @@ go build -tags "fts5" ./...
 
 ```
 Vatican News sitemap → tools/crawler → build/gospels.txt → tools/tsv → build/gospels.tsv → make import-db → resources/bible.db
-Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily_readings table
+Legacy estimates (internal/lectionary) → daily_readings (audit/compatibility only)
+Pinned tools/calendar export → versioned calendar days + explicitly reviewed entries → cache-first lookups
 ```
 
 - Crawler state lives in `build/` (`processed.txt`, `failed.txt`, `missing_verse_number.txt`)
@@ -40,9 +41,11 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 - **Runtime path**: `resources/bible.db`, overridable via `DB_PATH` env var
 - **Schema**: `verses(book, chapter, verse, verse_suffix, text)` — composite PK includes `verse_suffix`
 - **Daily readings**: `daily_readings(date TEXT PRIMARY KEY, lectionary_key TEXT, gospel_ref TEXT)` — calendar keys are estimates; legacy refs may be unverified
-- **Provenance**: `daily_reading_sources(date PRIMARY KEY, gospel_ref, source_url, source_date, verified_at, celebration)` — exact-date source evidence must match the current ref before date/today endpoints serve it; optional celebration labels must be reviewed, not inferred from keys
-- `tools/lectionarycrawler` applies the idempotent `003_reading_sources.sql` migration; crawl bounded windows with `make verify-readings FROM=... TO=...` and never share refs by lectionary key
-- Differing existing refs require calendar review and explicit `-accept-corrections`; default automation records source evidence but quarantines disagreements instead of overwriting possibly local Mass readings
+- **Policy**: read `data/calendar-policy.md`. `READING_CALENDAR` defaults to source-only `vatican-vi`; `roman-general`/`vietnam` are explicit candidate profiles, not approved local production policies. Only `READING_MASS_OPTION=day` is supported.
+- **Provenance**: `daily_reading_sources` retains exact-date source-only evidence. Migration 004 adds calendar definitions, reusable entries, append-only observations, entry reviews, and scoped date decisions; never silently promote legacy refs or observations.
+- `tools/lectionarycrawler` applies migrations 003/004 idempotently. Use a consistent temporary copy and `-offline -audit-report=...` for archive audits. Warm supported windows must use zero Gospel HTTP requests.
+- `-review-entry` explicitly approves a reusable mapping; `-accept-date` approves only that date/calendar/option. Replacements require `-replace-entry`/`-replace-date` and retain history. Legacy source-only corrections require `-accept-corrections`.
+- Never reuse by the old `lectionary_key`, invent target-date evidence, or invalidate approved local selections because a different-scope source disagrees. A stale date-specific decision blocks ordinary-entry fallback. Missing verse text needs a verse-store repair, not repeated reference crawling.
 - **FTS**: `verses_fts` uses `unicode61 remove_diacritics 2` with prefix indexing, synced by triggers
 - **Connection pool**: `SetMaxOpenConns(1)` — SQLite is single-connection
 
@@ -61,7 +64,7 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 - All routes wrapped in `loggingMiddleware(corsMiddleware(mux))` — logging is outermost
 - **All DB queries use `QueryContext`/`QueryRowContext`** with `r.Context()` for cancellation
 - `GET /api/v1/gospel/{ref}` — supports dot-separated non-contiguous segments (e.g. `Mt 5,20-22a.27-28`)
-- `GET /api/v1/today` — requires matching exact-date provenance for today's reading (returns 404 if unverified, stale, or empty); date endpoints and CLI use the same rule
+- `GET /api/v1/today` — requires supported scoped evidence (`source_checked` or `calendar_resolved`) and complete verse text; date endpoints/CLI use the same contract. Returns 404 for unresolved, stale, conflicting, or incomplete readings; labels come from reviewed dates/resolved observances, never seasonal estimates.
 - `GET /api/v1/search?q=...` — phrase-only FTS search (query is wrapped in double quotes)
 - `GET /api/v1/random` — retries up to 10 times on rowid gaps
 
@@ -70,17 +73,19 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 ```
 cmd/server/main.go          — HTTP server entrypoint
 cmd/cli/main.go             — CLI entrypoint (`today`, `gospel`, `search`, `random`, date)
-internal/api/               — handlers, router, middleware, ref parsing + query
+internal/api/               — handlers, router, middleware, compatibility reference wrappers
+internal/scripture/         — bounded shared reference parsing, normalization, querying, text completeness
 internal/db/                — DB open + schema init (ApplyMigrations used in tests only; server assumes DB exists)
 internal/query/             — FtsPhraseQuery: wraps FTS search terms in double quotes
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
-internal/reading/           — exact-date source verification metadata and guarded lookups
+internal/reading/           — scoped calendar imports, reviewed caches, date decisions, observations, audits
 internal/constants/         — runtime defaults: DB path, server addr, timezone
 internal/crawlerconfig/     — crawler settings, Vatican URLs, crawler/TSV artifact paths
 internal/lectionary/        — Liturgical calendar generation (Easter, seasons, lectionary keys)
 tools/crawler/              — Vatican News sitemap crawler
-tools/lectionarycrawler/    — Generates daily_readings (algorithmic → Vatican News crawl for gospel_ref)
+tools/lectionarycrawler/    — cache-first maintenance, offline audits, bounded source observations/reviews
+tools/calendar/             — pinned Node calendar provider; export/test only, never a Go runtime dependency
 tools/tsv/                  — gospels.txt → TSV converter
 data/                       — migration SQL files
 test-data/                  — HTML fixtures for parser/crawler tests

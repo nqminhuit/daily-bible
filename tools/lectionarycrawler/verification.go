@@ -8,16 +8,28 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/minh/daily-bible/internal/reading"
+	"github.com/minh/daily-bible/internal/scripture"
 )
 
 type crawlWindow struct {
-	from, to                   string
-	refresh, acceptCorrections bool
+	from, to                                                     string
+	refresh, acceptCorrections                                   bool
+	calendar, calendarFile, auditReport                          string
+	offline                                                      bool
+	reviewDate, reviewRef, evidenceURL, evidenceDate, reviewNote string
+	replaceEntry                                                 bool
+	acceptDate, dateLabel                                        string
+	replaceDate                                                  bool
 }
 
 var errReferenceConflict = errors.New("source/reference conflict requires calendar review")
 
 func validateWindow(years string, window crawlWindow) (string, error) {
+	if window.reviewDate != "" && window.acceptDate != "" {
+		return "", fmt.Errorf("choose -review-entry or -accept-date, not both")
+	}
 	if (window.from == "") != (window.to == "") {
 		return "", fmt.Errorf("-from and -to must be specified together")
 	}
@@ -66,7 +78,10 @@ func storeVerifiedReading(ctx context.Context, db *sql.DB, date, ref, sourceURL 
 	if err := tx.QueryRowContext(ctx, `SELECT gospel_ref FROM daily_readings WHERE date = ?`, date).Scan(&previous); err != nil {
 		return err
 	}
-	conflict := previous.Valid && previous.String != "" && previous.String != ref && !acceptCorrections
+	conflict := previous.Valid && previous.String != "" && !scripture.Equivalent(previous.String, ref) && !acceptCorrections
+	if err := reading.ObserveVatican(ctx, tx, date, ref, sourceURL); err != nil {
+		return err
+	}
 	if !conflict {
 		if _, err := tx.ExecContext(ctx, `UPDATE daily_readings SET gospel_ref = ? WHERE date = ?`, ref, date); err != nil {
 			return err
