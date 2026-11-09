@@ -191,6 +191,11 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 			return
 		}
 
+		if len(verses) == 0 {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
 		var sb strings.Builder
 		for _, v := range verses {
 			sb.WriteString(v.Text)

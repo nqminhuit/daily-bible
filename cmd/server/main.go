@@ -29,7 +29,7 @@ func main() {
 	}
 	defer db.Close()
 
-	mux := api.NewRouter(db)
+	mux := api.NewRouter(db, dbPath)
 
 	srv := &http.Server{
 		Addr:         *port,

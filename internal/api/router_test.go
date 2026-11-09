@@ -14,7 +14,7 @@ func TestNewRouter_RegistersHandlers_404(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	r := NewRouter(db)
+	r := NewRouter(db, filepath.Join(t.TempDir(), "bible.db"))
 
 	// no rows -> 404
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
@@ -34,7 +34,7 @@ func TestNewRouter_RegistersHandlers_Ok(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := NewRouter(db)
+	r := NewRouter(db, filepath.Join(t.TempDir(), "bible.db"))
 	req := httptest.NewRequest("GET", "/api/v1/random", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -47,27 +47,33 @@ func TestNewRouter_HealthHandlers(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
-	resourcesDir := "resources"
-	if err := os.MkdirAll(resourcesDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	dbFile := filepath.Join(resourcesDir, "bible.db")
+	// A non-default path must be used for readiness, not resources/bible.db.
+	dbFile := filepath.Join(t.TempDir(), "custom-bible.db")
 	if err := os.WriteFile(dbFile, []byte("ready"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(dbFile)
 
-	r := NewRouter(db)
+	r := NewRouter(db, dbFile)
 
-	for path, want := range map[string]int{
-		"/liveness":  http.StatusOK,
-		"/readiness": http.StatusOK,
-	} {
-		req := httptest.NewRequest("GET", path, nil)
-		w := httptest.NewRecorder()
-		r.ServeHTTP(w, req)
-		if w.Code != want {
-			t.Fatalf("expected %s to return %d, got %d", path, want, w.Code)
+	checkHealth := func(wantReadiness int) {
+		t.Helper()
+		for path, want := range map[string]int{
+			"/liveness":  http.StatusOK,
+			"/readiness": wantReadiness,
+		} {
+			req := httptest.NewRequest("GET", path, nil)
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			if w.Code != want {
+				t.Fatalf("expected %s to return %d, got %d", path, want, w.Code)
+			}
 		}
 	}
+
+	checkHealth(http.StatusOK)
+	if err := os.Remove(dbFile); err != nil {
+		t.Fatal(err)
+	}
+	// Missing configured files make readiness fail without affecting liveness.
+	checkHealth(http.StatusServiceUnavailable)
 }

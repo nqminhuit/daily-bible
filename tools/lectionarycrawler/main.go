@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,13 @@ import (
 	"github.com/minh/daily-bible/internal/parser"
 )
 
+func databasePath() string {
+	if path := os.Getenv("DB_PATH"); path != "" {
+		return path
+	}
+	return constants.DBPath
+}
+
 func main() {
 	var years string
 	flag.StringVar(&years, "years", "", "comma-separated list of years (e.g. 2026,2027)")
@@ -26,7 +34,7 @@ func main() {
 		log.Fatal("--years is required (e.g. -years=2026,2027)")
 	}
 
-	db, err := dbpkg.Open(constants.DBPath)
+	db, err := dbpkg.Open(databasePath())
 	if err != nil {
 		log.Fatalf("open db: %v", err)
 	}

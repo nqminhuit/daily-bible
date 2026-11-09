@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/minh/daily-bible/internal/constants"
 )
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -29,10 +27,10 @@ func (rw *responseWriter) WriteHeader(code int) {
 }
 
 // NewRouter initializes HTTP handlers and returns an http.Handler.
-func NewRouter(db *sql.DB) http.Handler {
+func NewRouter(db *sql.DB, dbPath string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/liveness", makeLivenessHandler())
-	mux.HandleFunc("/readiness", makeReadinessHandler(db, constants.DBPath))
+	mux.HandleFunc("/readiness", makeReadinessHandler(db, dbPath))
 	mux.HandleFunc("/api/v1/gospel/", makeGetGospelHandler(db))
 	mux.HandleFunc("/api/v1/search", makeSearchHandler(db))
 	mux.HandleFunc("/api/v1/random", makeRandomHandler(db))

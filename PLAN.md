@@ -3,7 +3,7 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- Planning complete; implementation has not started.
+- Group 1 complete: response correctness, database configuration, and regression tests. Remaining groups are tracked below.
 - Relevant current source files and upstream GitHub Action tags were inspected. Tests have not yet been run for this plan.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
@@ -23,15 +23,15 @@
 
 **Primary files:** `internal/api/router.go`, `internal/api/handlers.go`, `cmd/server/main.go`, `tools/lectionarycrawler/main.go`, and related tests.
 
-- [ ] Change `NewRouter` to accept the resolved database path and pass it to the readiness handler.
-- [ ] Update the server and every router test/caller to use the new signature.
-- [ ] Move readiness test files from the source tree into `t.TempDir()`.
-- [ ] Return HTTP 404 from date/today handlers when the stored reference resolves to zero verses.
-- [ ] Respect `DB_PATH` in the lectionary crawler, with `constants.DBPath` as the fallback.
-- [ ] Preserve the CLI's existing empty-verses rejection.
-- [ ] Add regression coverage for overridden readiness paths and missing database files.
-- [ ] Add date/today tests with a stored reference but no matching verses, and verify the CLI equivalent.
-- [ ] Test crawler database path resolution without touching the production database or fetching live pages.
+- [x] Change `NewRouter` to accept the resolved database path and pass it to the readiness handler.
+- [x] Update the server and every router test/caller to use the new signature.
+- [x] Move readiness test files from the source tree into `t.TempDir()`.
+- [x] Return HTTP 404 from date/today handlers when the stored reference resolves to zero verses.
+- [x] Respect `DB_PATH` in the lectionary crawler, with `constants.DBPath` as the fallback.
+- [x] Preserve the CLI's existing empty-verses rejection.
+- [x] Add regression coverage for overridden readiness paths and missing database files.
+- [x] Add date/today tests with a stored reference but no matching verses, and verify the CLI equivalent.
+- [x] Test crawler database path resolution without touching the production database or fetching live pages.
 
 **Acceptance:** readiness checks the configured database; missing verse data is not reported as a successful empty reading; crawler path selection matches other entry points.
 
@@ -109,7 +109,7 @@
 
 ## Validation and delivery
 
-- [ ] Establish a baseline test result before implementing fixes; record pre-existing failures separately.
+- [x] Establish a baseline test result before implementing fixes; record pre-existing failures separately.
 - [ ] Run focused package/regression tests after each implementation group.
 - [ ] Run the full test suite with FTS5.
 - [ ] Run the race detector, especially for crawler shutdown changes.
@@ -135,4 +135,7 @@ staticcheck -tags "fts5" ./...
 
 ## Progress log
 
-- Initial plan: checked the review against current code, verified upstream action tags, identified stale findings, and recorded implementation groups and acceptance criteria. No implementation changes or test runs yet.
+- Initial plan: checked the review against current code, verified upstream action tags, identified stale findings, and recorded implementation groups and acceptance criteria. Plan committed as `dd125be`.
+- Baseline: `go test -tags "fts5" ./...` passed. The SQLite dependency emitted C compiler const-qualifier warnings, but no tests failed.
+- First fix (2.1, 3.7): `NewRouter` now accepts the resolved database path from the server. Router tests use `t.TempDir()` and verify readiness returns 200 for the custom path and 503 after that file is removed; liveness remains 200. Focused API/server tests, the full FTS5 test suite, and `git diff --check` passed. These changes are included in the group 1 implementation commit.
+- Group 1 completed: date/today API handlers now return 404 for a stored reference without matching verses; CLI subprocess tests confirm nonzero exit, no stdout, and a not-found diagnostic for both commands. The lectionary crawler resolves `DB_PATH` via a tested helper with the existing default fallback. Validation passed: `go test -tags "fts5" ./...`, `go test -tags "fts5" -race ./internal/api ./cmd/cli ./tools/lectionarycrawler`, `go build -tags "fts5" ./...`, and `git diff --check`. Staticcheck and the full-project race run remain for later validation. Next: group 2, crawler persistence and shutdown safety.
