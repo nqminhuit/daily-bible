@@ -132,15 +132,7 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 		t.Fatalf("mkdir build: %v", err)
 	}
 
-	// start writers
-	resultsCh := make(chan string, 10)
-	doneCh := make(chan string, 10)
-	missingCh := make(chan string, 10)
-	failedCh := make(chan string, 10)
-
-	go resultsWriter("build/gospels.txt", resultsCh)
-	go processedWriter("build/processed.txt", doneCh)
-	go missingVerseNumWriter("build/missing_verse_number.txt", missingCh)
+	sink := newTestCrawlSink(t, "build")
 
 	// prepare http client
 	client := &http.Client{Timeout: 2 * time.Second}
@@ -156,10 +148,7 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 	go worker(workerConfig{
 		client:        client,
 		jobs:          jobs,
-		results:       resultsCh,
-		done:          doneCh,
-		missing:       missingCh,
-		failedURLs:    failedCh,
+		persist:       sink.persist,
 		wg:            &wg,
 		total:         2,
 		sleepDuration: 0,
@@ -168,14 +157,6 @@ func TestWritersAndWorkerIntegration(t *testing.T) {
 
 	// wait for worker
 	wg.Wait()
-
-	// close writer channels so files flush
-	close(resultsCh)
-	close(missingCh)
-	close(doneCh)
-
-	// give writers a moment
-	time.Sleep(10 * time.Millisecond)
 
 	// check files exist
 	if _, err := os.Stat("build/gospels.txt"); err != nil {
@@ -213,13 +194,7 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	_ = os.Chdir(temp)
 	_ = os.MkdirAll("build", 0755)
 
-	resultsCh := make(chan string, 10)
-	doneCh := make(chan string, 10)
-	missingCh := make(chan string, 10)
-	failedCh := make(chan string, 10)
-	go resultsWriter("build/gospels.txt", resultsCh)
-	go processedWriter("build/processed.txt", doneCh)
-	go missingVerseNumWriter("build/missing_verse_number.txt", missingCh)
+	sink := newTestCrawlSink(t, "build")
 
 	client := &http.Client{Timeout: 2 * time.Second}
 	jobs := make(chan string, 1)
@@ -231,10 +206,7 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	go worker(workerConfig{
 		client:        client,
 		jobs:          jobs,
-		results:       resultsCh,
-		done:          doneCh,
-		missing:       missingCh,
-		failedURLs:    failedCh,
+		persist:       sink.persist,
 		wg:            &wg,
 		total:         1,
 		sleepDuration: 0,
@@ -244,12 +216,6 @@ func TestWorkerSkipsNon200(t *testing.T) {
 	// wait for worker
 	wg.Wait()
 
-	// close writer channels
-	close(resultsCh)
-	close(doneCh)
-	close(missingCh)
-	// wait
-	time.Sleep(10 * time.Millisecond)
 	// processed file should exist but be empty
 	b, _ := os.ReadFile("build/processed.txt")
 	if len(strings.TrimSpace(string(b))) != 0 {
@@ -278,38 +244,22 @@ func TestWriteLinksToFile(t *testing.T) {
 }
 
 func TestResultsWriterFlushes(t *testing.T) {
-	oldWd, _ := os.Getwd()
-	tmp := t.TempDir()
-	defer func() { _ = os.Chdir(oldWd) }()
-	_ = os.Chdir(tmp)
-	_ = os.MkdirAll("build", 0755)
-
-	resCh := make(chan string, 50)
-	go resultsWriter("build/gospels.txt", resCh)
+	dir := t.TempDir()
+	sink := newTestCrawlSink(t, dir)
+	var want strings.Builder
 	for i := range 25 {
-		resCh <- fmt.Sprintf("entry-%d\n", i)
-	}
-	close(resCh)
-	// wait for writer to create the file and write content (with timeout)
-	deadline := time.After(2 * time.Second)
-	for {
-		select {
-		case <-deadline:
-			t.Fatalf("timed out waiting for gospels file to be written")
-		default:
-			if fi, err := os.Stat("build/gospels.txt"); err == nil && fi.Size() > 0 {
-				b, err := os.ReadFile("build/gospels.txt")
-				if err != nil {
-					t.Fatalf("read gospels file: %v", err)
-				}
-				if len(b) == 0 {
-					t.Fatalf("gospels file empty after write")
-				}
-				return
-			}
-			// short sleep
-			time.Sleep(10 * time.Millisecond)
+		payload := fmt.Sprintf("entry-%d\n", i)
+		want.WriteString(payload)
+		if err := sink.persist(crawlResult{url: fmt.Sprintf("url-%d", i), payload: payload}); err != nil {
+			t.Fatal(err)
 		}
+	}
+	got, err := os.ReadFile(filepath.Join(dir, "gospels.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != want.String() {
+		t.Fatalf("payloads not fully flushed: %q", got)
 	}
 }
 
@@ -565,10 +515,7 @@ func TestWorkerClientGetError(t *testing.T) {
 	go worker(workerConfig{
 		client:        client,
 		jobs:          jobs,
-		results:       resultsCh,
-		done:          doneCh,
-		missing:       missingCh,
-		failedURLs:    failedCh,
+		persist:       collectTestResult(resultsCh, doneCh, missingCh, failedCh),
 		wg:            &wg,
 		total:         1,
 		sleepDuration: 0,
@@ -613,10 +560,7 @@ func TestWorkerSkipsNoVaticanMarkers(t *testing.T) {
 	go worker(workerConfig{
 		client:        client,
 		jobs:          jobs,
-		results:       resultsCh,
-		done:          doneCh,
-		missing:       missingCh,
-		failedURLs:    failedCh,
+		persist:       collectTestResult(resultsCh, doneCh, missingCh, failedCh),
 		wg:            &wg,
 		total:         1,
 		sleepDuration: 0,
@@ -663,10 +607,7 @@ func TestWorkerSendsMissingWhenNoVerse(t *testing.T) {
 	go worker(workerConfig{
 		client:        client,
 		jobs:          jobs,
-		results:       resultsCh,
-		done:          doneCh,
-		missing:       missingCh,
-		failedURLs:    failedCh,
+		persist:       collectTestResult(resultsCh, doneCh, missingCh, failedCh),
 		wg:            &wg,
 		total:         1,
 		sleepDuration: 0,
@@ -757,87 +698,29 @@ func waitWithTimeout(wg *sync.WaitGroup, timeout time.Duration) error {
 }
 
 func TestProcessedAndMissingWriters(t *testing.T) {
-	tmp := t.TempDir()
-	buildDir := filepath.Join(tmp, "build")
-	os.MkdirAll(buildDir, 0755)
-
-	processedPath := filepath.Join(buildDir, "processed.txt")
-	missingPath := filepath.Join(buildDir, "missing_verse_number.txt")
-	gospelsPath := filepath.Join(buildDir, "gospels.txt")
-	failedPath := filepath.Join(buildDir, "failed.txt")
-
-	timeout := 5 * time.Second
-
-	procCh := make(chan string, 2)
-	var wg sync.WaitGroup
-	wg.Go(func() {
-		processedWriter(processedPath, procCh)
-	})
-
-	procCh <- "u1"
-	procCh <- "u2"
-	close(procCh)
-	if err := waitWithTimeout(&wg, timeout); err != nil {
-		t.Fatal(err)
+	dir := t.TempDir()
+	sink := newTestCrawlSink(t, dir)
+	for _, result := range []crawlResult{
+		{url: "u1", payload: "entry1\n"},
+		{url: "u2", payload: "missing1\n", missing: true},
+		{url: "u3", failed: true},
+	} {
+		if err := sink.persist(result); err != nil {
+			t.Fatal(err)
+		}
 	}
-
-	b, err := os.ReadFile(processedPath)
-	if err != nil {
-		t.Fatalf("read processed file: %v", err)
-	}
-	if string(b) == "" {
-		t.Fatalf("processed file empty")
-	}
-
-	missCh := make(chan string, 2)
-	wg.Go(func() {
-		missingVerseNumWriter(missingPath, missCh)
-	})
-	missCh <- "m1"
-	close(missCh)
-	if err := waitWithTimeout(&wg, timeout); err != nil {
-		t.Fatal(err)
-	}
-	b2, err := os.ReadFile(missingPath)
-	if err != nil {
-		t.Fatalf("read missing file: %v", err)
-	}
-	if string(b2) == "" {
-		t.Fatalf("missing file empty")
-	}
-
-	resCh := make(chan string, 2)
-	wg.Go(func() {
-		resultsWriter(gospelsPath, resCh)
-	})
-	resCh <- "entry1"
-	resCh <- "entry2"
-	close(resCh)
-	if err := waitWithTimeout(&wg, timeout); err != nil {
-		t.Fatal(err)
-	}
-	b3, err := os.ReadFile(gospelsPath)
-	if err != nil {
-		t.Fatalf("read gospels file: %v", err)
-	}
-	if len(b3) == 0 {
-		t.Fatalf("gospels file empty")
-	}
-
-	failCh := make(chan string, 2)
-	wg.Go(func() {
-		failedWriter(failedPath, failCh)
-	})
-	failCh <- "https://example.invalid/page"
-	close(failCh)
-	if err := waitWithTimeout(&wg, timeout); err != nil {
-		t.Fatal(err)
-	}
-	b4, err := os.ReadFile(failedPath)
-	if err != nil {
-		t.Fatalf("read failed file: %v", err)
-	}
-	if len(b4) == 0 {
-		t.Fatalf("failed file empty")
+	for name, want := range map[string]string{
+		"gospels.txt":              "entry1\n",
+		"missing_verse_number.txt": "missing1\n",
+		"processed.txt":            "u1\nu2\n",
+		"failed.txt":               "u3\n",
+	} {
+		got, err := os.ReadFile(filepath.Join(dir, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(got) != want {
+			t.Errorf("%s = %q, want %q", name, got, want)
+		}
 	}
 }

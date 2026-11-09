@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	h "html"
@@ -32,10 +34,8 @@ type crawlCounters struct {
 type workerConfig struct {
 	client        *http.Client
 	jobs          <-chan string
-	results       chan<- string
-	done          chan<- string
-	missing       chan<- string
-	failedURLs    chan<- string
+	ctx           context.Context
+	persist       func(crawlResult) error
 	wg            *sync.WaitGroup
 	total         int
 	sleepDuration time.Duration
@@ -123,14 +123,14 @@ func stripHtmlTags(s string) string {
 	return b.String()
 }
 
-func writeURLLineAndFlush(w *bufio.Writer, url, label string) {
+func writeURLLineAndFlush(w *bufio.Writer, url, label string) error {
 	if _, err := fmt.Fprintln(w, url); err != nil {
-		log.Printf("Failed writing %s entry for URL %s: %v\n", label, url, err)
-		return
+		return fmt.Errorf("write %s: %w", label, err)
 	}
 	if err := w.Flush(); err != nil {
-		log.Printf("Failed flushing %s writer: %v\n", label, err)
+		return fmt.Errorf("flush %s: %w", label, err)
 	}
+	return nil
 }
 
 func cleanText(s string) string {
@@ -159,7 +159,21 @@ func cleanText(s string) string {
 func worker(cfg workerConfig) {
 	defer cfg.wg.Done()
 
-	for url := range cfg.jobs {
+	ctx := cfg.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	for {
+		var url string
+		select {
+		case <-ctx.Done():
+			return
+		case next, ok := <-cfg.jobs:
+			if !ok || ctx.Err() != nil {
+				return
+			}
+			url = next
+		}
 		func() {
 			defer func() {
 				c := atomic.AddInt64(&cfg.counters.checked, 1)
@@ -177,7 +191,12 @@ func worker(cfg workerConfig) {
 				)
 			}()
 
-			resp, err := cfg.client.Get(url)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+			if err != nil {
+				atomic.AddInt64(&cfg.counters.failed, 1)
+				return
+			}
+			resp, err := cfg.client.Do(req)
 			if err != nil {
 				atomic.AddInt64(&cfg.counters.failed, 1)
 				return
@@ -202,27 +221,21 @@ func worker(cfg workerConfig) {
 			if idx := parser.FindReadingStartVatican(html); idx == -1 {
 				log.Printf("Skipping URL (no Vatican markers found): %s\n", url)
 				atomic.AddInt64(&cfg.counters.failed, 1)
-				if cfg.failedURLs != nil {
-					cfg.failedURLs <- url
-				}
+				cfg.persist(crawlResult{url: url, failed: true})
 				return
 			}
 			article, ref, err := parser.ExtractGospel(html)
 			if err != nil {
 				log.Printf("Failed to extract gospel from URL %s: %v\n", url, err)
 				atomic.AddInt64(&cfg.counters.failed, 1)
-				if cfg.failedURLs != nil {
-					cfg.failedURLs <- url
-				}
+				cfg.persist(crawlResult{url: url, failed: true})
 				return
 			}
 			idx2 := parser.FindReadingStartVatican(article)
 			if idx2 == -1 {
 				log.Printf("Skipping URL (no Vatican markers found in article): %s\n", url)
 				atomic.AddInt64(&cfg.counters.failed, 1)
-				if cfg.failedURLs != nil {
-					cfg.failedURLs <- url
-				}
+				cfg.persist(crawlResult{url: url, failed: true})
 				return
 			}
 			content := article[idx2:]
@@ -237,90 +250,22 @@ func worker(cfg workerConfig) {
 			b.WriteString("\n")
 			b.WriteString(content)
 			b.WriteString("\n")
-			if hasVerseNumber := strings.Contains(content, "{{"); !hasVerseNumber {
-				cfg.missing <- b.String()
+			missing := !strings.Contains(content, "{{")
+			if err := cfg.persist(crawlResult{url: url, payload: b.String(), missing: missing}); err != nil {
+				return
+			}
+			if missing {
 				atomic.AddInt64(&cfg.counters.missingVerse, 1)
 			} else {
-				cfg.results <- b.String()
 				atomic.AddInt64(&cfg.counters.matched, 1)
 			}
-			cfg.done <- url
-			time.Sleep(cfg.sleepDuration)
-		}()
-	}
-}
-
-func processedWriter(filename string, ch <-chan string) {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	for url := range ch {
-		writeURLLineAndFlush(w, url, "processed")
-	}
-}
-
-func missingVerseNumWriter(filename string, ch <-chan string) {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	for url := range ch {
-		writeURLLineAndFlush(w, url, "missing")
-	}
-}
-
-func failedWriter(filename string, ch <-chan string) {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	for url := range ch {
-		writeURLLineAndFlush(w, url, "failed")
-	}
-}
-
-func resultsWriter(filename string, ch <-chan string) {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	count := 0
-	writeFailed := false
-	for r := range ch {
-		if writeFailed {
-			continue
-		}
-
-		if _, err := w.WriteString(r); err != nil {
-			log.Printf("Failed writing crawler result payload: %v, draining remaining results\n", err)
-			writeFailed = true
-			continue
-		}
-		count++
-		if count%10 == 0 {
-			if err := w.Flush(); err != nil {
-				log.Printf("Failed flushing crawler results writer: %v, draining remaining results\n", err)
-				writeFailed = true
+			timer := time.NewTimer(cfg.sleepDuration)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+			case <-timer.C:
 			}
-		}
-	}
-	if !writeFailed {
-		if err := w.Flush(); err != nil {
-			log.Printf("Failed final flush for crawler results writer: %v\n", err)
-		}
+		}()
 	}
 }
 
@@ -329,9 +274,13 @@ func writeLinksToFile(filename string, links []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
+	return writeLinksAndClose(out, links)
+}
+
+func writeLinksAndClose(out io.WriteCloser, links []string) (err error) {
 	defer func() {
-		if err := out.Close(); err != nil {
-			panic(fmt.Errorf("failed to close file: %w", err))
+		if closeErr := out.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close links file: %w", closeErr))
 		}
 	}()
 
@@ -345,6 +294,10 @@ func writeLinksToFile(filename string, links []string) error {
 }
 
 func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string, sleepDuration time.Duration) error {
+	return runCrawlerWithSinkOpener(totalUrls, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix, sleepDuration, openCrawlSink)
+}
+
+func runCrawlerWithSinkOpener(totalUrls int, outFile, processedPath, failedPath, missingPath, sitemapURL, prefix string, sleepDuration time.Duration, openSink func(string, string, string, string, context.CancelFunc) (*crawlSink, error)) (err error) {
 	counters := &crawlCounters{}
 
 	startTime := time.Now()
@@ -360,32 +313,17 @@ func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, 
 		},
 	}
 
+	defer client.CloseIdleConnections()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	sink, err := openSink(outFile, processedPath, failedPath, missingPath, cancel)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, sink.close()) }()
+
 	jobs := make(chan string, cst.Workers*2)
-	results := make(chan string, 100)
-	done := make(chan string, 100)
-	missing := make(chan string, 100)
-	failedCh := make(chan string, 100)
-
 	var workerWG sync.WaitGroup
-	var writerWG sync.WaitGroup
-
-	writerWG.Add(4)
-	go func() {
-		defer writerWG.Done()
-		resultsWriter(outFile, results)
-	}()
-	go func() {
-		defer writerWG.Done()
-		processedWriter(processedPath, done)
-	}()
-	go func() {
-		defer writerWG.Done()
-		missingVerseNumWriter(missingPath, missing)
-	}()
-	go func() {
-		defer writerWG.Done()
-		failedWriter(failedPath, failedCh)
-	}()
 
 	// Fetch sitemap and build links
 	urls, err := FetchSitemapAndParse(totalUrls, sitemapURL, prefix, client)
@@ -419,29 +357,30 @@ func runCrawler(totalUrls int, outFile, processedPath, failedPath, missingPath, 
 		go worker(workerConfig{
 			client:        client,
 			jobs:          jobs,
-			results:       results,
-			done:          done,
-			missing:       missing,
-			failedURLs:    failedCh,
+			ctx:           ctx,
+			persist:       sink.persist,
 			wg:            &workerWG,
 			total:         len(toProcess),
-			sleepDuration: defaultWorkerSleep,
+			sleepDuration: sleepDuration,
 			counters:      counters,
 		})
 	}
 
-	// enqueue jobs
+	// Cancellation interrupts enqueueing; workers also cancel in-flight HTTP requests.
+enqueue:
 	for _, url := range toProcess {
-		jobs <- url
+		select {
+		case <-ctx.Done():
+			break enqueue
+		case jobs <- url:
+		}
 	}
 
 	close(jobs)
 	workerWG.Wait()
-	close(results)
-	close(missing)
-	close(done)
-	close(failedCh)
-	writerWG.Wait()
+	if sink.err != nil {
+		return sink.err
+	}
 
 	log.Println()
 	log.Println("Crawl finished")

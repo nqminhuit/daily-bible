@@ -3,7 +3,7 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- Group 1 complete: response correctness, database configuration, and regression tests. Remaining groups are tracked below.
+- Groups 1 and 2 complete: response/configuration correctness and crawler persistence/shutdown safety. Remaining groups are tracked below.
 - Relevant current source files and upstream GitHub Action tags were inspected. Tests have not yet been run for this plan.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
@@ -43,16 +43,16 @@
 
 **Primary files:** `tools/crawler/main.go` and its tests.
 
-- [ ] Carry URL and payload together so persistence results can be associated with the correct URL.
-- [ ] Mark a URL processed only after its payload is successfully written and flushed, including missing-verse payloads.
-- [ ] Propagate output open/write/flush/close errors to `runCrawler` and return failure instead of silently discarding subsequent results.
-- [ ] Coordinate cancellation, channel closure, and worker/writer completion to prevent deadlocks on writer failure.
-- [ ] Open output files before starting workers and ensure all early-return paths release resources and stop goroutines.
-- [ ] Make `writeLinksToFile` return close failures rather than panic, retaining any earlier write/flush error.
-- [ ] Add injectable failing writers or equivalent deterministic test seams.
-- [ ] Test write and flush failure, output-open failure, clean shutdown, and successful persistence-before-processed ordering.
-- [ ] Verify failed/unpersisted payloads remain retryable and are not put into a state file that causes them to be skipped on rerun.
-- [ ] Document recovery guarantees: separate payload/state files may permit duplicates after interruption; they must not skip unwritten payloads. Do not claim crash-durable or exactly-once persistence without implementing it.
+- [x] Carry URL and payload together so persistence results can be associated with the correct URL.
+- [x] Mark a URL processed only after its payload is successfully written and flushed, including missing-verse payloads.
+- [x] Propagate output open/write/flush/close errors to `runCrawler` and return failure instead of silently discarding subsequent results.
+- [x] Coordinate cancellation, channel closure, and worker/writer completion to prevent deadlocks on writer failure.
+- [x] Open output files before starting workers and ensure all early-return paths release resources and stop goroutines.
+- [x] Make `writeLinksToFile` return close failures rather than panic, retaining any earlier write/flush error.
+- [x] Add injectable failing writers or equivalent deterministic test seams.
+- [x] Test write and flush failure, output-open failure, clean shutdown, and successful persistence-before-processed ordering.
+- [x] Verify failed/unpersisted payloads remain retryable and are not put into a state file that causes them to be skipped on rerun.
+- [x] Document recovery guarantees: separate payload/state files may permit duplicates after interruption; they must not skip unwritten payloads. Do not claim crash-durable or exactly-once persistence without implementing it.
 
 **Related observations to address in this refactor:** writer goroutines currently start before sitemap setup can fail; `runCrawler` also ignores its supplied `sleepDuration` when configuring workers. Preserve zero-delay tests and use the supplied duration.
 
@@ -138,4 +138,8 @@ staticcheck -tags "fts5" ./...
 - Initial plan: checked the review against current code, verified upstream action tags, identified stale findings, and recorded implementation groups and acceptance criteria. Plan committed as `dd125be`.
 - Baseline: `go test -tags "fts5" ./...` passed. The SQLite dependency emitted C compiler const-qualifier warnings, but no tests failed.
 - First fix (2.1, 3.7): `NewRouter` now accepts the resolved database path from the server. Router tests use `t.TempDir()` and verify readiness returns 200 for the custom path and 503 after that file is removed; liveness remains 200. Focused API/server tests, the full FTS5 test suite, and `git diff --check` passed. These changes are included in the group 1 implementation commit.
-- Group 1 completed: date/today API handlers now return 404 for a stored reference without matching verses; CLI subprocess tests confirm nonzero exit, no stdout, and a not-found diagnostic for both commands. The lectionary crawler resolves `DB_PATH` via a tested helper with the existing default fallback. Validation passed: `go test -tags "fts5" ./...`, `go test -tags "fts5" -race ./internal/api ./cmd/cli ./tools/lectionarycrawler`, `go build -tags "fts5" ./...`, and `git diff --check`. Staticcheck and the full-project race run remain for later validation. Next: group 2, crawler persistence and shutdown safety.
+- Group 1 completed: date/today API handlers now return 404 for a stored reference without matching verses; CLI subprocess tests confirm nonzero exit, no stdout, and a not-found diagnostic for both commands. The lectionary crawler resolves `DB_PATH` via a tested helper with the existing default fallback. Validation passed: `go test -tags "fts5" ./...`, `go test -tags "fts5" -race ./internal/api ./cmd/cli ./tools/lectionarycrawler`, `go build -tags "fts5" ./...`, and `git diff --check`. Staticcheck and the full-project race run remain for later validation. Group 1 committed as `fa476b9`.
+- Group 2 completed: replaced independent output/state writer goroutines with a mutex-serialized `crawlSink` receiving URL/payload records. Payloads are flushed before processed entries; the first persistence error is retained and cancels all worker HTTP requests, job enqueueing, and throttle waits. Workers are joined before outputs close. The supplied `sleepDuration` is now honored. Setup failures close outputs without starting workers, and links-file close errors are returned alongside earlier errors.
+- Group 2 regression coverage: deterministic write/flush/state/close failures, payload-before-processed ordering, sticky errors and retryable state, output-open failure, sitemap/links setup cleanup, in-flight request cancellation, and coordinator shutdown with 1,000 queued URLs for both normal and missing-verse payloads. Reworked existing writer tests to wait for synchronous persistence rather than arbitrary sleeps. `TestProcessedAndMissingWriters` still uses `t.TempDir()`.
+- Recovery limitation: flushing is not `fsync` and separate files are not transactional. Interrupted runs can leave partial payloads or duplicate records on retry; no crash-durability or exactly-once guarantee is claimed. Write/flush failures stop the run before the affected URL is marked processed; close failures are surfaced to the caller.
+- Group 2 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/crawler`, and `git diff --check`. Staticcheck is not installed in this environment and was not run. Next: group 3, reference parsing and query hardening.
