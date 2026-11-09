@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	dbpkg "github.com/minh/daily-bible/internal/db"
+	"github.com/minh/daily-bible/internal/reading"
 )
 
 // setupTestDB applies the full schema, including daily readings, and uses the
@@ -24,4 +25,14 @@ func setupTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	return db
+}
+
+func verifyTestReading(t *testing.T, db *sql.DB, date string) {
+	t.Helper()
+	if _, err := db.Exec(`INSERT INTO daily_reading_sources
+		(date, gospel_ref, source_url, source_date, verified_at)
+		SELECT date, gospel_ref, ?, date, '2026-01-01T00:00:00Z'
+		FROM daily_readings WHERE date = ?`, reading.SourceURL(date), date); err != nil {
+		t.Fatal(err)
+	}
 }

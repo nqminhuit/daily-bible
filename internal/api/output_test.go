@@ -38,6 +38,7 @@ func TestHandlersLogJSONWriteFailure(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO daily_readings(date, lectionary_key, gospel_ref) VALUES (?, 'key', 'Ga 1,1')`, today); err != nil {
 		t.Fatal(err)
 	}
+	verifyTestReading(t, db, today)
 	var logs bytes.Buffer
 	previous := log.Writer()
 	log.SetOutput(&logs)

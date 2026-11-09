@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -15,10 +16,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/minh/daily-bible/internal/api"
 	"github.com/minh/daily-bible/internal/constants"
+	"github.com/minh/daily-bible/internal/dateutil"
 	dbpkg "github.com/minh/daily-bible/internal/db"
 	"github.com/minh/daily-bible/internal/lectionary"
 	"github.com/minh/daily-bible/internal/parser"
+	"github.com/minh/daily-bible/internal/reading"
 )
 
 func databasePath() string {
@@ -30,27 +34,37 @@ func databasePath() string {
 
 func main() {
 	var years string
+	var window crawlWindow
 	flag.StringVar(&years, "years", "", "comma-separated list of years (e.g. 2026,2027)")
+	flag.StringVar(&window.from, "from", "", "first date to verify (YYYY-MM-DD; requires -to)")
+	flag.StringVar(&window.to, "to", "", "last date to verify (YYYY-MM-DD; requires -from)")
+	flag.BoolVar(&window.refresh, "refresh", false, "recheck already verified dates against the source")
+	flag.BoolVar(&window.acceptCorrections, "accept-corrections", false, "allow reviewed source references to replace differing stored refs")
 	flag.Parse()
 
-	if years == "" {
-		log.Fatal("--years is required (e.g. -years=2026,2027)")
+	var err error
+	years, err = validateWindow(years, window)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	err := run(ctx, years)
+	err = run(ctx, years, window)
 	stop()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(ctx context.Context, years string) error {
+func run(ctx context.Context, years string, window crawlWindow) error {
 	db, err := dbpkg.Open(databasePath())
 	if err != nil {
 		return fmt.Errorf("open db: %w", err)
 	}
 	defer db.Close()
+	if err := dbpkg.EnsureReadingSources(ctx, db); err != nil {
+		return fmt.Errorf("upgrade reading provenance: %w", err)
+	}
 
 	yearStrs := strings.Split(years, ",")
 	for _, ys := range yearStrs {
@@ -64,59 +78,58 @@ func run(ctx context.Context, years string) error {
 		}
 	}
 
-	jobs, err := missingGospelRefs(ctx, db, yearStrs)
+	jobs, err := pendingDates(ctx, db, yearStrs, window)
 	if err != nil {
-		return fmt.Errorf("query missing keys: %w", err)
+		return fmt.Errorf("query pending dates: %w", err)
 	}
-	log.Printf("found %d lectionary keys to populate", len(jobs))
+	log.Printf("found %d exact dates to verify", len(jobs))
 
 	crawlClient := &http.Client{Timeout: 10 * time.Second}
 	defer crawlClient.CloseIdleConnections()
-	return populateRefs(ctx, db, crawlClient, jobs, time.Now().Format("2006-01-02"))
+	return populateRefs(ctx, db, crawlClient, jobs, window.acceptCorrections)
 }
 
-func populateRefs(ctx context.Context, db *sql.DB, client *http.Client, jobs []dateKey, today string) error {
+func populateRefs(ctx context.Context, db *sql.DB, client *http.Client, jobs []dateKey, acceptCorrections bool) error {
+	var failures []error
 	for i, j := range jobs {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if j.date > today {
-			log.Printf("[%d/%d] SKIP key=%s date=%s: date is in the future, not yet published", i+1, len(jobs), j.key, j.date)
-			continue
+		if _, err := time.Parse("2006-01-02", j.date); err != nil {
+			return fmt.Errorf("invalid job date %q: %w", j.date, err)
 		}
-
-		parts := strings.SplitN(j.date, "-", 3)
-		if len(parts) != 3 {
-			log.Printf("invalid date %q", j.date)
-			continue
-		}
-		url := fmt.Sprintf(
-			"https://www.vaticannews.va/vi/loi-chua-hang-ngay/%s/%s/%s.html",
-			parts[0], parts[1], parts[2],
-		)
+		// Future dates may already be published. Never infer them from a key;
+		// accept them only when the source page itself confirms this exact date.
+		url := reading.SourceURL(j.date)
 
 		ref, err := fetchGospelRef(ctx, client, url, j.date)
 		if err != nil {
 			log.Printf("[%d/%d] FAIL key=%s date=%s: %v", i+1, len(jobs), j.key, j.date, err)
+			failures = append(failures, fmt.Errorf("verify %s: %w", j.date, err))
 			if err := waitContext(ctx, 500*time.Millisecond); err != nil {
 				return err
 			}
 			continue
 		}
 
-		if _, err := db.ExecContext(ctx,
-			`UPDATE daily_readings SET gospel_ref = ? WHERE lectionary_key = ? AND gospel_ref IS NULL`,
-			ref, j.key,
-		); err != nil {
-			return fmt.Errorf("update %s: %w", j.key, err)
+		if err := storeVerifiedReading(ctx, db, j.date, ref, url, acceptCorrections); err != nil {
+			if !errors.Is(err, errReferenceConflict) {
+				return fmt.Errorf("update %s: %w", j.date, err)
+			}
+			log.Printf("[%d/%d] CONFLICT: %v", i+1, len(jobs), err)
+			failures = append(failures, err)
+			if err := waitContext(ctx, 300*time.Millisecond); err != nil {
+				return err
+			}
+			continue
 		}
 
-		log.Printf("[%d/%d] OK key=%s ref=%s", i+1, len(jobs), j.key, ref)
+		log.Printf("[%d/%d] VERIFIED date=%s key=%s ref=%s source=%s", i+1, len(jobs), j.date, j.key, ref, url)
 		if err := waitContext(ctx, 300*time.Millisecond); err != nil {
 			return err
 		}
 	}
-	return ctx.Err()
+	return errors.Join(append(failures, ctx.Err())...)
 }
 
 type dateKey struct {
@@ -138,7 +151,9 @@ func importYear(ctx context.Context, db *sql.DB, year int) error {
 
 	defer tx.Rollback()
 
-	stmt, err := tx.PrepareContext(ctx, `INSERT OR IGNORE INTO daily_readings (date, lectionary_key) VALUES (?, ?)`)
+	stmt, err := tx.PrepareContext(ctx, `INSERT INTO daily_readings (date, lectionary_key) VALUES (?, ?)
+		ON CONFLICT(date) DO UPDATE SET lectionary_key = excluded.lectionary_key
+		WHERE daily_readings.lectionary_key <> excluded.lectionary_key`)
 	if err != nil {
 		return fmt.Errorf("prepare: %w", err)
 	}
@@ -165,6 +180,10 @@ func importYear(ctx context.Context, db *sql.DB, year int) error {
 }
 
 func missingGospelRefs(ctx context.Context, db *sql.DB, years []string) ([]dateKey, error) {
+	return pendingDates(ctx, db, years, crawlWindow{})
+}
+
+func pendingDates(ctx context.Context, db *sql.DB, years []string, window crawlWindow) ([]dateKey, error) {
 	// Build date range filters: date BETWEEN 'YYYY-01-01' AND 'YYYY-12-31'
 	var conditions []string
 	var args []interface{}
@@ -175,13 +194,26 @@ func missingGospelRefs(ctx context.Context, db *sql.DB, years []string) ([]dateK
 	}
 	dateFilter := "(" + strings.Join(conditions, " OR ") + ")"
 
+	filter := dateFilter
+	if window.from != "" {
+		filter += " AND dr.date BETWEEN ? AND ?"
+		args = append(args, window.from, window.to)
+	} else {
+		filter += " AND dr.date <= ?"
+		args = append(args, dateutil.TodayDate())
+	}
+	if !window.refresh {
+		filter += ` AND NOT EXISTS (
+			SELECT 1 FROM daily_reading_sources s WHERE s.date = dr.date
+			AND s.source_date = dr.date AND s.gospel_ref = dr.gospel_ref
+			AND s.verified_at <> '' AND s.source_url =
+			'https://www.vaticannews.va/vi/loi-chua-hang-ngay/' ||
+			replace(dr.date, '-', '/') || '.html')`
+	}
 	query := fmt.Sprintf(`
-		SELECT DISTINCT dr.lectionary_key, MIN(dr.date)
-		FROM daily_readings dr
-		WHERE dr.gospel_ref IS NULL AND %s
-		GROUP BY dr.lectionary_key
-		ORDER BY MIN(dr.date)
-	`, dateFilter)
+		SELECT dr.lectionary_key, dr.date FROM daily_readings dr
+		WHERE %s ORDER BY dr.date
+	`, filter)
 
 	rows, err := db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -244,7 +276,19 @@ func fetchGospelRef(ctx context.Context, client *http.Client, url string, expect
 		}
 
 		_, ref, err := parser.ExtractGospel(string(body))
-		return ref, err
+		if err != nil {
+			return "", err
+		}
+		parsed, err := api.ParseRefMultiChapter(ref)
+		if err != nil {
+			return "", fmt.Errorf("invalid source reference: %w", err)
+		}
+		switch parsed[0].Book {
+		case "Mt", "Mc", "Lc", "Ga":
+			return ref, nil
+		default:
+			return "", fmt.Errorf("source reference is not a Gospel: %q", ref)
+		}
 	}
 	if err := ctx.Err(); err != nil {
 		return "", err

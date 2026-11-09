@@ -189,6 +189,8 @@ func TestTodayHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	verifyTestReading(t, db, today)
+
 	t.Run("today with data", func(t *testing.T) {
 		handler := makeTodayHandler(db)
 		req := httptest.NewRequest("GET", "/api/v1/today", nil)

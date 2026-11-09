@@ -53,10 +53,14 @@ import-db: data/migrations build/gospels.tsv ## (4) Import data into SQLite data
 
 	sqlite3 $(DB) "INSERT INTO verses_fts(verses_fts) VALUES('rebuild');"
 	sqlite3 $(DB) < data/migrations/002_daily_readings.sql
+	sqlite3 $(DB) < data/migrations/003_reading_sources.sql
 	@echo "✅ Database imported successfully to $(DB)"
 
-crawl-lectionary: ## Populate daily_readings via algorithmic calendar generation (YEARS=2026,2027)
+crawl-lectionary: ## Generate calendar estimates and verify exact-date readings (YEARS=2026,2027)
 	go run $(GOFLAGS) ./tools/lectionarycrawler -years="$(YEARS)"
+
+verify-readings: ## Verify a bounded date window from Vatican News (FROM=2026-11-09 TO=2026-11-11)
+	go run $(GOFLAGS) ./tools/lectionarycrawler -from="$(FROM)" -to="$(TO)"
 
 setup-lectionary: ## Full lectionary setup (YEARS=2026,2027)
 	$(MAKE) crawl-lectionary YEARS="$(YEARS)"

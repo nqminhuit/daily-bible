@@ -3,7 +3,9 @@ package parser
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 )
@@ -241,11 +243,26 @@ func FindReadingStartVatican(s string) int {
 // This lets callers verify a fetched page actually covers the date they
 // requested, rather than trusting the request URL alone.
 func ExtractPageDate(htmlStr string) (string, error) {
-	m := pageDateRe.FindStringSubmatch(htmlStr)
-	if m == nil {
-		return "", fmt.Errorf("no date found in page")
+	doc, err := html.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return "", fmt.Errorf("parse page: %w", err)
 	}
-	return fmt.Sprintf("%s-%02s-%02s", m[3], m[2], m[1]), nil
+	title := FindNode(doc, func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == "title" })
+	if title == nil {
+		return "", fmt.Errorf("page has no title date")
+	}
+	m := pageDateRe.FindStringSubmatch(strings.ToLower(NormalizeSpaces(GetText(title))))
+	if m == nil {
+		return "", fmt.Errorf("no date found in page title")
+	}
+	day, _ := strconv.Atoi(m[1])
+	month, _ := strconv.Atoi(m[2])
+	year, _ := strconv.Atoi(m[3])
+	date := fmt.Sprintf("%04d-%02d-%02d", year, month, day)
+	if _, err := time.Parse("2006-01-02", date); err != nil {
+		return "", fmt.Errorf("invalid page date: %w", err)
+	}
+	return date, nil
 }
 
 func ExtractGospel(htmlInput string) (section, ref string, err error) {

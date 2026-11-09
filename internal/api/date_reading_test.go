@@ -15,6 +15,7 @@ func TestDateReadingWithoutMatchingVerses(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO daily_readings (date, lectionary_key, gospel_ref) VALUES (?, 'test_key', 'Ga 11,1-2')`, today); err != nil {
 		t.Fatal(err)
 	}
+	verifyTestReading(t, db, today)
 
 	for _, tc := range []struct {
 		name    string

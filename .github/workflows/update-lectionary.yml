@@ -45,15 +45,25 @@ jobs:
           echo "YEARS=${YEARS}" >> "$GITHUB_OUTPUT"
 
       - name: Run lectionary crawler
+        id: crawl
+        continue-on-error: true
         run: |
-          make crawl-lectionary YEARS="${{ steps.years.outputs.YEARS }}"
+          crawl_status=0
+          make crawl-lectionary YEARS="${{ steps.years.outputs.YEARS }}" || crawl_status=$?
           # This database ships in WAL mode. Fold the write-ahead log back into
           # the main file so newly crawled data can't be left behind in an
           # uncommitted -wal sidecar.
           sqlite3 resources/bible.db 'PRAGMA wal_checkpoint(TRUNCATE);' > /dev/null
           rm -f resources/bible.db-wal resources/bible.db-shm
+          exit "$crawl_status"
 
       - name: Commit updated lectionary
         env:
           MESSAGE: 'Update lectionary for ${{ steps.years.outputs.YEARS }}'
         run: ./.github/scripts/commit-db.sh
+
+      - name: Report source verification failures
+        if: steps.crawl.outcome == 'failure'
+        run: |
+          echo "::error::Some exact-date sources could not be verified; partial verified progress was committed."
+          exit 1

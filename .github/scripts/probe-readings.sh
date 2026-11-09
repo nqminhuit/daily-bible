@@ -34,7 +34,7 @@ for ((i = 0; i <= LOOKAHEAD_DAYS; i++)); do
     *) years="${years:+$years,}$year" ;;
   esac
 
-  if out=$("$CLI" "$date" 2>&1); then
+  if out=$("$CLI" "$date" 2>&1) && printf '%s' "$out" | jq -e '.verified == true and (.source_url | type == "string" and length > 0)' > /dev/null 2>&1; then
     ref=$(printf '%s' "$out" | jq -r '.ref')
     echo "  OK   $date  $ref"
   else
@@ -45,10 +45,12 @@ for ((i = 0; i <= LOOKAHEAD_DAYS; i++)); do
 done
 
 printf '%s' "$years" > build/probe-years.txt
+printf '%s' "$today" > build/probe-from.txt
+printf '%s' "$date" > build/probe-to.txt
 
 if [[ $missing -gt 0 ]]; then
-  echo "$missing of $((LOOKAHEAD_DAYS + 1)) day(s) have no usable reading (years: $years)"
+  echo "$missing of $((LOOKAHEAD_DAYS + 1)) day(s) have no source-verified usable reading (years: $years)"
   exit 1
 fi
 
-echo "All $((LOOKAHEAD_DAYS + 1)) day(s) have a reading."
+echo "All $((LOOKAHEAD_DAYS + 1)) day(s) have a source-verified reading."

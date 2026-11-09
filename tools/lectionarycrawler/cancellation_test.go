@@ -11,6 +11,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	dbpkg "github.com/minh/daily-bible/internal/db"
 )
 
 func newCrawlerTestDB(t *testing.T) *sql.DB {
@@ -20,6 +22,9 @@ func newCrawlerTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	db.SetMaxOpenConns(1)
+	if err := dbpkg.EnsureReadingSources(t.Context(), db); err != nil {
+		t.Fatal(err)
+	}
 	t.Cleanup(func() { db.Close() })
 	return db
 }
@@ -181,7 +186,7 @@ func TestPopulateCancellationStopsJobs(t *testing.T) {
 	})}
 	done := make(chan error, 1)
 	go func() {
-		done <- populateRefs(ctx, db, client, []dateKey{{date: "2026-01-01", key: "one"}, {date: "2026-01-02", key: "two"}}, "2026-12-31")
+		done <- populateRefs(ctx, db, client, []dateKey{{date: "2026-01-01", key: "one"}, {date: "2026-01-02", key: "two"}}, false)
 	}()
 	select {
 	case <-started:

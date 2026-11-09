@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	dbpkg "github.com/minh/daily-bible/internal/db"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -199,16 +201,19 @@ func TestMissingGospelRefs(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if err := dbpkg.EnsureReadingSources(t.Context(), db); err != nil {
+		t.Fatal(err)
+	}
 	jobs, err := missingGospelRefs(t.Context(), db, []string{"2026"})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(jobs) != 2 {
-		t.Fatalf("expected 2 missing keys, got %d: %v", len(jobs), jobs)
+	if len(jobs) != 3 {
+		t.Fatalf("expected 3 unverified dates (including the legacy reference), got %d: %v", len(jobs), jobs)
 	}
 
-	expected := []string{"ordinary_3_mon_II", "ordinary_3_tue_II"}
+	expected := []string{"ordinary_3_mon_II", "ordinary_3_tue_II", "lent_5_sun_A"}
 	for i, j := range jobs {
 		if j.key != expected[i] {
 			t.Errorf("job[%d].key = %q, want %q", i, j.key, expected[i])

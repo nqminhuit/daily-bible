@@ -30,7 +30,7 @@ func TestPopulateUpdateCancellation(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK, Body: cancelOnClose{io.NopCloser(strings.NewReader(gospelPage)), cancel}, Header: make(http.Header)}, nil
 	})}
 	// Cancel after the body is read, before the database update can succeed.
-	err := populateRefs(ctx, db, client, []dateKey{{date: "2026-04-05", key: "key"}}, "2026-12-31")
+	err := populateRefs(ctx, db, client, []dateKey{{date: "2026-04-05", key: "key"}}, false)
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("expected cancellation, got %v", err)
 	}
@@ -48,8 +48,8 @@ func TestPopulateUpdateFailure(t *testing.T) {
 	client := &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(gospelPage)), Header: make(http.Header)}, nil
 	})}
-	err := populateRefs(t.Context(), db, client, []dateKey{{date: "2026-04-05", key: "key"}}, "2026-12-31")
-	if err == nil || !strings.Contains(err.Error(), "update key:") {
+	err := populateRefs(t.Context(), db, client, []dateKey{{date: "2026-04-05", key: "key"}}, false)
+	if err == nil || !strings.Contains(err.Error(), "update 2026-04-05:") {
 		t.Fatalf("expected update error, got %v", err)
 	}
 }

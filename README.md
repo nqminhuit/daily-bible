@@ -106,8 +106,8 @@ Step 3: Import
 
 Step 4: Lectionary (auto-updated via GitHub Actions)
   Automatically runs on Dec 24 and Dec 25 each year.
-  Generates lectionary keys + crawls Vatican News for gospel_refs.
-  Commits updated resources/bible.db via PR.
+  Generates estimated calendar keys + verifies each exact date against Vatican News.
+  Commits updated resources/bible.db to the default branch.
 
   Manual:
   make crawl-lectionary YEARS="2026,2027"
@@ -118,11 +118,55 @@ Step 4: Lectionary (auto-updated via GitHub Actions)
        │  - generates lectionary keys (e.g. lent_5_sun_A)
        ▼
   tools/lectionarycrawler
-       │  - maps lectionary keys → Vatican News URLs
-       │  - crawls to extract gospel_ref (e.g. "Ga 11,1-45")
+       │  - maps each exact date → its Vatican News URL
+       │  - validates the source page's title date and Gospel reference
+       │  - never copies a reference to another date with the same key
        ▼
-  daily_readings table  (date → lectionary_key → gospel_ref)
+  daily_readings + daily_reading_sources (exact-date reference + provenance)
 ```
+
+### Mass-reading correctness
+
+Algorithmic `lectionary_key` values are **estimates**, not evidence of the Mass
+reading or celebration name. Feasts, transferred solemnities, and local calendars
+can override a normal weekday or Sunday. Vatican News's **Vietnamese dated page**
+is the default reading source, but its language is **not proof that it follows a
+Vietnamese diocesan or national calendar**. Parish-specific Masses, local calendar
+rules, and permitted alternatives can legitimately differ. Confirm the intended
+calendar before applying an archive-wide repair; unresolved source/calendar
+conflicts must stay unavailable rather than silently replacing a local reading.
+
+Date/today API and CLI lookups require `daily_reading_sources` evidence matching
+the exact date, current reference, dated source URL, and verification timestamp.
+Legacy refs are preserved for audit but are **not served as verified readings**.
+An unavailable or wrong-date upstream page never blesses an existing prediction.
+Responses include `verified`, `source_url`, `verified_at`, and an optional reviewed
+`celebration`. Do not derive an authoritative feast label from `lectionary_key`.
+
+To upgrade and verify a small window without crawling the full archive:
+
+```sh
+make verify-readings FROM=2026-11-09 TO=2026-11-11
+# Recheck already verified dates:
+go run -tags "fts5" ./tools/lectionarycrawler -from=2026-11-09 -to=2026-11-11 -refresh
+# ONLY after reviewing each disagreement and the intended calendar:
+go run -tags "fts5" ./tools/lectionarycrawler -from=2026-11-09 -to=2026-11-11 -accept-corrections
+```
+
+The crawler applies the idempotent provenance-table migration automatically.
+`DB_PATH` can point at a copy for auditing before changing a shipped snapshot.
+Without an explicit window, `-years` verifies dates through today in Vietnam;
+an explicit window can check future dates if the source has already published
+them. Failures are reported with a nonzero exit, preserving successful exact-date
+updates. A differing existing reference is recorded as a **conflict**, not replaced
+unless `-accept-corrections` is explicitly supplied after review. Its source evidence
+is retained, but lookups refuse the disagreement (even if the old ref previously
+had matching proof). This lets automation surface possible local-calendar choices
+without silently substituting ordinary readings. The healer probes **verification**,
+not merely reference availability.
+Older dates need an incremental source audit before they become available again.
+The `gospel-site` consumer must also require this provenance and suppress estimated
+labels; publishing this backend alone does not update the separate frontend code.
 
 ## Request Flow
 
@@ -346,7 +390,8 @@ make build
 | `make crawler-all-urls` | Crawl all sitemap URLs |
 | `make tsv` | Convert gospels.txt to TSV format |
 | `make import-db` | Import data into SQLite database |
-| `make crawl-lectionary YEARS=2026,2027` | Populate daily_readings via algorithmic calendar generation |
+| `make crawl-lectionary YEARS=2026,2027` | Generate calendar estimates and verify exact-date readings through today |
+| `make verify-readings FROM=2026-11-09 TO=2026-11-11` | Verify a bounded date window against dated Vatican News pages |
 | `make setup-lectionary YEARS=2026,2027` | Full lectionary setup (alias for crawl-lectionary) |
 | `make build` | Build server binary (`build/daily-bible-server`) |
 | `make build-cli` | Build CLI binary (`build/daily-bible`) |

@@ -16,6 +16,7 @@ import (
 	"github.com/minh/daily-bible/internal/dateutil"
 	dbpkg "github.com/minh/daily-bible/internal/db"
 	"github.com/minh/daily-bible/internal/query"
+	"github.com/minh/daily-bible/internal/reading"
 )
 
 func main() {
@@ -92,15 +93,11 @@ func handleDate(ctx context.Context, db *sql.DB, date string) {
 }
 
 func outputDateReading(ctx context.Context, db *sql.DB, date string) {
-	var lectionaryKey, gospelRef string
-	err := db.QueryRowContext(ctx, `
-		SELECT lectionary_key, gospel_ref
-		FROM daily_readings
-		WHERE date = ? AND gospel_ref IS NOT NULL
-	`, date).Scan(&lectionaryKey, &gospelRef)
+	metadata, err := reading.Lookup(ctx, db, date)
+	gospelRef := metadata.Ref
 
 	if err == sql.ErrNoRows {
-		log.Fatalf("no reading found for date %s", date)
+		log.Fatalf("no verified reading found for date %s", date)
 	}
 	if err != nil {
 		log.Fatalf("query error: %v", err)
@@ -123,9 +120,13 @@ func outputDateReading(ctx context.Context, db *sql.DB, date string) {
 
 	outputJSON(map[string]any{
 		"date":           date,
-		"lectionary_key": lectionaryKey,
+		"lectionary_key": metadata.LectionaryKey,
 		"ref":            gospelRef,
 		"verses":         combined,
+		"verified":       true,
+		"source_url":     metadata.SourceURL,
+		"verified_at":    metadata.VerifiedAt,
+		"celebration":    metadata.Celebration,
 	})
 }
 

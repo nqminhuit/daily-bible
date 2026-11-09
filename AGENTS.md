@@ -39,7 +39,10 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 
 - **Runtime path**: `resources/bible.db`, overridable via `DB_PATH` env var
 - **Schema**: `verses(book, chapter, verse, verse_suffix, text)` — composite PK includes `verse_suffix`
-- **Daily readings**: `daily_readings(date TEXT PRIMARY KEY, lectionary_key TEXT, gospel_ref TEXT)` — single table for date-based lookups; `gospel_ref` is NULL until crawled
+- **Daily readings**: `daily_readings(date TEXT PRIMARY KEY, lectionary_key TEXT, gospel_ref TEXT)` — calendar keys are estimates; legacy refs may be unverified
+- **Provenance**: `daily_reading_sources(date PRIMARY KEY, gospel_ref, source_url, source_date, verified_at, celebration)` — exact-date source evidence must match the current ref before date/today endpoints serve it; optional celebration labels must be reviewed, not inferred from keys
+- `tools/lectionarycrawler` applies the idempotent `003_reading_sources.sql` migration; crawl bounded windows with `make verify-readings FROM=... TO=...` and never share refs by lectionary key
+- Differing existing refs require calendar review and explicit `-accept-corrections`; default automation records source evidence but quarantines disagreements instead of overwriting possibly local Mass readings
 - **FTS**: `verses_fts` uses `unicode61 remove_diacritics 2` with prefix indexing, synced by triggers
 - **Connection pool**: `SetMaxOpenConns(1)` — SQLite is single-connection
 
@@ -58,7 +61,7 @@ Algorithmic generation (internal/lectionary) → make crawl-lectionary → daily
 - All routes wrapped in `loggingMiddleware(corsMiddleware(mux))` — logging is outermost
 - **All DB queries use `QueryContext`/`QueryRowContext`** with `r.Context()` for cancellation
 - `GET /api/v1/gospel/{ref}` — supports dot-separated non-contiguous segments (e.g. `Mt 5,20-22a.27-28`)
-- `GET /api/v1/today` — queries `daily_readings` table for today's reading (returns 404 if empty)
+- `GET /api/v1/today` — requires matching exact-date provenance for today's reading (returns 404 if unverified, stale, or empty); date endpoints and CLI use the same rule
 - `GET /api/v1/search?q=...` — phrase-only FTS search (query is wrapped in double quotes)
 - `GET /api/v1/random` — retries up to 10 times on rowid gaps
 
@@ -72,6 +75,7 @@ internal/db/                — DB open + schema init (ApplyMigrations used in t
 internal/query/             — FtsPhraseQuery: wraps FTS search terms in double quotes
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
+internal/reading/           — exact-date source verification metadata and guarded lookups
 internal/constants/         — runtime defaults: DB path, server addr, timezone
 internal/crawlerconfig/     — crawler settings, Vatican URLs, crawler/TSV artifact paths
 internal/lectionary/        — Liturgical calendar generation (Easter, seasons, lectionary keys)

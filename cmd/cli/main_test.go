@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/minh/daily-bible/internal/dateutil"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/minh/daily-bible/internal/dateutil"
+	"github.com/minh/daily-bible/internal/reading"
 )
 
 var cliPath string
@@ -85,6 +86,11 @@ func setupTestDB(t *testing.T) string {
 		t.Fatal(err)
 	}
 
+	if _, err := database.Exec(`INSERT INTO daily_reading_sources
+		(date, gospel_ref, source_url, source_date, verified_at)
+		SELECT date, gospel_ref, ?, date, '2026-01-01T00:00:00Z' FROM daily_readings WHERE date = ?`, reading.SourceURL(today), today); err != nil {
+		t.Fatal(err)
+	}
 	return dbPath
 }
 

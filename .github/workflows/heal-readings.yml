@@ -52,18 +52,23 @@ jobs:
         continue-on-error: true
         run: ./.github/scripts/probe-readings.sh
 
-      - name: Crawl missing readings
+      - name: Crawl unverified readings by exact date
         if: steps.probe.outcome == 'failure'
+        continue-on-error: true
         run: |
           set -euo pipefail
-          # Crawl every year the probe window touches, so a window spanning
-          # New Year's Eve doesn't silently skip next year's dates.
-          ./build/lectionarycrawler -years="$(cat build/probe-years.txt)"
+          # Never copy refs from dates that merely share a calendar key.
+          # Keep partial verified progress even if another source is unavailable.
+          crawl_status=0
+          ./build/lectionarycrawler \
+            -from="$(cat build/probe-from.txt)" \
+            -to="$(cat build/probe-to.txt)" || crawl_status=$?
           # This database ships in WAL mode. Fold the write-ahead log back into
           # the main file before anything commits it, so newly crawled refs
           # can't be left behind in an uncommitted -wal sidecar.
           sqlite3 "$DB_PATH" 'PRAGMA wal_checkpoint(TRUNCATE);' > /dev/null
           rm -f "$DB_PATH-wal" "$DB_PATH-shm"
+          exit "$crawl_status"
 
       - name: Re-probe after crawling
         id: reprobe
