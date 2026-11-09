@@ -3,7 +3,7 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- Groups 1–3 complete: response/configuration correctness, crawler persistence/shutdown safety, and reference parsing/query hardening. Remaining groups are tracked below.
+- Groups 1–4 complete: response/configuration correctness, crawler persistence/shutdown safety, reference parsing/query hardening, and cancellation/error reporting. Group 5 and final validation remain.
 - Relevant current source files and upstream GitHub Action tags were inspected. Tests have not yet been run for this plan.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
@@ -81,13 +81,13 @@
 
 **Primary files:** `tools/lectionarycrawler/main.go`, `cmd/cli/main.go`, `internal/api/handlers.go`, and related tests.
 
-- [ ] Thread a cancellable context through lectionary crawler queries, transactions, updates, and HTTP requests, not only `missingGospelRefs`.
-- [ ] Make retry/throttle waits respond to cancellation and stop the crawl on cancellation rather than continuing through jobs.
-- [ ] Defer transaction rollback immediately after successful transaction creation; preserve the primary operation/commit error.
-- [ ] Report CLI JSON encoding errors and exit unsuccessfully.
-- [ ] Log HTTP JSON encoding errors without attempting to send a second response after output has begun.
-- [ ] Check `rows.Err()` in the API search handler before encoding a successful response (additional issue found during inspection).
-- [ ] Test cancelled operations, transaction failure/cleanup, and failing output writers.
+- [x] Thread a cancellable context through lectionary crawler queries, transactions, updates, and HTTP requests, not only `missingGospelRefs`.
+- [x] Make retry/throttle waits respond to cancellation and stop the crawl on cancellation rather than continuing through jobs.
+- [x] Defer transaction rollback immediately after successful transaction creation; preserve the primary operation/commit error.
+- [x] Report CLI JSON encoding errors and exit unsuccessfully.
+- [x] Log HTTP JSON encoding errors without attempting to send a second response after output has begun.
+- [x] Check `rows.Err()` in the API search handler before encoding a successful response (additional issue found during inspection).
+- [x] Test cancelled operations, transaction failure/cleanup, and failing output writers.
 
 **Acceptance:** cancellation reaches outstanding work, cleanup is reliable, and output failures are not silently reported as success.
 
@@ -146,4 +146,8 @@ staticcheck -tags "fts5" ./...
 - Group 3 completed: gospel handlers parse once and query validated ranges through an internal helper; `QueryByRef` remains available. Reference validation now rejects incomplete matches, empty segments, nonpositive/overflowing numbers, reversed ranges, and non-forward cross-chapter ranges. Limits are 1,024 raw reference bytes (decoded for HTTP) and 32 ranges after expansion, documented in `README.md`.
 - Group 3 query changes: replaced per-verse suffix expansion with at most three predicates per range and removed NULL suffix branches under the NOT NULL schema contract. End-of-chapter ranges now use `math.MaxInt` rather than 999, with no endpoint arithmetic in SQL generation. Forward ranges include intervening chapters instead of silently omitting them; expansion is checked against the range budget before looping.
 - Group 3 regression coverage: malformed/oversized references are rejected before database access and return HTTP 400; numeric overflow, exact input/range limits, suffix boundary combinations, overlapping/dot ranges, cross-chapter suffixes and intermediate chapters, verses above the old 999 cutoff, and MaxInt spans. Existing DB-error/404 and CLI tests remain passing. A 10-second parser fuzz run with two workers completed 803,270 executions without failure.
-- Group 3 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, focused API/CLI tests, parser fuzzing, and `git diff --check`. Staticcheck remains unavailable. Next: group 4, cancellation and error reporting.
+- Group 3 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, focused API/CLI tests, parser fuzzing, and `git diff --check`. Staticcheck remains unavailable. Group 3 committed as `7d44b91`.
+- Group 4 completed: the lectionary crawler uses a SIGINT/SIGTERM context through database queries, transactions, updates, HTTP requests, retries, and throttle waits. The run function returns errors so database cleanup happens before main exits. Year imports defer rollback immediately and now abort on insertion/RowsAffected failures rather than committing partial imports. Database update and scan failures are returned rather than silently continued; ordinary remote-fetch failures retain their retry/continue behavior unless cancelled.
+- Group 4 output handling: all CLI JSON writes use a checked helper and fail with a diagnostic/nonzero exit; all API JSON writes use a helper that logs errors without writing a second response. Search checks both scan and row-iteration errors before responding, returning 500 instead of partial success.
+- Group 4 regression coverage: rollback on prepare/insert/commit failure (including deferred foreign-key failure), database reuse after rollback, cancelled imports/queries, cancellation during requests/backoff and long waits, stopping subsequent jobs, cancelled/failed updates, read-only stdout descriptors for every CLI JSON command, failing HTTP response writers for every JSON handler, and a test SQL driver that injects row-iteration/scan failures.
+- Group 4 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/lectionarycrawler ./internal/api`, and `git diff --check`. Staticcheck remains unavailable. Next: group 5, low-risk cleanup, then final validation.

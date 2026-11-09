@@ -27,7 +27,7 @@ func TestFetchGospelRef(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	ref, err := fetchGospelRef(client, server.URL, "2026-04-05")
+	ref, err := fetchGospelRef(t.Context(), client, server.URL, "2026-04-05")
 	if err != nil {
 		t.Fatalf("fetchGospelRef error: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestFetchGospelRefDateMismatch(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
+	_, err := fetchGospelRef(t.Context(), client, server.URL, "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error when page date does not match requested date")
 	}
@@ -66,7 +66,7 @@ func TestFetchGospelRefNotFound(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
+	_, err := fetchGospelRef(t.Context(), client, server.URL, "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error for 404 response")
 	}
@@ -74,7 +74,7 @@ func TestFetchGospelRefNotFound(t *testing.T) {
 
 func TestFetchGospelRefConnectionError(t *testing.T) {
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, "http://localhost:1", "2026-08-20")
+	_, err := fetchGospelRef(t.Context(), client, "http://localhost:1", "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error for connection refused")
 	}
@@ -97,7 +97,7 @@ func TestFetchGospelRefMissingRef(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	_, err := fetchGospelRef(client, server.URL, "2026-08-20")
+	_, err := fetchGospelRef(t.Context(), client, server.URL, "2026-08-20")
 	if err == nil {
 		t.Fatal("expected error when no gospel ref found")
 	}
@@ -121,7 +121,7 @@ func TestFetchGospelRefNonContiguous(t *testing.T) {
 	defer server.Close()
 
 	client := &http.Client{}
-	ref, err := fetchGospelRef(client, server.URL, "2026-08-20")
+	ref, err := fetchGospelRef(t.Context(), client, server.URL, "2026-08-20")
 	if err != nil {
 		t.Fatalf("fetchGospelRef error: %v", err)
 	}
@@ -148,7 +148,7 @@ func TestImportYear(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := importYear(db, 2026); err != nil {
+	if err := importYear(t.Context(), db, 2026); err != nil {
 		t.Fatalf("importYear(2026): %v", err)
 	}
 
@@ -199,7 +199,7 @@ func TestMissingGospelRefs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	jobs, err := missingGospelRefs(db, []string{"2026"})
+	jobs, err := missingGospelRefs(t.Context(), db, []string{"2026"})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -64,6 +64,12 @@ func main() {
 	}
 }
 
+func outputJSON(value any) {
+	if err := json.NewEncoder(os.Stdout).Encode(value); err != nil {
+		log.Fatalf("write JSON output: %v", err)
+	}
+}
+
 func usage() {
 	fmt.Fprintf(os.Stderr, `Usage: daily-bible <command> [args]
 
@@ -115,7 +121,7 @@ func outputDateReading(ctx context.Context, db *sql.DB, date string) {
 	}
 	combined := strings.TrimSpace(sb.String())
 
-	json.NewEncoder(os.Stdout).Encode(map[string]any{
+	outputJSON(map[string]any{
 		"date":           date,
 		"lectionary_key": lectionaryKey,
 		"ref":            gospelRef,
@@ -131,7 +137,7 @@ func handleGospel(ctx context.Context, db *sql.DB, ref string) {
 	if len(verses) == 0 {
 		log.Fatal("not found")
 	}
-	json.NewEncoder(os.Stdout).Encode(verses)
+	outputJSON(verses)
 }
 
 func handleSearch(ctx context.Context, db *sql.DB, q string) {
@@ -161,7 +167,7 @@ func handleSearch(ctx context.Context, db *sql.DB, q string) {
 	if err := rows.Err(); err != nil {
 		log.Fatalf("rows error: %v", err)
 	}
-	json.NewEncoder(os.Stdout).Encode(results)
+	outputJSON(results)
 }
 
 func handleRandom(ctx context.Context, db *sql.DB) {
@@ -183,7 +189,7 @@ func handleRandom(ctx context.Context, db *sql.DB) {
 			}
 			log.Fatalf("random query error: %v", err)
 		}
-		json.NewEncoder(os.Stdout).Encode(text)
+		outputJSON(text)
 		return
 	}
 	log.Fatal("not found")

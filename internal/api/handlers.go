@@ -15,6 +15,15 @@ import (
 	"github.com/minh/daily-bible/internal/query"
 )
 
+// writeJSON logs output errors without attempting a second response: Encode
+// may already have written headers or part of the body before failing.
+func writeJSON(w http.ResponseWriter, r *http.Request, value any) {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(value); err != nil {
+		log.Printf("JSON response error for %s %s: %v", r.Method, r.URL.Path, err)
+	}
+}
+
 func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prefix := "/api/v1/gospel/"
@@ -50,8 +59,7 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(verses)
+		writeJSON(w, r, verses)
 	}
 }
 
@@ -85,12 +93,17 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			var ref string
 			if err := rows.Scan(&ref); err != nil {
 				log.Printf("scan error: %v", err)
-				continue
+				http.Error(w, "internal server error", http.StatusInternalServerError)
+				return
 			}
 			results = append(results, ref)
 		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(results)
+		if err := rows.Err(); err != nil {
+			log.Printf("fts search rows error: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, r, results)
 	}
 }
 
@@ -127,8 +140,7 @@ func makeRandomHandler(db *sql.DB) http.HandlerFunc {
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(text)
+			writeJSON(w, r, text)
 			return
 		}
 		http.Error(w, "not found", http.StatusNotFound)
@@ -204,8 +216,7 @@ func makeDateHandler(db *sql.DB, getDate func() string) http.HandlerFunc {
 		}
 		combined := strings.TrimSpace(sb.String())
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{
+		writeJSON(w, r, map[string]any{
 			"date":           date,
 			"lectionary_key": lectionaryKey,
 			"ref":            gospelRef,
