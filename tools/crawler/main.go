@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	cst "github.com/minh/daily-bible/internal/constants"
+	cst "github.com/minh/daily-bible/internal/crawlerconfig"
 	"github.com/minh/daily-bible/internal/parser"
 )
 

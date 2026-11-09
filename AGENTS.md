@@ -72,7 +72,8 @@ internal/db/                — DB open + schema init (ApplyMigrations used in t
 internal/query/             — FtsPhraseQuery: wraps FTS search terms in double quotes
 internal/parser/            — HTML parsing (extracted from tools/crawler)
 internal/model/             — Gospel struct
-internal/constants/         — DB path, server addr, crawler config
+internal/constants/         — runtime defaults: DB path, server addr, timezone
+internal/crawlerconfig/     — crawler settings, Vatican URLs, crawler/TSV artifact paths
 internal/lectionary/        — Liturgical calendar generation (Easter, seasons, lectionary keys)
 tools/crawler/              — Vatican News sitemap crawler
 tools/lectionarycrawler/    — Generates daily_readings (algorithmic → Vatican News crawl for gospel_ref)

@@ -2,17 +2,17 @@
 
 ## Current state
 
-All five implementation groups from `PLAN.md` are complete and locally validated.
-Groups 1–4 were committed individually; group 5 and these final tracking updates
-are delivered together in the final cleanup commit. No push or workflow dispatch
-was performed. The local remediation commits still need remote CI validation
-when they are pushed.
+All five original implementation groups from `PLAN.md` are complete, pushed
+through `7d4b8a5`, and passing remote CI. The user subsequently approved optional
+issue 3.12, separating runtime and crawler constants. That follow-up is complete
+and locally validated, delivered in a separate commit, and not yet pushed.
+Remote CI still needs to validate the constants split when it is pushed.
 
 - Repository: `/opt/minh/test/daily-bible`
 - Detailed tracker and validation history: `PLAN.md`
 - Original review: `code-review.md` (contains outdated findings; see corrections below)
 - Project rules: `AGENTS.md`
-- No implementation work remains except the intentionally deferred constants split.
+- No review implementation work remains. The constants split is no longer deferred.
 
 ## Delivered work
 
@@ -23,9 +23,27 @@ when they are pushed.
 | `e2300dc` | Group 2: serialized crawler persistence, payload flush before processed entry, cancellation on persistence failure, startup/shutdown cleanup, checked close errors, honored sleep duration, failure-injection tests. |
 | `7d44b91` | Group 3: parse references once, strict numeric/range validation, input complexity limits, bounded suffix SQL, safe cross-chapter expansion, fuzz tests and documentation. |
 | `9d24188` | Group 4: signal/context cancellation throughout the lectionary crawler, reliable transaction rollback, checked CLI JSON writes, logged API output failures, search row-error handling, regression tests. |
-| Final cleanup commit (`refactor: simplify handlers and calendar test setup`) | Group 5: consolidated API test DB setup, removed redundant test/dead parser branches/isolated search nil guard, renamed search text variable, removed UTC alias, documented `GenerateYear`, restricted CORS preflight headers, new CORS and marker tests, final tracking updates. |
+| `7d4b8a5` | Group 5: consolidated API test DB setup, removed redundant test/dead parser branches/isolated search nil guard, renamed search text variable, removed UTC alias, documented `GenerateYear`, restricted CORS preflight headers, new CORS and marker tests, final tracking updates. |
+| Constants follow-up (`refactor: separate crawler and runtime constants`) | User-approved issue 3.12: moved crawler/pipeline defaults into `internal/crawlerconfig`, retained runtime defaults in `internal/constants`, updated crawler/TSV imports and package documentation, checked dependency boundaries. |
 
-Use `git log -1` to obtain the final cleanup commit hash after delivery.
+Use `git log -1` to obtain the constants follow-up commit hash after delivery.
+
+## Constants split follow-up
+
+- `internal/constants/constants.go` retains only `DBPath`, `ServerAddr`, and
+  `Timezone`; existing server, CLI, date utilities, and lectionary crawler callers
+  remain unchanged.
+- `internal/crawlerconfig/constants.go` owns crawler settings, Vatican URLs, and
+  pipeline artifact paths shared by `tools/crawler` and `tools/tsv`.
+- All constant names and values are preserved; no behavioral change is intended.
+- Updated imports in `tools/crawler/main.go`, `tools/crawler/sitemap_test.go`, and
+  `tools/tsv/main.go`, and package documentation in `README.md` and `AGENTS.md`.
+- Full uncached FTS5 tests/race suite, all-package build, Staticcheck, actionlint,
+  and diff checks passed again after the split.
+- `go list -tags "fts5" -deps` confirms runtime entrypoints do not depend on
+  crawlerconfig, and crawler/TSV do not depend on runtime constants.
+- The follow-up was not pushed; no workflow, database, generated artifact, or
+  module dependency changes were made.
 
 ## Group 5 file summary
 
@@ -83,9 +101,12 @@ workflows, `go.mod`, or `go.sum`.
 - Inspected [run 32461592865](https://github.com/nqminhuit/daily-bible/actions/runs/32461592865)
   for commit `e83c351ab93bc33e335700b4499424073d65c0b2`: checkout, Go setup,
   Staticcheck, tests, and build all succeeded.
-- This verifies the existing remote pipeline, **not these unpushed local commits**.
+- Subsequently pushed groups 1–5 through `7d4b8a5c29856dd41263c675d20990f4f525ec7a`.
+  [CI run 42572360310](https://github.com/nqminhuit/daily-bible/actions/runs/42572360310)
+  passed Staticcheck, tests with race detection, and the server build for that
+  exact commit. This does not validate the later, unpushed constants split.
 - CI targets Go 1.25; local final checks used Go 1.26.1.
-- No workflow versions were changed, no push was performed, and no workflow was dispatched.
+- No workflow versions were changed and no manual workflow dispatch was performed.
 
 ## Corrections and retained limitations
 
@@ -102,8 +123,8 @@ workflows, `go.mod`, or `go.sum`.
   exactly-once/crash-durability guarantee.
 - Ordinary remote-fetch failures in the lectionary crawler still log/continue;
   database update errors fail the run and cancellation stops subsequent jobs.
-- Review issue **3.12**, splitting server/crawler constants, is intentionally
-  deferred as optional organization work.
+- Review issue **3.12**, originally deferred as optional organization work, was
+  subsequently approved by the user and completed in the constants split follow-up.
 
 ## Future-session rules
 

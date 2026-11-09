@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	cst "github.com/minh/daily-bible/internal/constants"
+	cst "github.com/minh/daily-bible/internal/crawlerconfig"
 )
 
 const sampleSitemap = `<?xml version="1.0" encoding="UTF-8"?>

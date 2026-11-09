@@ -3,8 +3,8 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- All five implementation groups and final validation are complete. The optional constants-package split (3.12) remains intentionally deferred.
-- Group 5 and the final tracking updates are delivered together in the cleanup commit. See `HANDOFF.md` for the completion summary and retained limitations; historical validation results are recorded below.
+- All five implementation groups and final validation are complete. The user-approved constants-package split (3.12) is also complete and locally validated.
+- Groups 1–5 were pushed through `7d4b8a5`, and CI passed. The optional constants split is delivered in a separate follow-up commit and has not yet been pushed. See `HANDOFF.md` for the current delivery state and retained limitations; historical validation results are recorded below.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
 - Keep changes in focused commits. Do not commit generated `build/` artifacts or modify the production database as part of testing.
@@ -107,7 +107,18 @@ Complete and included in the final cleanup commit. Full FTS5 tests, race tests, 
 - [x] Test normal and preflight CORS responses.
 - [x] Document `GenerateYear` as an intermediate calendar-generation step with unpopulated week/key fields; do not change its semantics unnecessarily.
 
-**Deferred:** issue 3.12 (splitting server/crawler constants) is optional organizational work, not a correctness fix. Revisit only if it provides a concrete benefit.
+## 6. Separate runtime and crawler constants (user-approved follow-up)
+
+**Review issue:** 3.12, originally deferred and subsequently approved by the user.
+
+- [x] Keep runtime DB path, server address, and timezone defaults in `internal/constants`.
+- [x] Move crawler settings, Vatican URLs, and pipeline artifact paths into `internal/crawlerconfig` without changing their names or values.
+- [x] Update crawler code/tests and the TSV converter to import the pipeline configuration package; keep server/CLI/date utilities/lectionary crawler on runtime defaults.
+- [x] Verify dependency boundaries with `go list -tags "fts5" -deps`: runtime entrypoints do not depend on crawler configuration, and crawler/TSV do not depend on runtime constants.
+- [x] Update package documentation, `README.md`, and `AGENTS.md`.
+- [x] Run full uncached FTS5 tests/race suite, all-package build, Staticcheck, workflow lint, and diff checks.
+
+**Acceptance:** all default values and behavior remain unchanged; server/runtime configuration no longer contains ingestion settings.
 
 ## Validation and delivery
 
@@ -157,4 +168,7 @@ staticcheck -tags "fts5" ./...
 - Group 5 validation so far: gofmt applied, `go test -tags "fts5" ./...` passed, and `git diff --check` passed. Final race/build/static-analysis checks and workflow inspection have not been performed on this uncommitted state. Environment: Go 1.26.1; staticcheck/actionlint not found on PATH; `gh` is installed but authentication and CI results have not been checked. This was the handoff checkpoint; final validation follows.
 - Final group 5 validation passed on Go 1.26.1: full FTS5 tests and race suite (also rerun with `-count=1`), all-package FTS5 build, focused cleanup regression tests, and staged/unstaged diff checks. Staticcheck 2026.2.2 (0.8.2) and actionlint 1.7.12 were installed into `/tmp/daily-bible-review-tools.G4kXrj` without modifying project dependencies; `staticcheck -tags "fts5" ./...` and `actionlint` both passed.
 - Workflow verification: authenticated `gh` access showed the latest five remote CI runs successful. Inspected run [32461592865](https://github.com/nqminhuit/daily-bible/actions/runs/32461592865), commit `e83c351ab93bc33e335700b4499424073d65c0b2`: checkout, Go setup, staticcheck, tests, and build all succeeded. This verifies existing remote CI infrastructure, not the unpushed local remediation commits. No workflow versions were downgraded, no push or workflow dispatch was performed, and validation here used local Go 1.26.1 rather than CI's Go 1.25.
-- Final diff review: no changes to `resources/`, `build/`, workflows, `go.mod`, or `go.sum`. Group 5 code/tests and final `PLAN.md`/`HANDOFF.md` updates are included in the cleanup commit. The only intentionally deferred review issue is 3.12 (constants organization); crawler crash-durability/exactly-once limitations remain as documented.
+- Final diff review: no changes to `resources/`, `build/`, workflows, `go.mod`, or `go.sum`. Group 5 code/tests and final `PLAN.md`/`HANDOFF.md` updates are included in the cleanup commit. At that checkpoint, the only deferred review issue was 3.12 (constants organization); it was later approved and completed as recorded below. Crawler crash-durability/exactly-once limitations remain as documented.
+- Delivery of groups 1–5: pushed `master` through `7d4b8a5c29856dd41263c675d20990f4f525ec7a`. [CI run 42572360310](https://github.com/nqminhuit/daily-bible/actions/runs/42572360310) passed Staticcheck, tests with race detection, and the server build for that exact commit.
+- User-approved follow-up 3.12 complete: moved ingestion constants unchanged from `internal/constants` to `internal/crawlerconfig`; updated crawler imports, sitemap tests, TSV converter, README, and AGENTS package documentation. Runtime DB/address/timezone callers are unchanged. Dependency checks confirm runtime entrypoints have no crawlerconfig dependency and crawler/TSV tools have no constants dependency.
+- Follow-up validation passed: `go test -tags "fts5" -count=1 ./...`, `go test -tags "fts5" -race -count=1 ./...`, `go build -tags "fts5" ./...`, Staticcheck 2026.2.2, actionlint 1.7.12, and `git diff --check`. No workflow, database, generated artifact, or module dependency changes. The follow-up is committed separately and not yet pushed; remote CI success above applies to groups 1–5, not the constants split.

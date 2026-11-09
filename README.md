@@ -36,7 +36,7 @@ A Vietnamese daily Gospel reader with full-text search, powered by SQLite FTS5.
 │                      │  query/ FTS phrase query builder     │   │
 │  ┌──────────────┐    │  model/ Gospel struct                │   │
 │  │  cmd/cli     │    │  parser/ HTML parsing                │   │
-│  │  (CLI tool)  │───►│  constants/ paths, URLs, config      │   │
+│  │  (CLI tool)  │───►│  constants/ runtime defaults         │   │
 │  └──────────────┘    │  lectionary/ liturgical calendar     │   │
 │                      └──────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -53,7 +53,8 @@ A Vietnamese daily Gospel reader with full-text search, powered by SQLite FTS5.
 | `internal/query` | FTS5 phrase query builder (wraps terms in double quotes) |
 | `internal/model` | Gospel struct |
 | `internal/parser` | HTML parsing for Vatican News pages |
-| `internal/constants` | DB path, server address, crawler config |
+| `internal/constants` | Runtime defaults: DB path, server address, timezone |
+| `internal/crawlerconfig` | Crawler settings, Vatican URLs, pipeline paths shared with the TSV converter |
 | `internal/lectionary` | Liturgical calendar (Easter via Meeus/Jones/Butcher, seasons, cycles) |
 | `tools/crawler` | Vatican News sitemap crawler → `build/gospels.txt` |
 | `tools/lectionarycrawler` | Generates `daily_readings` from algorithmic calendar + Vatican crawl |

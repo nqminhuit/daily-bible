@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	cst "github.com/minh/daily-bible/internal/constants"
+	cst "github.com/minh/daily-bible/internal/crawlerconfig"
 )
 
 var verseRE = regexp.MustCompile(`\{\{(\d+[A-Za-z]?)\}\}\s*(.*)`)
