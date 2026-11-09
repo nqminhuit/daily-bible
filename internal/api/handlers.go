@@ -74,11 +74,6 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "query too long", http.StatusBadRequest)
 			return
 		}
-		if db == nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			return
-		}
-
 		rows, err := db.QueryContext(r.Context(), `SELECT text FROM verses_fts WHERE verses_fts MATCH ? LIMIT 10`,
 			query.FtsPhraseQuery(q))
 		if err != nil {
@@ -90,13 +85,13 @@ func makeSearchHandler(db *sql.DB) http.HandlerFunc {
 
 		var results []string
 		for rows.Next() {
-			var ref string
-			if err := rows.Scan(&ref); err != nil {
+			var text string
+			if err := rows.Scan(&text); err != nil {
 				log.Printf("scan error: %v", err)
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
-			results = append(results, ref)
+			results = append(results, text)
 		}
 		if err := rows.Err(); err != nil {
 			log.Printf("fts search rows error: %v", err)

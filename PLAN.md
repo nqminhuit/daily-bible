@@ -3,8 +3,8 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- Groups 1–4 complete: response/configuration correctness, crawler persistence/shutdown safety, reference parsing/query hardening, and cancellation/error reporting. Group 5 and final validation remain.
-- Relevant current source files and upstream GitHub Action tags were inspected. Tests have not yet been run for this plan.
+- All five implementation groups and final validation are complete. The optional constants-package split (3.12) remains intentionally deferred.
+- Group 5 and the final tracking updates are delivered together in the cleanup commit. See `HANDOFF.md` for the completion summary and retained limitations; historical validation results are recorded below.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
 - Keep changes in focused commits. Do not commit generated `build/` artifacts or modify the production database as part of testing.
@@ -95,28 +95,30 @@
 
 **Review issues:** 2.5, 3.2, 3.4, 3.5, 3.6, 3.9, 3.11, 3.13
 
-- [ ] Remove unreachable colon-specific branches from `FindReadingStartVatican`; retain marker-matching tests.
-- [ ] Rename the search handler's scanned `ref` variable to `text`.
-- [ ] Remove the isolated search nil-DB guard; preserve input validation before database access. Production router construction requires a valid database.
-- [ ] Consolidate API test database helpers, use `t.Cleanup`, and enforce the single-connection pool required for in-memory SQLite tests.
-- [ ] Remove the redundant `TestGetGospel` only after confirming its assertions remain covered.
-- [ ] Replace `utcLoc` with `time.UTC`, including test references.
-- [ ] Set `Access-Control-Allow-Methods` and `Access-Control-Allow-Headers` only for OPTIONS responses; keep `Access-Control-Allow-Origin` on normal responses.
-- [ ] Test normal and preflight CORS responses.
-- [ ] Document `GenerateYear` as an intermediate calendar-generation step with unpopulated week/key fields; do not change its semantics unnecessarily.
+Complete and included in the final cleanup commit. Full FTS5 tests, race tests, build, static analysis, and workflow lint pass.
+
+- [x] Remove unreachable colon-specific branches from `FindReadingStartVatican`; retain marker-matching tests.
+- [x] Rename the search handler's scanned `ref` variable to `text`.
+- [x] Remove the isolated search nil-DB guard; preserve input validation before database access. Production router construction requires a valid database.
+- [x] Consolidate API test database helpers, use `t.Cleanup`, and enforce the single-connection pool required for in-memory SQLite tests.
+- [x] Remove the redundant `TestGetGospel` only after confirming its assertions remain covered.
+- [x] Replace `utcLoc` with `time.UTC`, including test references.
+- [x] Set `Access-Control-Allow-Methods` and `Access-Control-Allow-Headers` only for OPTIONS responses; keep `Access-Control-Allow-Origin` on normal responses.
+- [x] Test normal and preflight CORS responses.
+- [x] Document `GenerateYear` as an intermediate calendar-generation step with unpopulated week/key fields; do not change its semantics unnecessarily.
 
 **Deferred:** issue 3.12 (splitting server/crawler constants) is optional organizational work, not a correctness fix. Revisit only if it provides a concrete benefit.
 
 ## Validation and delivery
 
 - [x] Establish a baseline test result before implementing fixes; record pre-existing failures separately.
-- [ ] Run focused package/regression tests after each implementation group.
-- [ ] Run the full test suite with FTS5.
-- [ ] Run the race detector, especially for crawler shutdown changes.
-- [ ] Build all packages and run static analysis with FTS5 enabled.
-- [ ] Validate current workflow syntax and inspect actual CI results; do not infer CI failure from the action major versions.
-- [ ] Review the final diff for unrelated changes, generated files, and accidental database modifications.
-- [ ] Update this plan with completed work, commands/results, remaining limitations, and any follow-up issues.
+- [x] Run focused package/regression tests after each implementation group.
+- [x] Run the full test suite with FTS5.
+- [x] Run the race detector, especially for crawler shutdown changes.
+- [x] Build all packages and run static analysis with FTS5 enabled.
+- [x] Validate current workflow syntax and inspect actual CI results; do not infer CI failure from the action major versions.
+- [x] Review the final diff for unrelated changes, generated files, and accidental database modifications.
+- [x] Update this plan with completed work, commands/results, remaining limitations, and any follow-up issues.
 
 ```sh
 go test -tags "fts5" ./...
@@ -150,4 +152,9 @@ staticcheck -tags "fts5" ./...
 - Group 4 completed: the lectionary crawler uses a SIGINT/SIGTERM context through database queries, transactions, updates, HTTP requests, retries, and throttle waits. The run function returns errors so database cleanup happens before main exits. Year imports defer rollback immediately and now abort on insertion/RowsAffected failures rather than committing partial imports. Database update and scan failures are returned rather than silently continued; ordinary remote-fetch failures retain their retry/continue behavior unless cancelled.
 - Group 4 output handling: all CLI JSON writes use a checked helper and fail with a diagnostic/nonzero exit; all API JSON writes use a helper that logs errors without writing a second response. Search checks both scan and row-iteration errors before responding, returning 500 instead of partial success.
 - Group 4 regression coverage: rollback on prepare/insert/commit failure (including deferred foreign-key failure), database reuse after rollback, cancelled imports/queries, cancellation during requests/backoff and long waits, stopping subsequent jobs, cancelled/failed updates, read-only stdout descriptors for every CLI JSON command, failing HTTP response writers for every JSON handler, and a test SQL driver that injects row-iteration/scan failures.
-- Group 4 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/lectionarycrawler ./internal/api`, and `git diff --check`. Staticcheck remains unavailable. Next: group 5, low-risk cleanup, then final validation.
+- Group 4 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/lectionarycrawler ./internal/api`, and `git diff --check`. Staticcheck remains unavailable. Group 4 committed as `9d24188`.
+- Group 5 implemented but uncommitted: consolidated API database setup through `db.Open(":memory:")` and `ApplyMigrations`, with `t.Cleanup`; removed the duplicate helper and redundant gospel test (covered more thoroughly in `TestGetGospel_ValidAndErrors`); renamed the search variable and removed its isolated nil guard; replaced the UTC alias; documented `GenerateYear`; removed dead parser branches; restricted preflight-only CORS headers to OPTIONS. Added `internal/api/cors_test.go` and `internal/parser/reading_start_test.go`.
+- Group 5 validation so far: gofmt applied, `go test -tags "fts5" ./...` passed, and `git diff --check` passed. Final race/build/static-analysis checks and workflow inspection have not been performed on this uncommitted state. Environment: Go 1.26.1; staticcheck/actionlint not found on PATH; `gh` is installed but authentication and CI results have not been checked. This was the handoff checkpoint; final validation follows.
+- Final group 5 validation passed on Go 1.26.1: full FTS5 tests and race suite (also rerun with `-count=1`), all-package FTS5 build, focused cleanup regression tests, and staged/unstaged diff checks. Staticcheck 2026.2.2 (0.8.2) and actionlint 1.7.12 were installed into `/tmp/daily-bible-review-tools.G4kXrj` without modifying project dependencies; `staticcheck -tags "fts5" ./...` and `actionlint` both passed.
+- Workflow verification: authenticated `gh` access showed the latest five remote CI runs successful. Inspected run [32461592865](https://github.com/nqminhuit/daily-bible/actions/runs/32461592865), commit `e83c351ab93bc33e335700b4499424073d65c0b2`: checkout, Go setup, staticcheck, tests, and build all succeeded. This verifies existing remote CI infrastructure, not the unpushed local remediation commits. No workflow versions were downgraded, no push or workflow dispatch was performed, and validation here used local Go 1.26.1 rather than CI's Go 1.25.
+- Final diff review: no changes to `resources/`, `build/`, workflows, `go.mod`, or `go.sum`. Group 5 code/tests and final `PLAN.md`/`HANDOFF.md` updates are included in the cleanup commit. The only intentionally deferred review issue is 3.12 (constants organization); crawler crash-durability/exactly-once limitations remain as documented.

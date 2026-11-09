@@ -1,42 +1,12 @@
 package api
 
 import (
-	"database/sql"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/minh/daily-bible/internal/dateutil"
-	_ "github.com/mattn/go-sqlite3"
 )
-
-func setupTestDBWithLectionary(t *testing.T) *sql.DB {
-	t.Helper()
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	migrationsDir := "../../data/migrations"
-	entries, err := os.ReadDir(migrationsDir)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, e := range entries {
-		if !e.IsDir() && len(e.Name()) > 0 && e.Name()[0] >= '0' && e.Name()[0] <= '9' {
-			content, err := os.ReadFile(migrationsDir + "/" + e.Name())
-			if err != nil {
-				t.Fatal(err)
-			}
-			if _, err := db.Exec(string(content)); err != nil {
-				t.Fatalf("apply migration %s: %v", e.Name(), err)
-			}
-		}
-	}
-
-	return db
-}
 
 func TestParseRef(t *testing.T) {
 	tests := []struct {
@@ -109,7 +79,7 @@ func TestParseRef(t *testing.T) {
 }
 
 func TestQueryByRef(t *testing.T) {
-	db := setupTestDBWithLectionary(t)
+	db := setupTestDB(t)
 
 	_, err := db.Exec(`
 		INSERT INTO verses (book, chapter, verse, verse_suffix, text) VALUES
@@ -197,7 +167,7 @@ func TestQueryByRef(t *testing.T) {
 }
 
 func TestTodayHandler(t *testing.T) {
-	db := setupTestDBWithLectionary(t)
+	db := setupTestDB(t)
 
 	_, err := db.Exec(`
 		INSERT INTO verses (book, chapter, verse, verse_suffix, text) VALUES

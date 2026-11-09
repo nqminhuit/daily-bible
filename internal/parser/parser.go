@@ -233,12 +233,6 @@ func FindReadingStartVatican(s string) int {
 	if i := strings.Index(ls, "lời chúa"); i != -1 {
 		return i
 	}
-	if i := strings.Index(ls, "tin mừng:"); i != -1 {
-		return i
-	}
-	if i := strings.Index(ls, "lời chúa:"); i != -1 {
-		return i
-	}
 	return -1
 }
 

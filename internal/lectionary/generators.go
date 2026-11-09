@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+// GenerateYear builds the initial calendar with seasons, weekdays, and cycles.
+// It is an intermediate generation step: WeekOfSeason remains zero and
+// LectionaryKey remains empty until the internal week-number and lectionary
+// passes run. Use GenerateLectionary for the complete date-to-key mapping.
 func GenerateYear(year int) map[string]DayInfo {
 	result := map[string]DayInfo{}
 
@@ -14,8 +18,8 @@ func GenerateYear(year int) map[string]DayInfo {
 	pentecost := easter.AddDate(0, 0, 49)
 	advent := startOfAdvent(year)
 
-	start := time.Date(year, 1, 1, 0, 0, 0, 0, utcLoc)
-	end := time.Date(year, 12, 31, 0, 0, 0, 0, utcLoc)
+	start := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(year, 12, 31, 0, 0, 0, 0, time.UTC)
 
 	for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
 		season := seasonOf(d, ash, easter, pentecost, advent)
@@ -45,15 +49,15 @@ func applyWeekNumbers(calendar map[string]DayInfo) {
 	sort.Strings(dates)
 
 	var (
-		adventWeek      int
-		christmasWeek   int
-		lentWeek        int
-		easterWeek      int
-		ordWeek         int
-		ordStarted      bool
-		prevSeason      Season = ""
-		pastLent        bool
-		adventStart     int = -1
+		adventWeek    int
+		christmasWeek int
+		lentWeek      int
+		easterWeek    int
+		ordWeek       int
+		ordStarted    bool
+		prevSeason    Season = ""
+		pastLent      bool
+		adventStart   int = -1
 	)
 
 	for i, key := range dates {

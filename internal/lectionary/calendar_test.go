@@ -10,32 +10,32 @@ func TestEaster(t *testing.T) {
 		year     int
 		expected time.Time
 	}{
-		{2000, time.Date(2000, 4, 23, 0, 0, 0, 0, utcLoc)},
-		{2001, time.Date(2001, 4, 15, 0, 0, 0, 0, utcLoc)},
-		{2002, time.Date(2002, 3, 31, 0, 0, 0, 0, utcLoc)},
-		{2003, time.Date(2003, 4, 20, 0, 0, 0, 0, utcLoc)},
-		{2004, time.Date(2004, 4, 11, 0, 0, 0, 0, utcLoc)},
-		{2005, time.Date(2005, 3, 27, 0, 0, 0, 0, utcLoc)},
-		{2006, time.Date(2006, 4, 16, 0, 0, 0, 0, utcLoc)},
-		{2007, time.Date(2007, 4, 8, 0, 0, 0, 0, utcLoc)},
-		{2008, time.Date(2008, 3, 23, 0, 0, 0, 0, utcLoc)},
-		{2009, time.Date(2009, 4, 12, 0, 0, 0, 0, utcLoc)},
-		{2010, time.Date(2010, 4, 4, 0, 0, 0, 0, utcLoc)},
-		{2011, time.Date(2011, 4, 24, 0, 0, 0, 0, utcLoc)},
-		{2012, time.Date(2012, 4, 8, 0, 0, 0, 0, utcLoc)},
-		{2013, time.Date(2013, 3, 31, 0, 0, 0, 0, utcLoc)},
-		{2014, time.Date(2014, 4, 20, 0, 0, 0, 0, utcLoc)},
-		{2015, time.Date(2015, 4, 5, 0, 0, 0, 0, utcLoc)},
-		{2016, time.Date(2016, 3, 27, 0, 0, 0, 0, utcLoc)},
-		{2017, time.Date(2017, 4, 16, 0, 0, 0, 0, utcLoc)},
-		{2018, time.Date(2018, 4, 1, 0, 0, 0, 0, utcLoc)},
-		{2019, time.Date(2019, 4, 21, 0, 0, 0, 0, utcLoc)},
-		{2020, time.Date(2020, 4, 12, 0, 0, 0, 0, utcLoc)},
-		{2021, time.Date(2021, 4, 4, 0, 0, 0, 0, utcLoc)},
-		{2022, time.Date(2022, 4, 17, 0, 0, 0, 0, utcLoc)},
-		{2023, time.Date(2023, 4, 9, 0, 0, 0, 0, utcLoc)},
-		{2024, time.Date(2024, 3, 31, 0, 0, 0, 0, utcLoc)},
-		{2025, time.Date(2025, 4, 20, 0, 0, 0, 0, utcLoc)},
+		{2000, time.Date(2000, 4, 23, 0, 0, 0, 0, time.UTC)},
+		{2001, time.Date(2001, 4, 15, 0, 0, 0, 0, time.UTC)},
+		{2002, time.Date(2002, 3, 31, 0, 0, 0, 0, time.UTC)},
+		{2003, time.Date(2003, 4, 20, 0, 0, 0, 0, time.UTC)},
+		{2004, time.Date(2004, 4, 11, 0, 0, 0, 0, time.UTC)},
+		{2005, time.Date(2005, 3, 27, 0, 0, 0, 0, time.UTC)},
+		{2006, time.Date(2006, 4, 16, 0, 0, 0, 0, time.UTC)},
+		{2007, time.Date(2007, 4, 8, 0, 0, 0, 0, time.UTC)},
+		{2008, time.Date(2008, 3, 23, 0, 0, 0, 0, time.UTC)},
+		{2009, time.Date(2009, 4, 12, 0, 0, 0, 0, time.UTC)},
+		{2010, time.Date(2010, 4, 4, 0, 0, 0, 0, time.UTC)},
+		{2011, time.Date(2011, 4, 24, 0, 0, 0, 0, time.UTC)},
+		{2012, time.Date(2012, 4, 8, 0, 0, 0, 0, time.UTC)},
+		{2013, time.Date(2013, 3, 31, 0, 0, 0, 0, time.UTC)},
+		{2014, time.Date(2014, 4, 20, 0, 0, 0, 0, time.UTC)},
+		{2015, time.Date(2015, 4, 5, 0, 0, 0, 0, time.UTC)},
+		{2016, time.Date(2016, 3, 27, 0, 0, 0, 0, time.UTC)},
+		{2017, time.Date(2017, 4, 16, 0, 0, 0, 0, time.UTC)},
+		{2018, time.Date(2018, 4, 1, 0, 0, 0, 0, time.UTC)},
+		{2019, time.Date(2019, 4, 21, 0, 0, 0, 0, time.UTC)},
+		{2020, time.Date(2020, 4, 12, 0, 0, 0, 0, time.UTC)},
+		{2021, time.Date(2021, 4, 4, 0, 0, 0, 0, time.UTC)},
+		{2022, time.Date(2022, 4, 17, 0, 0, 0, 0, time.UTC)},
+		{2023, time.Date(2023, 4, 9, 0, 0, 0, 0, time.UTC)},
+		{2024, time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)},
+		{2025, time.Date(2025, 4, 20, 0, 0, 0, 0, time.UTC)},
 	}
 
 	for _, test := range tests {
@@ -51,9 +51,9 @@ func TestStartOfAdvent(t *testing.T) {
 		year     int
 		expected time.Time
 	}{
-		{2023, time.Date(2023, 12, 3, 0, 0, 0, 0, utcLoc)},
-		{2024, time.Date(2024, 12, 1, 0, 0, 0, 0, utcLoc)},
-		{2025, time.Date(2025, 11, 30, 0, 0, 0, 0, utcLoc)},
+		{2023, time.Date(2023, 12, 3, 0, 0, 0, 0, time.UTC)},
+		{2024, time.Date(2024, 12, 1, 0, 0, 0, 0, time.UTC)},
+		{2025, time.Date(2025, 11, 30, 0, 0, 0, 0, time.UTC)},
 	}
 
 	for _, test := range tests {
@@ -69,9 +69,9 @@ func TestEpiphany(t *testing.T) {
 		year     int
 		expected time.Time
 	}{
-		{2023, time.Date(2023, 1, 8, 0, 0, 0, 0, utcLoc)},
-		{2024, time.Date(2024, 1, 7, 0, 0, 0, 0, utcLoc)},
-		{2025, time.Date(2025, 1, 5, 0, 0, 0, 0, utcLoc)},
+		{2023, time.Date(2023, 1, 8, 0, 0, 0, 0, time.UTC)},
+		{2024, time.Date(2024, 1, 7, 0, 0, 0, 0, time.UTC)},
+		{2025, time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC)},
 	}
 
 	for _, test := range tests {
@@ -87,9 +87,9 @@ func TestBaptismOfLord(t *testing.T) {
 		year     int
 		expected time.Time
 	}{
-		{2023, time.Date(2023, 1, 9, 0, 0, 0, 0, utcLoc)},
-		{2024, time.Date(2024, 1, 8, 0, 0, 0, 0, utcLoc)},
-		{2025, time.Date(2025, 1, 12, 0, 0, 0, 0, utcLoc)},
+		{2023, time.Date(2023, 1, 9, 0, 0, 0, 0, time.UTC)},
+		{2024, time.Date(2024, 1, 8, 0, 0, 0, 0, time.UTC)},
+		{2025, time.Date(2025, 1, 12, 0, 0, 0, 0, time.UTC)},
 	}
 
 	for _, test := range tests {
@@ -105,9 +105,9 @@ func TestLiturgicalYear(t *testing.T) {
 		date     time.Time
 		expected int
 	}{
-		{time.Date(2023, 12, 4, 0, 0, 0, 0, utcLoc), 2024},
-		{time.Date(2023, 12, 2, 0, 0, 0, 0, utcLoc), 2023},
-		{time.Date(2024, 1, 1, 0, 0, 0, 0, utcLoc), 2024},
+		{time.Date(2023, 12, 4, 0, 0, 0, 0, time.UTC), 2024},
+		{time.Date(2023, 12, 2, 0, 0, 0, 0, time.UTC), 2023},
+		{time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), 2024},
 	}
 
 	for _, test := range tests {
@@ -123,9 +123,9 @@ func TestSundayCycle(t *testing.T) {
 		date     time.Time
 		expected string
 	}{
-		{time.Date(2023, 12, 4, 0, 0, 0, 0, utcLoc), "B"},
-		{time.Date(2024, 1, 1, 0, 0, 0, 0, utcLoc), "B"},
-		{time.Date(2025, 1, 1, 0, 0, 0, 0, utcLoc), "C"},
+		{time.Date(2023, 12, 4, 0, 0, 0, 0, time.UTC), "B"},
+		{time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), "B"},
+		{time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), "C"},
 	}
 
 	for _, test := range tests {
@@ -189,9 +189,9 @@ func TestSeasonOf(t *testing.T) {
 		date     time.Time
 		expected Season
 	}{
-		{time.Date(2024, 11, 25, 0, 0, 0, 0, utcLoc), SeasonOrdinary},
-		{time.Date(2023, 12, 26, 0, 0, 0, 0, utcLoc), SeasonChristmas},
-		{time.Date(2024, 2, 15, 0, 0, 0, 0, utcLoc), SeasonLent},
+		{time.Date(2024, 11, 25, 0, 0, 0, 0, time.UTC), SeasonOrdinary},
+		{time.Date(2023, 12, 26, 0, 0, 0, 0, time.UTC), SeasonChristmas},
+		{time.Date(2024, 2, 15, 0, 0, 0, 0, time.UTC), SeasonLent},
 		{easter, SeasonEaster},
 		{pentecost.AddDate(0, 0, -1), SeasonEaster},
 		{pentecost.AddDate(0, 0, 1), SeasonOrdinary},

@@ -17,17 +17,17 @@ func Easter(year int) time.Time {
 	m := (a + 11*h + 22*l) / 451
 	month := (h + l - 7*m + 114) / 31
 	day := ((h + l - 7*m + 114) % 31) + 1
-	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, utcLoc)
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 }
 
 func startOfAdvent(year int) time.Time {
-	start := time.Date(year, 11, 27, 0, 0, 0, 0, utcLoc)
+	start := time.Date(year, 11, 27, 0, 0, 0, 0, time.UTC)
 	offset := (7 - int(start.Weekday())) % 7
 	return start.AddDate(0, 0, offset)
 }
 
 func epiphany(year int) time.Time {
-	d := time.Date(year, 1, 2, 0, 0, 0, 0, utcLoc)
+	d := time.Date(year, 1, 2, 0, 0, 0, 0, time.UTC)
 	offset := (7 - int(d.Weekday())) % 7
 	return d.AddDate(0, 0, offset)
 }
@@ -69,8 +69,8 @@ func weekdayCycle(year int) string {
 
 func seasonOf(d time.Time, ash, easter, pentecost, advent time.Time) Season {
 	year := d.Year()
-	christmasCurrent := time.Date(year, 12, 25, 0, 0, 0, 0, utcLoc)
-	christmasPrev := time.Date(year-1, 12, 25, 0, 0, 0, 0, utcLoc)
+	christmasCurrent := time.Date(year, 12, 25, 0, 0, 0, 0, time.UTC)
+	christmasPrev := time.Date(year-1, 12, 25, 0, 0, 0, 0, time.UTC)
 	baptism := baptismOfLord(year)
 
 	switch {

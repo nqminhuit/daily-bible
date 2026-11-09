@@ -1,9 +1,6 @@
 package lectionary
 
-import (
-	"fmt"
-	"time"
-)
+import "fmt"
 
 type Season string
 
@@ -15,15 +12,13 @@ const (
 	SeasonOrdinary  Season = "ordinary"
 )
 
-var utcLoc = time.UTC
-
 type DayInfo struct {
-	Season       Season `json:"season"`
-	SundayCycle  string `json:"sunday_cycle"`
-	WeekdayCycle string `json:"weekday_cycle"`
-	Weekday      string `json:"weekday"`
-	WeekOfSeason int    `json:"week_of_season"`
-	MonthDay     string `json:"month_day"`
+	Season        Season `json:"season"`
+	SundayCycle   string `json:"sunday_cycle"`
+	WeekdayCycle  string `json:"weekday_cycle"`
+	Weekday       string `json:"weekday"`
+	WeekOfSeason  int    `json:"week_of_season"`
+	MonthDay      string `json:"month_day"`
 	LectionaryKey string `json:"lectionary_key"`
 }
 
