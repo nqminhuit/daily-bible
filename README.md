@@ -172,6 +172,16 @@ Step 4: Lectionary (auto-updated via GitHub Actions)
 | `GET /liveness` | Health check |
 | `GET /readiness` | Readiness check |
 
+Gospel references support suffixes (`Ga 1,1a-3b`), dot-separated ranges
+(`Mt 5,20-22a.27-28`), and forward cross-chapter ranges (`Mt 18,21-19,1`).
+Cross-chapter ranges include intervening chapters. Chapter and verse numbers
+must be positive integers; malformed or reversed ranges are rejected. References
+are limited to 1,024 decoded bytes (including whitespace) and 32 ranges after
+cross-chapter expansion. A cross-chapter range counts once per included chapter.
+Invalid or over-limit references return HTTP 400; valid references with no
+matching verses return 404, and database failures return 500. The CLI uses the
+same reference validation.
+
 ## How to use
 
 ### Prerequisites

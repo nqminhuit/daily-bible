@@ -3,7 +3,7 @@
 ## Status and working rules
 
 - Source review: `code-review.md` (dated 2026-05-29).
-- Groups 1 and 2 complete: response/configuration correctness and crawler persistence/shutdown safety. Remaining groups are tracked below.
+- Groups 1–3 complete: response/configuration correctness, crawler persistence/shutdown safety, and reference parsing/query hardening. Remaining groups are tracked below.
 - Relevant current source files and upstream GitHub Action tags were inspected. Tests have not yet been run for this plan.
 - Check off tasks as they are completed. Record validation results and deviations in the progress log below so another agent/session can resume.
 - Always use `-tags "fts5"` for `go test`, `go build`, and `go run`, per `AGENTS.md`.
@@ -64,14 +64,14 @@
 
 **Primary files:** `internal/api/ref.go`, `internal/api/handlers.go`, and reference/handler tests.
 
-- [ ] Parse a gospel request once and pass the parsed representation to an internal query helper; retain `QueryByRef` for existing callers.
-- [ ] Preserve HTTP 400 for malformed user references and HTTP 500 for database failures.
-- [ ] Replace per-verse SQL expansion with bounded-size start/interior/end predicates while preserving suffix semantics.
-- [ ] Define and document reference-length and segment-count limits to bound query construction work.
-- [ ] Check numeric conversion errors, reject reversed ranges, and require complete segment matches rather than accepting arbitrary matching substrings.
-- [ ] Preserve supported cross-chapter behavior and account for the current end-of-chapter sentinel.
-- [ ] Remove redundant `verse_suffix IS NULL` conditions after confirming the NOT NULL schema contract.
-- [ ] Test suffix boundaries, dot-separated segments, cross-chapter references, oversized inputs, integer overflow, reversed ranges, and malformed trailing content.
+- [x] Parse a gospel request once and pass the parsed representation to an internal query helper; retain `QueryByRef` for existing callers.
+- [x] Preserve HTTP 400 for malformed user references and HTTP 500 for database failures.
+- [x] Replace per-verse SQL expansion with bounded-size start/interior/end predicates while preserving suffix semantics.
+- [x] Define and document reference-length and segment-count limits to bound query construction work.
+- [x] Check numeric conversion errors, reject reversed ranges, and require complete segment matches rather than accepting arbitrary matching substrings.
+- [x] Preserve supported cross-chapter behavior and account for the current end-of-chapter sentinel.
+- [x] Remove redundant `verse_suffix IS NULL` conditions after confirming the NOT NULL schema contract.
+- [x] Test suffix boundaries, dot-separated segments, cross-chapter references, oversized inputs, integer overflow, reversed ranges, and malformed trailing content.
 
 **Acceptance:** supported references retain their results; invalid inputs fail before database work; SQL size is not proportional to verse span and is bounded by validated input complexity.
 
@@ -142,4 +142,8 @@ staticcheck -tags "fts5" ./...
 - Group 2 completed: replaced independent output/state writer goroutines with a mutex-serialized `crawlSink` receiving URL/payload records. Payloads are flushed before processed entries; the first persistence error is retained and cancels all worker HTTP requests, job enqueueing, and throttle waits. Workers are joined before outputs close. The supplied `sleepDuration` is now honored. Setup failures close outputs without starting workers, and links-file close errors are returned alongside earlier errors.
 - Group 2 regression coverage: deterministic write/flush/state/close failures, payload-before-processed ordering, sticky errors and retryable state, output-open failure, sitemap/links setup cleanup, in-flight request cancellation, and coordinator shutdown with 1,000 queued URLs for both normal and missing-verse payloads. Reworked existing writer tests to wait for synchronous persistence rather than arbitrary sleeps. `TestProcessedAndMissingWriters` still uses `t.TempDir()`.
 - Recovery limitation: flushing is not `fsync` and separate files are not transactional. Interrupted runs can leave partial payloads or duplicate records on retry; no crash-durability or exactly-once guarantee is claimed. Write/flush failures stop the run before the affected URL is marked processed; close failures are surfaced to the caller.
-- Group 2 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/crawler`, and `git diff --check`. Staticcheck is not installed in this environment and was not run. Next: group 3, reference parsing and query hardening.
+- Group 2 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, `go test -tags "fts5" -race -count=10 ./tools/crawler`, and `git diff --check`. Staticcheck is not installed in this environment and was not run. Group 2 committed as `e2300dc`.
+- Group 3 completed: gospel handlers parse once and query validated ranges through an internal helper; `QueryByRef` remains available. Reference validation now rejects incomplete matches, empty segments, nonpositive/overflowing numbers, reversed ranges, and non-forward cross-chapter ranges. Limits are 1,024 raw reference bytes (decoded for HTTP) and 32 ranges after expansion, documented in `README.md`.
+- Group 3 query changes: replaced per-verse suffix expansion with at most three predicates per range and removed NULL suffix branches under the NOT NULL schema contract. End-of-chapter ranges now use `math.MaxInt` rather than 999, with no endpoint arithmetic in SQL generation. Forward ranges include intervening chapters instead of silently omitting them; expansion is checked against the range budget before looping.
+- Group 3 regression coverage: malformed/oversized references are rejected before database access and return HTTP 400; numeric overflow, exact input/range limits, suffix boundary combinations, overlapping/dot ranges, cross-chapter suffixes and intermediate chapters, verses above the old 999 cutoff, and MaxInt spans. Existing DB-error/404 and CLI tests remain passing. A 10-second parser fuzz run with two workers completed 803,270 executions without failure.
+- Group 3 validation passed: full FTS5 tests, full FTS5 race suite, all-package FTS5 build, focused API/CLI tests, parser fuzzing, and `git diff --check`. Staticcheck remains unavailable. Next: group 4, cancellation and error reporting.

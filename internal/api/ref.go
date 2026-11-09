@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -27,10 +28,19 @@ type ChapterSegment struct {
 var crossChapterRe = regexp.MustCompile(`^(\d+)([a-zA-Z]?)-(\d+),(\d+)([a-zA-Z]?)$`)
 
 var refPattern = regexp.MustCompile(`^([A-Za-zÀ-ỹ]{1,3})\s+(\d+),(.+)$`)
-var segPattern = regexp.MustCompile(`(\d+)([a-zA-Z]?)(?:-(\d+)([a-zA-Z]?))?`)
+var segPattern = regexp.MustCompile(`^(\d+)([a-zA-Z]?)(?:-(\d+)([a-zA-Z]?))?$`)
+
+// Bound input parsing, generated predicates, and cross-chapter queries. The
+// segment budget counts ranges after cross-chapter expansion, not just dots.
+const maxRefLength = 1024 // bytes, including surrounding whitespace
+const maxRefSegments = 32
+
+// An open-ended chapter range uses the largest representable verse number.
+// Unlike the old 999 sentinel, this does not impose an arbitrary verse cutoff.
+const endOfChapter = math.MaxInt
 
 func ParseRef(ref string) (book string, chapter int, ranges []VerseRange, err error) {
-	segments, err := ParseRefMultiChapter(strings.TrimSpace(ref))
+	segments, err := ParseRefMultiChapter(ref)
 	if err != nil {
 		return "", 0, nil, err
 	}
@@ -44,82 +54,105 @@ type ParsedRef struct {
 }
 
 func ParseRefMultiChapter(ref string) ([]ParsedRef, error) {
+	if len(ref) > maxRefLength {
+		return nil, fmt.Errorf("reference exceeds %d bytes", maxRefLength)
+	}
 	m := refPattern.FindStringSubmatch(strings.TrimSpace(ref))
 	if m == nil {
 		return nil, fmt.Errorf("invalid ref: %q", ref)
 	}
-	book := m[1]
-	chapter, err := strconv.Atoi(m[2])
+	chapter, err := positiveRefNumber(m[2])
 	if err != nil {
-		return nil, fmt.Errorf("invalid chapter in ref %q", ref)
+		return nil, fmt.Errorf("invalid chapter: %w", err)
 	}
-
-	versePart := m[3]
-
-	// Split by dots for non-contiguous segments
-	dotParts := strings.Split(versePart, ".")
+	if strings.Count(m[3], ".") >= maxRefSegments {
+		return nil, fmt.Errorf("reference exceeds %d segments", maxRefSegments)
+	}
 
 	var segments []ChapterSegment
-	currentChapter := chapter
+	rangeCount := 0
+	addRange := func(ch int, r VerseRange) error {
+		if rangeCount == maxRefSegments {
+			return fmt.Errorf("reference exceeds %d segments", maxRefSegments)
+		}
+		rangeCount++
+		if len(segments) == 0 || segments[len(segments)-1].Chapter != ch {
+			segments = append(segments, ChapterSegment{Chapter: ch})
+		}
+		i := len(segments) - 1
+		segments[i].Ranges = append(segments[i].Ranges, r)
+		return nil
+	}
 
-	for _, part := range dotParts {
+	for _, part := range strings.Split(m[3], ".") {
 		part = strings.TrimSpace(part)
-		// Check for cross-chapter range like "21-19,1"
 		if cm := crossChapterRe.FindStringSubmatch(part); cm != nil {
-			startVerse, _ := strconv.Atoi(cm[1])
-			startSuffix := cm[2]
-			endChapter, _ := strconv.Atoi(cm[3])
-			endVerse, _ := strconv.Atoi(cm[4])
-			endSuffix := cm[5]
-
-			// Add range from start verse to end of current chapter (use 999 as max)
-			segments = append(segments, ChapterSegment{
-				Chapter: currentChapter,
-				Ranges:  []VerseRange{{Start: startVerse, StartSuffix: startSuffix, End: 999}},
-			})
-
-			// Add range from verse 1 to end verse in the new chapter
-			segments = append(segments, ChapterSegment{
-				Chapter: endChapter,
-				Ranges:  []VerseRange{{Start: 1, End: endVerse, EndSuffix: endSuffix}},
-			})
-			currentChapter = endChapter
-		} else {
-			// Normal single-chapter segment
-			for _, seg := range segPattern.FindAllStringSubmatch(part, -1) {
-				start, _ := strconv.Atoi(seg[1])
-				end := start
-				startSuffix := seg[2]
-				endSuffix := seg[4]
-				if seg[3] != "" {
-					end, _ = strconv.Atoi(seg[3])
+			start, err := positiveRefNumber(cm[1])
+			if err != nil {
+				return nil, fmt.Errorf("invalid start verse: %w", err)
+			}
+			endChapter, err := positiveRefNumber(cm[3])
+			if err != nil {
+				return nil, fmt.Errorf("invalid end chapter: %w", err)
+			}
+			end, err := positiveRefNumber(cm[4])
+			if err != nil {
+				return nil, fmt.Errorf("invalid end verse: %w", err)
+			}
+			if endChapter <= chapter {
+				return nil, fmt.Errorf("cross-chapter range must end in a later chapter")
+			}
+			// Check before expansion; subtraction is safe for positive ordered ints.
+			if endChapter-chapter >= maxRefSegments-rangeCount {
+				return nil, fmt.Errorf("reference exceeds %d segments", maxRefSegments)
+			}
+			for ch := chapter; ch < endChapter; ch++ {
+				r := VerseRange{Start: 1, End: endOfChapter}
+				if ch == chapter {
+					r.Start, r.StartSuffix = start, cm[2]
 				}
-
-				found := false
-				for i := range segments {
-					if segments[i].Chapter == currentChapter {
-						segments[i].Ranges = append(segments[i].Ranges, VerseRange{
-							Start: start, StartSuffix: startSuffix, End: end, EndSuffix: endSuffix,
-						})
-						found = true
-						break
-					}
-				}
-				if !found {
-					segments = append(segments, ChapterSegment{
-						Chapter: currentChapter,
-						Ranges:  []VerseRange{{Start: start, StartSuffix: startSuffix, End: end, EndSuffix: endSuffix}},
-					})
+				if err := addRange(ch, r); err != nil {
+					return nil, err
 				}
 			}
+			if err := addRange(endChapter, VerseRange{Start: 1, End: end, EndSuffix: cm[5]}); err != nil {
+				return nil, err
+			}
+			chapter = endChapter
+			continue
+		}
+
+		seg := segPattern.FindStringSubmatch(part)
+		if seg == nil {
+			return nil, fmt.Errorf("invalid verse segment: %q", part)
+		}
+		start, err := positiveRefNumber(seg[1])
+		if err != nil {
+			return nil, fmt.Errorf("invalid start verse: %w", err)
+		}
+		end := start
+		if seg[3] != "" {
+			end, err = positiveRefNumber(seg[3])
+			if err != nil {
+				return nil, fmt.Errorf("invalid end verse: %w", err)
+			}
+		}
+		if end < start || (end == start && seg[2] != "" && seg[4] != "" && seg[4] < seg[2]) {
+			return nil, fmt.Errorf("reversed verse range: %q", part)
+		}
+		if err := addRange(chapter, VerseRange{Start: start, StartSuffix: seg[2], End: end, EndSuffix: seg[4]}); err != nil {
+			return nil, err
 		}
 	}
+	return []ParsedRef{{Book: m[1], Segments: segments}}, nil
+}
 
-	if len(segments) == 0 {
-		return nil, fmt.Errorf("no verse ranges in ref %q", ref)
+func positiveRefNumber(s string) (int, error) {
+	n, err := strconv.Atoi(s)
+	if err != nil || n <= 0 {
+		return 0, fmt.Errorf("expected a positive integer, got %q", s)
 	}
-
-	return []ParsedRef{{Book: book, Segments: segments}}, nil
+	return n, nil
 }
 
 func QueryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, error) {
@@ -128,6 +161,11 @@ func QueryByRef(ctx context.Context, db *sql.DB, ref string) ([]model.Gospel, er
 		return nil, err
 	}
 
+	return queryParsedRef(ctx, db, parsed)
+}
+
+// queryParsedRef accepts only the validated output of ParseRefMultiChapter.
+func queryParsedRef(ctx context.Context, db *sql.DB, parsed []ParsedRef) ([]model.Gospel, error) {
 	var allResults []model.Gospel
 
 	for _, p := range parsed {
@@ -153,7 +191,7 @@ func queryChapterSegment(ctx context.Context, db *sql.DB, book string, seg Chapt
 
 	for _, r := range seg.Ranges {
 		if r.StartSuffix == "" && r.EndSuffix == "" {
-			conditions = append(conditions, "(verse BETWEEN ? AND ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
+			conditions = append(conditions, "(verse BETWEEN ? AND ? AND verse_suffix = '')")
 			args = append(args, r.Start, r.End)
 		} else if r.Start == r.End {
 			if r.StartSuffix != "" && r.EndSuffix != "" {
@@ -167,22 +205,20 @@ func queryChapterSegment(ctx context.Context, db *sql.DB, book string, seg Chapt
 				args = append(args, r.Start, r.EndSuffix)
 			}
 		} else {
-			var innerClauses []string
-			var innerArgs []any
-			for v := r.Start; v <= r.End; v++ {
-				if v == r.Start && r.StartSuffix != "" {
-					innerClauses = append(innerClauses, "(verse = ? AND verse_suffix >= ?)")
-					innerArgs = append(innerArgs, v, r.StartSuffix)
-				} else if v == r.End && r.EndSuffix != "" {
-					innerClauses = append(innerClauses, "(verse = ? AND verse_suffix <= ?)")
-					innerArgs = append(innerArgs, v, r.EndSuffix)
-				} else {
-					innerClauses = append(innerClauses, "(verse = ? AND (verse_suffix = '' OR verse_suffix IS NULL))")
-					innerArgs = append(innerArgs, v)
-				}
+			// Three predicates regardless of span; no per-verse loop or endpoint
+			// arithmetic, so even MaxInt endpoints cannot overflow or expand SQL.
+			startOp, endOp := "=", "="
+			if r.StartSuffix != "" {
+				startOp = ">="
 			}
-			conditions = append(conditions, "("+strings.Join(innerClauses, " OR ")+")")
-			args = append(args, innerArgs...)
+			if r.EndSuffix != "" {
+				endOp = "<="
+			}
+			conditions = append(conditions, fmt.Sprintf(`(
+				(verse = ? AND verse_suffix %s ?) OR
+				(verse > ? AND verse < ? AND verse_suffix = '') OR
+				(verse = ? AND verse_suffix %s ?))`, startOp, endOp))
+			args = append(args, r.Start, r.StartSuffix, r.Start, r.End, r.End, r.EndSuffix)
 		}
 	}
 

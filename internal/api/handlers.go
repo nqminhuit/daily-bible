@@ -33,12 +33,13 @@ func makeGetGospelHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		if _, _, _, err := ParseRef(ref); err != nil {
+		parsed, err := ParseRefMultiChapter(ref)
+		if err != nil {
 			http.Error(w, fmt.Sprintf("invalid reference: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		verses, err := QueryByRef(r.Context(), db, ref)
+		verses, err := queryParsedRef(r.Context(), db, parsed)
 		if err != nil {
 			log.Printf("gospel query error for ref %q: %v", ref, err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
