@@ -204,6 +204,29 @@ provider blocking despite target approval. These tests do not implement or
 certify a national resolver. The full calendar test command now runs five
 provider tests plus five dossier/specification guards, entirely offline.
 
+### Subsequent implementation checkpoint
+
+The [explicit 2026 pilot](vietnam-pilot-audit.md) now implements nine source-backed
+definitions and marks 356 dates unsupported, rather than enabling a generic
+Vietnam provider. Schema 3 separates assigned Mass from underlying observance
+and seasons, with per-day directive evidence in migration 005. The earlier
+schema-2 discussion and dossier-only tests above are historical checkpoints;
+current imports require schema 3. No full Hours calendar is implemented.
+
+Two additional HĐGMVN publications provide specific Gospel evidence:
+[transferred Ash Mass](https://hdgmvietnam.com/chi-tiet/cha-hien-dien-noi-kin-an-14-2-2018-thu-tu-le-tro--31941)
+and [All Saints](https://hdgmvietnam.com/chi-tiet/phuc-thay-ai-01-11-2020-chua-nhat-31-le-cac-thanh-nam-nu--40850).
+Their current reading headings are February 20 and November 1, 2026, whereas
+publication dates are February 19 and October 31. Old slugs are retained exactly;
+no immutable dated URL is fabricated. The printed single Gospel references agree
+with the two separately reviewed calendar decisions. The
+[evidence inventory](vietnam-pilot-reading-evidence.json) records actual response
+fingerprints and the different-wording/pericope-text limitations, not an automatic
+approval or a complete approved-edition contract.
+
+The full national calendar, remaining option sets and November 15 are still
+unresolved. Two renderable pilot dates are not national archive coverage.
+
 New temporary artifacts: `/tmp/daily-bible-vietnam-policy.pZMWNv/` (six recorded
 sources, three supplementary publications, ten search responses, and the actual
 19-request status/timestamp log). All requests succeeded; none approved a dated

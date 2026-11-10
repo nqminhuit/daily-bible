@@ -55,6 +55,15 @@ func EntryForDate(ctx context.Context, db *sql.DB, calendar, date string) (key, 
 	if err == nil && !lectionary.CalendarRulesSupported(calendar, version) {
 		return "", version, sql.ErrNoRows
 	}
+	if err == nil && requiresCalendarDetails(calendar, version) {
+		d, detailErr := CalendarDefinition(ctx, db, calendar, date, version)
+		if detailErr != nil {
+			return "", version, detailErr
+		}
+		if d.UnsupportedReason != "" {
+			return "", version, sql.ErrNoRows
+		}
+	}
 	return
 }
 

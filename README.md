@@ -156,8 +156,17 @@ entry mappings**, with date-specific reviewed choices taking precedence. Only th
 
 Sharing verse text and supported lectionary mappings is intentional. Weekday
 Gospels repeat annually across I/II first-reading cycles; Sunday Gospels retain
-A/B/C. Version-2 exports declare `gospel_entry_schema: 2`; regenerate old manifests
-and review changed dependencies rather than silently relabeling approvals.
+A/B/C. Current exports require `gospel_entry_schema: 3`; regenerate old manifests
+and review changed dependencies rather than silently relabeling approvals. Schema
+3 distinguishes assigned Masses from underlying observances/seasons and retains
+per-day rule evidence and unsupported reasons (migration 005).
+
+An explicit [2026 Vietnam pilot](data/vietnam-pilot-audit.md) now supports nine
+source-backed date definitions, with the remaining 356 dates deliberately
+unsupported. Its temporary-copy demonstration reviews two Gospel mappings; this
+is not full-year or archive coverage. Use
+`node tools/calendar/vietnam-pilot.cjs 2026` only for evaluation. Automatic Vietnam
+Romcal export remains blocked.
 Offline audits include a grouped, read-only `entries` review queue with source
 observations and structural text diagnostics, not automatic candidate promotion.
 What is forbidden is treating an estimated seasonal key, legacy majority, or arbitrary

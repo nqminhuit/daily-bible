@@ -1,0 +1,33 @@
+{
+  "purpose": "pilot-reference-evidence-inventory",
+  "auto_approve": false,
+  "scope": "Two named Masses in the partial 2026 national pilot only; not a complete approved lectionary edition or option set",
+  "evidence": [
+    {
+      "date": "2026-02-20",
+      "mass": "ash_wednesday",
+      "ref": "Mt 6,1-6.16-18",
+      "url": "https://hdgmvietnam.com/chi-tiet/cha-hien-dien-noi-kin-an-14-2-2018-thu-tu-le-tro--31941",
+      "heading_reading_date": "2026-02-20",
+      "page_publication_date": "2026-02-19",
+      "requested_at": "2026-11-10T06:20:32.175795+00:00",
+      "html_sha256": "e44792c0f8aa0e517c6a1f9ca6c2955ac9bcc8bbbab7c7251869d96a1f497bba",
+      "text_sha256": "0fcdd056cb4378962ab8859f756b069b8b4953899cdc0d5405a9bc60517a8cae",
+      "applicability": "The current heading identifies the transferred 2026 Ash Mass; its printed Gospel is a single Mt 6,1-6.16-18 selection. The separate national directive assigns that Mass to February 20. Neither the old 2018 URL slug nor the publication date is the reading's evidence date.",
+      "local_text_review": "Nine selected verse rows present. All three sections (almsgiving, prayer, fasting) and their opening/closing clauses are present. The local Vatican-derived text and this publication use different Vietnamese wording; this is not an exact-word match, approved-edition certification or authorization to overwrite shared verses."
+    },
+    {
+      "date": "2026-11-01",
+      "mass": "all_saints",
+      "ref": "Mt 5,1-12a",
+      "url": "https://hdgmvietnam.com/chi-tiet/phuc-thay-ai-01-11-2020-chua-nhat-31-le-cac-thanh-nam-nu--40850",
+      "heading_reading_date": "2026-11-01",
+      "page_publication_date": "2026-10-31",
+      "requested_at": "2026-11-10T06:20:32.848446+00:00",
+      "html_sha256": "c9ac16a02398635a7dbec1578cec558039c4aef182e6b5a255e9c616391bf86e",
+      "text_sha256": "21f3ce1a2ef9327a0a70ae9ea652e49eea732a396e3156107314e01b4786fd7c",
+      "applicability": "The current heading identifies All Saints on November 1, 2026, with a single printed Mt 5,1-12a Gospel. The national directive independently requires All Saints rather than Ordinary Sunday 31. The source URL retains its actual old slug.",
+      "local_text_review": "Twelve selected rows present, including the introduction, eight beatitudes, persecution saying and reward ending. Different Vietnamese wording is not treated as missing text. The existing base verse 12 contains the selected liturgical 12a fragment; structural availability does not certify complete canonical base verses or another form. No text changed."
+    }
+  ]
+}

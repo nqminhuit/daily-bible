@@ -24,7 +24,7 @@ func testDB(t *testing.T) *sql.DB {
 	return db
 }
 func testDay(date, id, rank, temporal, sc, wc string) lectionary.CalendarDay {
-	return lectionary.CalendarDay{Date: date, Observance: id, Rank: rank, Temporal: temporal, SundayCycle: sc, WeekdayCycle: wc}
+	return lectionary.CalendarDay{Date: date, Observance: id, Rank: rank, Temporal: temporal, SundayCycle: sc, WeekdayCycle: wc, SourceURL: "https://example.test/calendar", ReviewNote: "Reviewed calendar rule fixture"}
 }
 func testManifest(days ...lectionary.CalendarDay) CalendarManifest {
 	return CalendarManifest{GospelEntrySchema: lectionary.GospelEntrySchemaVersion, CalendarID: "roman-general", RulesVersion: "test-v1", SourceURL: "https://example.test/calendar", Days: days}

@@ -120,6 +120,6 @@
     "National authority and default formulary for the Vietnamese Martyrs external solemnity on 2026-11-15",
     "Permitted Gospel sets and first full options from the approved lectionary, separately from calendar facts",
     "Other national propers, lunar-calendar computations, precedence and year-specific directives",
-    "An adapter separating assigned Mass, season and Hours; no blanket season shift or Roman General fallback"
+    "Complete national resolution beyond the explicit 2026 pilot subset; its Mass/season separation is implemented, but it is not a full national or Hours calendar"
   ]
 }

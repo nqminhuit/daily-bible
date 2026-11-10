@@ -14,21 +14,26 @@ import (
 )
 
 type Metadata struct {
-	Date              string `json:"date"`
-	LectionaryKey     string `json:"lectionary_key"`
-	Ref               string `json:"ref"`
-	SourceURL         string `json:"source_url"`
-	VerifiedAt        string `json:"verified_at"`
-	Celebration       string `json:"celebration"`
-	ResolutionMethod  string `json:"resolution_method"`
-	CalendarID        string `json:"calendar_id"`
-	MassOption        string `json:"mass_option"`
-	EntryKey          string `json:"entry_key,omitempty"`
-	RulesVersion      string `json:"rules_version,omitempty"`
-	EvidenceDate      string `json:"evidence_date,omitempty"`
-	ReviewNote        string `json:"review_note,omitempty"`
-	CalendarSourceURL string `json:"calendar_source_url,omitempty"`
-	Observance        string `json:"observance,omitempty"`
+	Date               string   `json:"date"`
+	LectionaryKey      string   `json:"lectionary_key"`
+	Ref                string   `json:"ref"`
+	SourceURL          string   `json:"source_url"`
+	VerifiedAt         string   `json:"verified_at"`
+	Celebration        string   `json:"celebration"`
+	ResolutionMethod   string   `json:"resolution_method"`
+	CalendarID         string   `json:"calendar_id"`
+	MassOption         string   `json:"mass_option"`
+	EntryKey           string   `json:"entry_key,omitempty"`
+	RulesVersion       string   `json:"rules_version,omitempty"`
+	EvidenceDate       string   `json:"evidence_date,omitempty"`
+	ReviewNote         string   `json:"review_note,omitempty"`
+	CalendarSourceURL  string   `json:"calendar_source_url,omitempty"`
+	Observance         string   `json:"observance,omitempty"`
+	CalendarReviewNote string   `json:"calendar_review_note,omitempty"`
+	CalendarObservance string   `json:"calendar_observance,omitempty"`
+	Temporal           string   `json:"temporal,omitempty"`
+	MassFormulary      string   `json:"mass_formulary,omitempty"`
+	Seasons            []string `json:"seasons,omitempty"`
 }
 
 func SourceURL(date string) string {
@@ -107,7 +112,8 @@ func LookupFor(ctx context.Context, db *sql.DB, date, calendar, option string) (
 	 WHERE a.calendar_id=? AND a.date=? AND a.mass_option=? AND r.review_note<>'' AND r.evidence_url<>'' AND r.reviewed_at<>''`, calendar, date, option).Scan(&m.LectionaryKey, &m.Ref, &m.SourceURL, &m.VerifiedAt, &m.Celebration, &m.RulesVersion, &m.EvidenceDate, &m.ReviewNote, &m.CalendarSourceURL)
 	if err == nil {
 		m.ResolutionMethod = "source_checked"
-		return m, nil
+		err = enrichCalendarMetadata(ctx, db, &m)
+		return m, err
 	}
 	if err != sql.ErrNoRows {
 		return m, err
@@ -129,15 +135,24 @@ func LookupFor(ctx context.Context, db *sql.DB, date, calendar, option string) (
 	if err == nil && !lectionary.CalendarRulesSupported(calendar, m.RulesVersion) {
 		return m, sql.ErrNoRows
 	}
+	if err == nil {
+		err = enrichCalendarMetadata(ctx, db, &m)
+	}
 	return m, err
 }
 
 // Response retains existing fields while making the evidence basis explicit.
 // verified means supported resolution, not necessarily a dated page crawl.
 func (m Metadata) Response(verses string) map[string]any {
+	seasons := m.Seasons
+	if seasons == nil {
+		seasons = []string{}
+	}
 	return map[string]any{"date": m.Date, "lectionary_key": m.LectionaryKey, "ref": m.Ref, "verses": verses,
 		"verified": true, "lectionary_key_is_estimate": true, "source_url": m.SourceURL, "verified_at": m.VerifiedAt, "celebration": m.Celebration,
 		"resolution_method": m.ResolutionMethod, "calendar_id": m.CalendarID, "mass_option": m.MassOption,
 		"entry_key": m.EntryKey, "rules_version": m.RulesVersion, "evidence_date": m.EvidenceDate,
-		"calendar_source_url": m.CalendarSourceURL, "observance": m.Observance}
+		"calendar_source_url": m.CalendarSourceURL, "observance": m.Observance,
+		"calendar_review_note": m.CalendarReviewNote, "calendar_observance": m.CalendarObservance,
+		"temporal": m.Temporal, "mass_formulary": m.MassFormulary, "seasons": seasons}
 }

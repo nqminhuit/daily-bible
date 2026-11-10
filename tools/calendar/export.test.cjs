@@ -28,7 +28,7 @@ test('versions are deterministic and output is complete', async () => {
   const roman = await generate('roman-general', [2026]);
   const again = await generate('roman-general', [2026, 2026]);
   assert.deepEqual(roman, again);
-  assert.equal(roman.gospel_entry_schema, 2);
+  assert.equal(roman.gospel_entry_schema, 3);
   assert.equal(roman.days.length, 365);
   assert.equal((await calendar).days.length, 365 * 4 + 1);
   assert.equal(roman.options.ascensionOnSunday, false);

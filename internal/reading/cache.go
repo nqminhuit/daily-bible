@@ -3,6 +3,7 @@ package reading
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -41,6 +42,7 @@ func ImportCalendar(ctx context.Context, db *sql.DB, m CalendarManifest) error {
 		return fmt.Errorf("unsupported calendar rules: unreviewed Vietnam Romcal profile; provide reviewed national definitions")
 	}
 	definitions := make([]lectionary.EntryDefinition, len(m.Days))
+	payloads := make([]string, len(m.Days))
 	seen := map[string]bool{}
 	for i, d := range m.Days {
 		if seen[d.Date] {
@@ -48,10 +50,29 @@ func ImportCalendar(ctx context.Context, db *sql.DB, m CalendarManifest) error {
 		}
 		seen[d.Date] = true
 		e, err := d.Entry()
+		if requiresCalendarDetails(m.CalendarID, m.RulesVersion) && !strings.HasPrefix(d.Date, "2026-") {
+			return fmt.Errorf("national pilot definitions are limited to reviewed year 2026")
+		}
 		if err != nil {
 			return fmt.Errorf("calendar %s: %w", d.Date, err)
 		}
+		if d.SourceURL != "" && !validEvidenceURL(d.SourceURL) {
+			return fmt.Errorf("calendar %s: invalid day evidence URL", d.Date)
+		}
+		if d.Mass != nil && m.CalendarID != "vietnam" {
+			return fmt.Errorf("calendar %s: assigned national Mass requires Vietnam scope", d.Date)
+		}
+		if (m.CalendarID == "vietnam" && e.Key != "") || d.Mass != nil {
+			if !validEvidenceURL(d.SourceURL) || strings.TrimSpace(d.ReviewNote) == "" {
+				return fmt.Errorf("calendar %s: national definition requires its own HTTPS source and review note", d.Date)
+			}
+		}
 		definitions[i] = e
+		payload, err := json.Marshal(d)
+		if err != nil {
+			return err
+		}
+		payloads[i] = string(payload)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -70,10 +91,21 @@ func ImportCalendar(ctx context.Context, db *sql.DB, m CalendarManifest) error {
 		if err != nil && err != sql.ErrNoRows {
 			return err
 		}
-		if err == nil && oldVersion == m.RulesVersion && (oldKey != e.Key || oldObservance != d.Observance || oldLabel != e.Celebration || oldDisplaced != e.Displaced) {
+		if err == nil && oldVersion == m.RulesVersion && (oldKey != e.Key || oldObservance != e.Observance || oldLabel != e.Celebration || oldDisplaced != e.Displaced) {
 			return fmt.Errorf("changed resolution for %s requires a new rules version", d.Date)
 		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO reading_calendar_days VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(calendar_id,date,mass_option) DO UPDATE SET rules_version=excluded.rules_version,entry_key=excluded.entry_key,observance=excluded.observance,celebration=excluded.celebration,displaced_entry=excluded.displaced_entry WHERE rules_version<>excluded.rules_version`, m.CalendarID, d.Date, DayMass, m.RulesVersion, e.Key, d.Observance, e.Celebration, e.Displaced); err != nil {
+		var oldPayload, detailVersion string
+		err = tx.QueryRowContext(ctx, `SELECT rules_version,definition_json FROM reading_calendar_day_details WHERE calendar_id=? AND date=? AND mass_option=?`, m.CalendarID, d.Date, DayMass).Scan(&detailVersion, &oldPayload)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if err == nil && detailVersion == m.RulesVersion && oldPayload != payloads[i] {
+			return fmt.Errorf("changed definition/evidence for %s requires a new rules version", d.Date)
+		}
+		if _, err := tx.ExecContext(ctx, `INSERT INTO reading_calendar_days VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(calendar_id,date,mass_option) DO UPDATE SET rules_version=excluded.rules_version,entry_key=excluded.entry_key,observance=excluded.observance,celebration=excluded.celebration,displaced_entry=excluded.displaced_entry WHERE rules_version<>excluded.rules_version`, m.CalendarID, d.Date, DayMass, m.RulesVersion, e.Key, e.Observance, e.Celebration, e.Displaced); err != nil {
+			return err
+		}
+		if _, err := tx.ExecContext(ctx, `INSERT INTO reading_calendar_day_details VALUES (?,?,?,?,?,?) ON CONFLICT(calendar_id,date,mass_option) DO UPDATE SET rules_version=excluded.rules_version,entry_key=excluded.entry_key,definition_json=excluded.definition_json WHERE rules_version<>excluded.rules_version`, m.CalendarID, d.Date, DayMass, m.RulesVersion, e.Key, payloads[i]); err != nil {
 			return err
 		}
 	}
@@ -130,6 +162,15 @@ func ReviewEntry(ctx context.Context, db *sql.DB, r EntryReview) error {
 	}
 	if !lectionary.CalendarRulesSupported(r.CalendarID, version) {
 		return fmt.Errorf("unsupported calendar rules; reusable review requires reviewed calendar definitions")
+	}
+	if requiresCalendarDetails(r.CalendarID, version) {
+		var payload string
+		if err := tx.QueryRowContext(ctx, `SELECT definition_json FROM reading_calendar_day_details WHERE calendar_id=? AND date=? AND mass_option=? AND rules_version=? AND entry_key=?`, r.CalendarID, r.Date, DayMass, version, key).Scan(&payload); err != nil {
+			return fmt.Errorf("national review requires current calendar definition evidence: %w", err)
+		}
+		if _, err := decodeCalendarDefinition(payload, key, r.Date, r.CalendarID); err != nil {
+			return err
+		}
 	}
 	if expected := lectionary.InvariantGospel(key); expected != "" && !scripture.Equivalent(ref, expected) {
 		return fmt.Errorf("reference disagrees with the reviewed proper Gospel %s", expected)

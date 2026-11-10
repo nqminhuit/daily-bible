@@ -103,6 +103,30 @@ Details: [`data/calendar-policy.md`](data/calendar-policy.md) and
 [`data/calendar-research.md`](data/calendar-research.md). Unchecked items below
 are substantive approval/archive-release work, not permission to bypass evidence.
 
+## Vietnam pilot checkpoint — 2026-11-10
+
+Implemented an explicit source-backed national subset, not a full calendar:
+
+- A 365-row 2026 manifest supports **nine reviewed date-to-Mass definitions** and
+  marks **356 dates unsupported**, with no Roman General/legacy fallback.
+- Schema **3** and additive migration **005** preserve the underlying observance
+  and seasons separately from an explicitly assigned Mass, plus precise per-day
+  directive evidence and unsupported reasons. Old manifests must be regenerated;
+  old approvals are not relabeled. The Hours are not implemented or shifted.
+- Two explicit temporary-copy Gospel reviews (Ash on February 20 and All Saints
+  November 1) yield **two renderable dates, seven unreviewed entries, 356 unsupported
+  dates**. These are national pilot counts, not the earlier Roman General queue.
+- Warm reuse and assigned/unresolved gap controls make zero HTTP. Wrong-scope
+  Vatican crawling is suppressed for unreviewed assigned national formularies.
+- Full Go/race/build/static checks, 14 calendar tests, 24 frontend tests/lint/build,
+  and **1,110 consumer/date checks** passed. Genuine upcoming monitoring gaps still
+  fail. All original refs/verse rows and both shipped snapshots are unchanged.
+- November 15, full national rules/lectionary editions, historical applicability,
+  national archive recovery and coordinated release remain incomplete. Nothing
+  was pushed or deployed.
+
+Details and reproducible commands: [`data/vietnam-pilot-audit.md`](data/vietnam-pilot-audit.md).
+
 ## Design Rules
 
 - Never use the existing estimated seasonal key as sufficient proof of equivalence.
@@ -181,9 +205,11 @@ Primary files: `internal/lectionary/types.go`, `calendar.go`, and `generators.go
   `hasDateSpecificReadings()`. Do not simply allow every fixed celebration to
   replace every Sunday.
 - [ ] Add approved national/local rules only within their declared calendar scope.
-  Source facts/specification cases are recorded in `data/vietnam-national-sources.json`;
-  the national adapter is not implemented. Keep assigned Mass, season and Hours
-  distinct; a transferred Ash Mass must not shift the start of Lent.
+  The explicit 2026 pilot now implements nine sourced definitions; this item
+  remains incomplete for the full national calendar. Source facts are recorded
+  in `data/vietnam-national-sources.json`, decisions in `data/vietnam-pilot-2026.json`.
+  Assigned Mass and underlying season are separate; Hours are not implemented.
+  A transferred Ash Mass does not shift the start of Lent.
 - [x] Resolve cycles and Mass options before constructing a reusable entry identity.
 - [x] Produce a structured explanation: selected observance, displaced seasonal
   entry where relevant, rules version, and any unsupported/ambiguous choice.
@@ -319,7 +345,8 @@ build, and production-mode page checks against the reviewed snapshot.
 
 - [x] Target calendar scope and editorial default options are approved.
 - [ ] Authoritative national rules, historical applicability, lectionary editions
-  and evidence contract are reviewed; a supported national adapter is available.
+  and evidence contract are reviewed; a complete supported national adapter is
+  available (the nine-definition pilot does not satisfy this gate).
 - [x] Blanket key propagation is removed, and direct-date proof is no longer the
   sole availability contract: explicit calendar profiles support reviewed reuse
   without a legacy fallback. The deliberately source-only default stays date-bound

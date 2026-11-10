@@ -1,0 +1,26 @@
+{
+  "purpose": "reviewed-national-rule-subset",
+  "year": 2026,
+  "activation": "evaluation-only-not-production-approved",
+  "scope_note": "Vietnam national daytime pilot; no diocesan overlay. Only the listed source-backed decisions are supported. Underlying Roman General dates are calculation context, never a national fallback. No Gospel mapping is approved here.",
+  "decisions": [
+    { "date": "2026-02-18", "mode": "mass", "identity": "tet_day_2_ancestors", "celebration": "Mồng Hai Tết – Kính nhớ tổ tiên và ông bà cha mẹ", "source_id": "ash-2026", "note": "National directive item 1 assigns this Mass. Lent and Ash Wednesday Hours still begin on February 18; do not transfer the season." },
+    { "date": "2026-02-19", "mode": "mass", "identity": "tet_day_3_labor", "celebration": "Mồng Ba Tết – Thánh hóa công ăn việc làm", "source_id": "ash-2026", "note": "National directive item 2 assigns this Mass, not the ordinary Thursday-after-Ash Mass." },
+    { "date": "2026-02-20", "mode": "mass", "identity": "ash_wednesday", "celebration": "Lễ Tro", "source_id": "ash-2026", "note": "National directive item 3 assigns the Ash Mass and ashes, fasting and abstinence. This does not move the beginning of Lent or the Hours." },
+    { "date": "2026-04-05", "mode": "observance", "identity": "easter_sunday", "celebration": "Chúa Nhật Phục Sinh", "source_id": "proclamation-2026", "note": "The national 2026 proclamation explicitly names Easter on April 5. Default daytime only; no Easter Vigil or evening variant is selected." },
+    { "date": "2026-05-24", "mode": "observance", "identity": "pentecost_sunday", "celebration": "Chúa Thánh Thần Hiện Xuống", "source_id": "proclamation-2026", "note": "The national 2026 proclamation explicitly names Pentecost on May 24. Default daytime only, not the vigil." },
+    { "date": "2026-06-07", "mode": "mass", "identity": "most_holy_body_and_blood_of_christ", "celebration": "Mình và Máu Thánh Chúa Kitô", "source_id": "proclamation-2026", "note": "The national 2026 proclamation names Corpus Christi on June 7. Select that Mass without claiming an all-years transfer law or a national liturgical rank from this template alone." },
+    { "date": "2026-11-01", "mode": "observance", "identity": "all_saints", "celebration": "Các Thánh Nam Nữ", "source_id": "all-saints-2026", "note": "National directive section II.2 requires All Saints on November 1, superseding Ordinary Sunday 31. October 31 evening is outside the implemented daytime option." },
+    { "date": "2026-11-22", "mode": "observance", "identity": "our_lord_jesus_christ_king_of_the_universe", "celebration": "Đức Giêsu Kitô Vua Vũ Trụ", "source_id": "proclamation-2026", "note": "The national 2026 proclamation explicitly names Christ the King on November 22." },
+    { "date": "2026-11-29", "mode": "observance", "identity": "advent_1_sunday", "celebration": "Chúa Nhật I Mùa Vọng", "source_id": "proclamation-2026", "note": "The national 2026 proclamation explicitly names Advent I on November 29. Its new Sunday cycle must come from that date, not the civil year's earlier Sundays." }
+  ],
+  "unsupported": {
+    "default": "National default Mass not yet established from the reviewed rule subset; no Roman General or legacy-key fallback",
+    "2026-01-04": "2026 Epiphany transfer applicability not established; the 2022 example alone is not an all-years national rule",
+    "2026-01-06": "2026 Epiphany transfer applicability not established; no fixed-date or Sunday assumption",
+    "2026-05-14": "Ascension: national template mentions Thursday and Sunday conditionally; territorial/default applicability is unresolved",
+    "2026-05-17": "Ascension: national template mentions Thursday and Sunday conditionally; territorial/default applicability is unresolved",
+    "2026-11-15": "Vietnamese Martyrs external solemnity versus Ordinary Sunday 33: national applicability and authorized default formulary remain unresolved",
+    "2026-11-24": "Vietnamese Martyrs: national proper rank, external solemnity relationship and authorized default require review; do not use the rejected plugin"
+  }
+}

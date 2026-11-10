@@ -10,19 +10,27 @@ import (
 )
 
 type AuditRow struct {
-	Date                 string `json:"date"`
-	Status               string `json:"status"`
-	LegacyRef            string `json:"legacy_ref,omitempty"`
-	ResolvedRef          string `json:"resolved_ref,omitempty"`
-	EntryKey             string `json:"entry_key,omitempty"`
-	RulesVersion         string `json:"rules_version,omitempty"`
-	ObservedRef          string `json:"observed_ref,omitempty"`
-	EvidenceURL          string `json:"evidence_url,omitempty"`
-	EvidenceDate         string `json:"evidence_date,omitempty"`
-	ObservationCandidate bool   `json:"observation_candidate,omitempty"`
-	ObservationURL       string `json:"observation_url,omitempty"`
-	ObservationDate      string `json:"observation_date,omitempty"`
-	SourceDifference     bool   `json:"source_difference,omitempty"`
+	Date                    string   `json:"date"`
+	Status                  string   `json:"status"`
+	LegacyRef               string   `json:"legacy_ref,omitempty"`
+	ResolvedRef             string   `json:"resolved_ref,omitempty"`
+	EntryKey                string   `json:"entry_key,omitempty"`
+	RulesVersion            string   `json:"rules_version,omitempty"`
+	ObservedRef             string   `json:"observed_ref,omitempty"`
+	EvidenceURL             string   `json:"evidence_url,omitempty"`
+	EvidenceDate            string   `json:"evidence_date,omitempty"`
+	ObservationCandidate    bool     `json:"observation_candidate,omitempty"`
+	ObservationURL          string   `json:"observation_url,omitempty"`
+	ObservationDate         string   `json:"observation_date,omitempty"`
+	SourceDifference        bool     `json:"source_difference,omitempty"`
+	CalendarDefinitionError string   `json:"calendar_definition_error,omitempty"`
+	UnsupportedReason       string   `json:"unsupported_reason,omitempty"`
+	CalendarSourceURL       string   `json:"calendar_source_url,omitempty"`
+	CalendarReviewNote      string   `json:"calendar_review_note,omitempty"`
+	CalendarObservance      string   `json:"calendar_observance,omitempty"`
+	Temporal                string   `json:"temporal,omitempty"`
+	MassFormulary           string   `json:"mass_formulary,omitempty"`
+	Seasons                 []string `json:"seasons,omitempty"`
 }
 type AuditReport struct {
 	CalendarID        string         `json:"calendar_id"`
@@ -68,7 +76,37 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return report, err
 		}
+		if calendar != SourceCalendar {
+			var version string
+			err := db.QueryRowContext(ctx, `SELECT d.rules_version FROM reading_calendar_days d JOIN reading_calendars c ON c.calendar_id=d.calendar_id AND c.rules_version=d.rules_version WHERE d.calendar_id=? AND d.date=? AND d.mass_option=?`, calendar, date, DayMass).Scan(&version)
+			if err != nil && err != sql.ErrNoRows {
+				return report, err
+			}
+			if err == nil {
+				r.RulesVersion = version
+				d, err := CalendarDefinition(ctx, db, calendar, date, version)
+				if err != nil && err != sql.ErrNoRows {
+					if ctx.Err() != nil {
+						return report, ctx.Err()
+					}
+					r.CalendarDefinitionError = err.Error()
+				}
+				if err == sql.ErrNoRows && requiresCalendarDetails(calendar, version) {
+					r.UnsupportedReason = "current national definition evidence is missing; reimport reviewed definitions, not another reference crawl"
+				}
+				if err == nil {
+					r.UnsupportedReason, r.CalendarSourceURL, r.CalendarReviewNote = d.UnsupportedReason, d.SourceURL, d.ReviewNote
+					r.CalendarObservance, r.Temporal, r.Seasons = d.Observance, d.Temporal, d.Seasons
+					if d.Mass != nil {
+						r.MassFormulary = d.Mass.Formulary
+					}
+				}
+			}
+		}
 		m, err := LookupFor(ctx, db, date, calendar, DayMass)
+		if ctx.Err() != nil {
+			return report, ctx.Err()
+		}
 		if errors.Is(err, sql.ErrNoRows) {
 			r.Status = "legacy_unverified"
 			if calendar != SourceCalendar {
@@ -101,6 +139,8 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 			} else if r.ObservedRef != "" && !scripture.Equivalent(r.ObservedRef, r.LegacyRef) {
 				r.Status = "conflict"
 			}
+		} else if err != nil && r.CalendarDefinitionError != "" {
+			r.Status = "invalid_calendar_definition"
 		} else if err != nil {
 			return report, err
 		} else {

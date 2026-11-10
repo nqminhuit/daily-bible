@@ -170,6 +170,16 @@ func populateCacheFirst(ctx context.Context, db *sql.DB, client *http.Client, jo
 				return stats, err
 			}
 		}
+		if !trusted && w.calendar == "vietnam" {
+			definition, err := reading.CalendarDefinition(ctx, db, w.calendar, job.date, version)
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return stats, err
+			}
+			if err == nil && definition.Mass != nil {
+				log.Printf("FORMULARY REVIEW REQUIRED date=%s mass=%s; dated Vatican reference is not national formulary evidence", job.date, definition.Mass.Formulary)
+				continue
+			}
+		}
 		if !w.refresh {
 			if seen[key] {
 				continue

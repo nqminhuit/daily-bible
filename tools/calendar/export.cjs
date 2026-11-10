@@ -5,7 +5,7 @@ const { GeneralRoman_En } = require('@romcal/calendar.general-roman');
 const crypto = require('node:crypto');
 const { dependencies } = require('./package.json');
 // Keep in agreement with internal/lectionary.GospelEntrySchemaVersion.
-const GOSPEL_ENTRY_SCHEMA = 2;
+const GOSPEL_ENTRY_SCHEMA = 3;
 
 async function generate(calendar, years) {
   if (calendar === 'vietnam') throw new Error('Vietnam Romcal export disabled: unreviewed Vietnamese Martyrs date/rank discrepancy; provide reviewed national definitions (see data/calendar-research.md)');
@@ -13,7 +13,7 @@ async function generate(calendar, years) {
   if (!years.length || years.some(y => !Number.isInteger(y) || y < 1970 || y > 2199)) throw new Error('years must be integers in 1970..2199');
   const options = { epiphanyOnSunday: false, ascensionOnSunday: false, corpusChristiOnSunday: false };
   const version = 'romcal-' + dependencies.romcal + '-' + crypto.createHash('sha256')
-    .update(JSON.stringify({ adapter: 2, gospel_entry_schema: GOSPEL_ENTRY_SCHEMA, calendar, dependencies, options })).digest('hex').slice(0, 16);
+    .update(JSON.stringify({ adapter: 3, gospel_entry_schema: GOSPEL_ENTRY_SCHEMA, calendar, dependencies, options })).digest('hex').slice(0, 16);
   const engine = new Romcal({ localizedCalendar: GeneralRoman_En, ...options });
   const days = [];
   for (const year of [...new Set(years)].sort()) {
@@ -25,7 +25,8 @@ async function generate(calendar, years) {
       days.push({ date, observance: day.id, rank: day.rank,
         temporal: day.weekday?.id || day.id,
         sunday_cycle: day.cycles.sundayCycle, weekday_cycle: day.cycles.weekdayCycle,
-        alternatives: alternatives.slice(1).map(d => d.id) });
+        alternatives: alternatives.slice(1).map(d => d.id),
+        seasons: day.seasons.map(s => s.toLowerCase()) });
     }
   }
   return { gospel_entry_schema: GOSPEL_ENTRY_SCHEMA, calendar_id: calendar, rules_version: version,

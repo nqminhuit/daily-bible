@@ -7,23 +7,39 @@ import (
 	"time"
 )
 
-// CalendarDay is the selected observance from a versioned calendar provider,
-// not the old seasonal estimate. The maintenance adapter handles precedence.
+// CalendarDay separates the underlying calendar observance/season from an
+// explicitly assigned Mass. A transferred Mass must not move the season or Hours.
+// The maintenance adapter handles precedence; unsupported days have no entry.
 type CalendarDay struct {
-	Date         string   `json:"date"`
-	Observance   string   `json:"observance"`
-	Rank         string   `json:"rank"`
-	Temporal     string   `json:"temporal"`
-	SundayCycle  string   `json:"sunday_cycle"`
-	WeekdayCycle string   `json:"weekday_cycle"`
-	Alternatives []string `json:"alternatives,omitempty"`
+	Date              string          `json:"date"`
+	Observance        string          `json:"observance"`
+	Rank              string          `json:"rank"`
+	Temporal          string          `json:"temporal"`
+	SundayCycle       string          `json:"sunday_cycle"`
+	WeekdayCycle      string          `json:"weekday_cycle"`
+	Alternatives      []string        `json:"alternatives,omitempty"`
+	Seasons           []string        `json:"seasons,omitempty"`
+	Mass              *MassAssignment `json:"mass,omitempty"`
+	Celebration       string          `json:"celebration,omitempty"`
+	SourceURL         string          `json:"source_url,omitempty"`
+	ReviewNote        string          `json:"review_note,omitempty"`
+	UnsupportedReason string          `json:"unsupported_reason,omitempty"`
+}
+
+// MassAssignment is an explicit, sourced formulary selection, not a fictitious
+// liturgical rank. Keep cycle/context distinctions until the lectionary permits
+// broader reuse. It does not select a Gospel or implement the Hours.
+type MassAssignment struct {
+	Formulary   string `json:"formulary"`
+	Celebration string `json:"celebration"`
 }
 
 // GospelEntrySchemaVersion changes whenever reusable Gospel identities change.
 // Maintenance manifests must explicitly agree; supported caches are not rewritten.
-const GospelEntrySchemaVersion = 2
+const GospelEntrySchemaVersion = 3
 
 type EntryDefinition struct {
+	Observance  string
 	Key         string
 	Celebration string
 	Displaced   string
@@ -36,6 +52,17 @@ var invariantPropers = map[string]struct{ ref, label string }{
 	"all_saints":                         {"Mt 5,1-12a", "Các Thánh Nam Nữ"},
 	"annunciation_of_the_lord":           {"Lc 1,26-38", "Lễ Truyền Tin"},
 }
+
+// Only explicitly implemented daytime formularies. In particular, an arbitrary
+// vigil/night/ritual identity cannot be smuggled into the default day slot.
+var assignedDayFormularies = map[string]bool{
+	"tet_day_1_new_year":                 true,
+	"tet_day_2_ancestors":                true,
+	"tet_day_3_labor":                    true,
+	"ash_wednesday":                      true,
+	"most_holy_body_and_blood_of_christ": true,
+}
+
 var calendarIdentifier = regexp.MustCompile(`^[a-z][a-z0-9_]{0,150}$`)
 
 func (d CalendarDay) Entry() (EntryDefinition, error) {
@@ -56,7 +83,33 @@ func (d CalendarDay) Entry() (EntryDefinition, error) {
 			return EntryDefinition{}, fmt.Errorf("invalid alternative")
 		}
 	}
-	e := EntryDefinition{}
+	for _, season := range d.Seasons {
+		if !calendarIdentifier.MatchString(season) {
+			return EntryDefinition{}, fmt.Errorf("invalid season")
+		}
+	}
+	if d.Mass != nil && (!assignedDayFormularies[d.Mass.Formulary] || strings.TrimSpace(d.Mass.Celebration) == "") {
+		return EntryDefinition{}, fmt.Errorf("assigned Mass requires a formulary identity and celebration")
+	}
+	switch d.Rank {
+	case "WEEKDAY", "SUNDAY", "MEMORIAL", "OPTIONAL_MEMORIAL", "COMMEMORATION", "FEAST", "SOLEMNITY", "TRIDUUM":
+	default:
+		return EntryDefinition{}, fmt.Errorf("unsupported rank %q", d.Rank)
+	}
+	e := EntryDefinition{Observance: d.Observance, Celebration: d.Celebration}
+	if d.UnsupportedReason != "" {
+		if d.Mass != nil {
+			return e, fmt.Errorf("unsupported day cannot assign a Mass")
+		}
+		return e, nil
+	}
+	if d.Mass != nil {
+		e.Observance = d.Mass.Formulary
+		e.Displaced = d.Observance
+		e.Key = "formulary:" + d.Mass.Formulary + ":" + d.SundayCycle + ":" + d.WeekdayCycle + ":day"
+		e.Celebration = d.Mass.Celebration
+		return e, nil
+	}
 	if d.Temporal != d.Observance {
 		e.Displaced = d.Temporal
 	}
@@ -86,6 +139,12 @@ func (d CalendarDay) Entry() (EntryDefinition, error) {
 }
 
 func InvariantGospel(entry string) string {
+	// The named Ash Mass has this Gospel, not the Friday-after-Ash reading.
+	// Keep the conservative formulary cycle keys; this validates a review and
+	// does not automatically approve a mapping or generalize national dates.
+	if strings.HasPrefix(entry, "formulary:ash_wednesday:") {
+		return "Mt 6,1-6.16-18"
+	}
 	for id, p := range invariantPropers {
 		if entry == "proper:"+id+":day" {
 			return p.ref

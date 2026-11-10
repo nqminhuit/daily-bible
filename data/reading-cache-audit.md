@@ -253,9 +253,18 @@ remain `e4cbcfe55f603c4e7cdb7c36bf8a3075469d72500fe490fab122c330b36ad1c7`.
 The 46-date demonstration and all unresolved counts above remain **Roman General
 evaluation results**, not Vietnam production coverage. Nothing was pushed or deployed.
 
+## Subsequent national pilot
+
+The [separate 2026 national pilot report](vietnam-pilot-audit.md) records the new
+schema-3/005 Mass-versus-season implementation and nine source-backed definitions:
+two renderable mappings, seven unreviewed entries and 356 unsupported dates.
+Its 1,110 parity checks validate the pilot, not production coverage. These counts
+do not replace or relabel the earlier Roman General archive checkpoint. Neither
+shipped snapshot was modified; automatic Vietnam Romcal export remains blocked.
+
 ## Remaining gates
 
-Review and implement authoritative national rules, historical applicability,
+Review and implement the remaining authoritative national rules, historical applicability,
 lectionary editions and allowed/default formularies for the confirmed target;
 review the remaining archive mappings/local exceptions and any needed text
 repairs; generate a national-policy coverage/diff report; approve compatible

@@ -21,7 +21,7 @@ Calendar namespaces and maintenance availability:
 | Namespace | Definitions | Status |
 | --- | --- | --- |
 | `roman-general` | Romcal General Roman; Epiphany January 6, Ascension/Corpus Christi Thursday | Candidate evaluation, not production approval |
-| `vietnam` | Requires reviewed national definitions and their own rules version | Automatic Romcal export/derived cache **blocked** |
+| `vietnam` | Reviewed national definitions with their own version; explicit partial 2026 pilot available | Automatic Romcal export/derived cache **blocked**; pilot is evaluation-only |
 
 The pinned Vietnam plugin places the Vietnamese Martyrs on November 13 and
 leaves November 24 as a weekday. `vietnam` manifests/reusable reviews and derived
@@ -33,7 +33,9 @@ Review authoritative national rules, historical applicability, particular
 celebrations, allowed options and coverage before activation. The partial
 [source dossier](vietnam-national-sources.json) records dated national directives
 and specification cases; it is **not an importable calendar manifest or reading
-approval**. Its request timestamps/content fingerprints identify the research
+approval**. A separate explicit [2026 pilot](vietnam-pilot-audit.md) implements nine
+source-backed definitions and marks the other 356 dates unsupported. It is not a
+complete national calendar or production-ready archive. Its request timestamps/content fingerprints identify the research
 responses, not review times or immutable dated Gospel pages. See the
 [research continuation](calendar-research.md#confirmed-target-and-primary-national-guidance--2026-11-10).
 
@@ -65,16 +67,24 @@ seasonal key. Three reviewed invariant proper identities are recognized: Lateran
 dedication, All Saints, and Annunciation. Default weekday **Gospel-only** entries
 repeat annually without I/II; Sunday entries retain A/B/C. Other proper entries
 conservatively retain cycles and, for memorials, temporal context. Manifests must
-declare `gospel_entry_schema: 2`; old/missing/unknown entry schemas require
-regeneration, not silent approval migration. Optional celebrations are not selected
+declare `gospel_entry_schema: 3`; old/missing/unknown entry schemas require
+regeneration, not silent approval migration. Schema 3 adds explicit Mass
+assignments, underlying observance/seasons, day-level evidence and unsupported
+reasons. This prevents an old importer from silently ignoring a transferred
+Mass. Existing supported caches are not relabeled or rewritten. Optional celebrations are not selected
 implicitly. Only the default daytime option `day` is currently supported; vigil,
 Christmas night/dawn variants, and other unspecified options are unavailable.
 Holy Thursday and Holy Saturday do not receive a guessed generic daytime Mass.
 
 ## Evidence is not interchangeable
 
-- `reading_calendar_days`: a selected observance from a declared, versioned
-  calendar. Importing definitions does **not** approve a Gospel mapping.
+- `reading_calendar_days`: the selected Mass/entry from a declared, versioned
+  calendar. Migration 005 adds `reading_calendar_day_details`, retaining the exact
+  definition, underlying observance/seasons, actual directive URL/note and any
+  unsupported reason. An assigned Mass is not a fabricated liturgical rank or a
+  shift of the season/Hours. National pilot derived lookups/reviews require their
+  matching definition evidence, including on warm caches. Importing definitions
+  does **not** approve a Gospel mapping.
 - `reading_observations`: append-only facts from dated Vatican News pages,
   including their actual source dates. They are candidates, not general rules or
   approvals of national-calendar scope.
@@ -98,6 +108,10 @@ it cannot silently become an ordinary weekday. Rule changes invalidate dependent
 resolutions of that calendar, not unrelated calendars. Review histories remain.
 A new conflicting observation of the same Vatican page quarantines the source-only
 selection, but cannot automatically poison independently reviewed local selections.
+Likewise, corrupt auxiliary definition metadata blocks derived reuse, not a valid
+independent exact-date choice. Audits expose `calendar_definition_error` and
+`invalid_calendar_definition` where applicable, not a misleading verse-repair
+or reference-crawl recommendation.
 
 ## Output semantics
 
@@ -110,7 +124,13 @@ page was fetched for the requested date. Inspect:
 - `source_url`, `evidence_date`: the actual reference evidence, which may be from
   another year when an entry is reused. Never synthesize a target-date citation.
 - `verified_at`: acceptance/review time; not a fabricated fresh crawl time.
-- `calendar_source_url`: the calendar provider, separately from Gospel evidence.
+- `calendar_source_url`: the precise day-level directive when available, otherwise
+  the declared calendar provider; separate from Gospel evidence.
+- `calendar_observance`, `temporal`, `seasons`: underlying calendar context,
+  **not an independently implemented Hours calendar**. `observance` identifies
+  the selected Mass; `mass_formulary` records an explicit assignment.
+- `calendar_review_note`: the definition's scope and source interpretation,
+  separately from the Gospel review.
 - `celebration`: a reviewed date label or label of the actual resolved observance;
   never a label inferred from the legacy seasonal key.
 - `lectionary_key`: compatibility estimate, marked `lectionary_key_is_estimate`.
@@ -175,7 +195,16 @@ and optional `-date-label`; its evidence date must match that exact date.
 `-replace-entry` and `-replace-date` are explicit replacement operations retaining
 review history. None of these operations rewrites all legacy `gospel_ref` rows.
 
-Use a bounded `-from`/`-to` run to fill actual gaps. With a supported warm cache it
+The explicit national pilot is exported with
+`node tools/calendar/vietnam-pilot.cjs 2026`; see its audit document for temporary-copy
+commands. It rejects all other years. The automatic `export.cjs vietnam` and
+`prepare-calendar.sh` paths remain blocked; never select the pilot in production
+jobs to conceal incomplete national coverage.
+
+Use a bounded `-from`/`-to` run to fill actual gaps. Unreviewed explicitly assigned
+national formularies do not trigger a wrong-scope Vatican reference request;
+review their proper evidence instead. Supported warm entries may still receive
+an explicitly requested, separately scoped source audit. With a supported warm cache it
 makes no HTTP requests, including for future dates. A missing mapping fetches at
 most one observation candidate per actual entry, reusing existing observations on
 later runs; it does not approve that candidate. `-refresh` explicitly audits the
