@@ -4,8 +4,13 @@
 
 This is an **evaluation on temporary database copies**, not approval of the site's
 production calendar or an archive-wide repair. No shipped database was changed;
-no changes were pushed/deployed. The production calendar and November 15, 2026
-local-calendar choice remain open. See [the policy contract](calendar-policy.md).
+no changes were pushed/deployed. The Vietnam national/daytime target is confirmed;
+production activation and November 15, 2026's national celebration/formulary
+remain unresolved. See [the policy contract](calendar-policy.md).
+
+Later national checkpoints: [initial nine-definition/two-reading pilot](vietnam-pilot-audit.md)
+and [eight-reading content/source continuation](vietnam-content-audit.md). These
+are separate from the Roman General evaluation below and are not archive coverage.
 
 Backend baseline `resources/bible.db`:
 

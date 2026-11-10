@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "purpose": "pilot-content-review-and-partial-source-contract",
+  "auto_approve": false,
+  "activation": "temporary-evaluation-only-not-production-approved",
+  "calendar_id": "vietnam",
+  "mass_option": "day",
+  "rules_version": "vietnam-national-pilot-2026-0db4f1f3fdf6cd9a137a",
+  "captures_file": "vietnam-content-captures.json",
+  "earlier_reviews_file": "vietnam-pilot-reading-evidence.json",
+  "review_timestamp_meaning": "Actual temporary-database review times, not evidence dates or request/crawl times. Reapplication does not refresh them.",
+  "earlier_review_times_retained": [
+    { "date": "2026-02-20", "reviewed_at": "2026-11-10T06:48:31Z" },
+    { "date": "2026-11-01", "reviewed_at": "2026-11-10T06:48:31Z" }
+  ],
+  "superseded_review_retained": {
+    "date": "2026-06-07",
+    "ref": "Ga 6,51-58",
+    "source": "corpus-2026",
+    "evidence_date": "2026-06-07",
+    "reviewed_at": "2026-11-10T09:42:03Z",
+    "reason": "Explicit primary-citation refinement to the annual Ordo; reference unchanged and original review retained, not relabeled"
+  },
+  "source_contract": {
+    "status": "incomplete-national-baseline-and-approved-edition-not-established",
+    "annual_ordo": {
+      "source": "vinh-long-pdf",
+      "landing_source": "vinh-long-ordo",
+      "publisher": "Tòa Giám Mục Vĩnh Long; Nhà xuất bản Đồng Nai, 2025",
+      "title": "Lịch Công Giáo Năm Phụng Vụ 2025-2026, Năm A",
+      "landing_publication_date": "2025-12-02",
+      "pdf_pages": 52,
+      "scope": "diocese-of-vinh-long-not-the-national-calendar",
+      "national_import_approved": false,
+      "use": "Supports/corroborates references for already independently established named Masses only. No wholesale calendar import, transfer/rank approval or selection of Vinh Long's local observances.",
+      "limitations": "Includes local anniversaries and adoration schedules. Page 10 prints the Ash transfer year as 2025; page 36 prints Lc 9,11-28 for November 18. Neither is silently repaired or accepted as a rule. Page 36 lists both Sunday 33 and Martyrs external solemnity, with readings from the Commons, and cites CD 878/90 for November 24. This is not the underlying decree, territorial applicability or an authorized national default Gospel. The year-B tail has dates but not the complete Gospel references."
+    },
+    "lectionary_candidate": {
+      "source": "books-2",
+      "title": "Sách Bài Đọc Trong Thánh Lễ (3 quyển)",
+      "catalogue_publication_year": 2017,
+      "publisher_site": "Nhóm phiên dịch Các Giờ Kinh Phụng Vụ",
+      "status": "catalogue-only-approval-frontmatter-order-and-edition-relationship-unverified",
+      "limitations": "A catalogue listing is not promulgation, authorization for public liturgy, an option-order contract or a complete accessible lectionary. Do not infer that the website's readings are this exact edition."
+    },
+    "missal_interview": {
+      "source": "editions-notice",
+      "publication_date": "2023-11-29",
+      "status": "interview-announcement-not-a-lectionary-promulgation-or-option-set"
+    },
+    "access_limits": [
+      "The Hanoi public search request returned HTTP 403; no workaround was attempted.",
+      "The ktcgkpv.org public date form for February 19, 2026 returned HTTP 200 with success=false and a day-access denial. No alternate endpoint was used to obtain the restricted reading.",
+      "The Dalat homepage timed out. Bing returned an unrelated subject and Google an interstitial; neither was accepted as calendar evidence."
+    ],
+    "still_required": [
+      "Approved national annual baseline, recurring and historical rules, including new universal-calendar decrees relevant to the pinned provider",
+      "Ascension territorial/default applicability and Vietnamese Martyrs external-solemnity/default-formulary rules",
+      "Approved Vietnamese lectionary title pages, approval/promulgation, applicable editions, authorized alternatives and ordering"
+    ]
+  },
+  "reviews": [
+    {
+      "date": "2026-02-18",
+      "mass": "tet_day_2_ancestors",
+      "ref": "Mt 15,1-6",
+      "source": "ancestors",
+      "reviewed_at": "2026-11-10T09:42:03Z",
+      "evidence_date": "2026-02-18",
+      "publication_date": "2026-02-17",
+      "applicability": "One printed full Gospel for the named ancestors/parents Mass. The national Ash directive independently assigns that Mass on this date. Review only this pilot entry, not every future Tet date or the whole Mass: the page's Alleluia is not imported and does not move Lent.",
+      "text_review": "Six existing rows contain the dispute about tradition, command to honor parents, gift excuse and closing rebuke. Different Vietnamese wording is not missing text or approved-edition certification."
+    },
+    {
+      "date": "2026-04-05",
+      "mass": "easter_sunday",
+      "ref": "Ga 20,1-9",
+      "source": "easter",
+      "reviewed_at": "2026-11-10T09:42:03Z",
+      "evidence_date": "2026-04-05",
+      "publication_date": "2026-04-04",
+      "applicability": "The printed daytime/morning empty-tomb Gospel, not the Easter Vigil or evening Emmaus option. National proclamation establishes the date; Lectionary Introduction section 99 independently distinguishes morning and evening. Only this pilot daytime entry is reviewed.",
+      "text_review": "Nine existing rows include Mary at the tomb, both disciples running, separate cloths, sight/belief and the resurrection-scripture conclusion. No verse 10 is required for this reference. Wording is not certified against an approved Vietnamese edition."
+    },
+    {
+      "date": "2026-05-24",
+      "mass": "pentecost_sunday",
+      "ref": "Ga 20,19-23",
+      "source": "pentecost",
+      "reviewed_at": "2026-11-10T09:42:03Z",
+      "evidence_date": "2026-05-24",
+      "publication_date": "2026-05-23",
+      "applicability": "One printed year-A daytime Gospel, also corroborated by the annual Ordo. Not the vigil and not an all-cycle/full-Mass approval.",
+      "text_review": "Five existing rows contain peace, wounds, sending, breath/Spirit and forgiveness/retention. No new text is needed; translation differences remain disclosed."
+    },
+    {
+      "date": "2026-06-07",
+      "mass": "most_holy_body_and_blood_of_christ",
+      "ref": "Ga 6,51-58",
+      "source": "vinh-long-pdf",
+      "reviewed_at": "2026-11-10T09:56:09Z",
+      "evidence_date": "2026-06-07",
+      "evidence_date_kind": "explicit-June-7-assignment-in-annual-Ordo-not-a-fresh-daily-page",
+      "publication_source": "corpus-2026",
+      "publication_heading_date": "2026-06-07",
+      "publication_page_date": "2026-06-06",
+      "printed_ref": "Ga 6,51-59",
+      "page_tag_ref": "Ga 6,51-58",
+      "corroborating_source": "corpus-2026",
+      "source_printed_page": 24,
+      "applicability": "National proclamation independently assigns Corpus Christi. Use the annual Ordo as the primary Gospel citation: its explicit June 7 assignment on printed page 24 gives Ga 6,51-58 for this named year-A Mass; the evidence date denotes that assignment, not a fresh dated page. The Gospel body's ending and page tag support that endpoint in the local canonical numbering. Preserve the different printed endpoint as an edition/editorial discrepancy; do not globally equate 51-58 with 51-59 or silently label the source an error. This does not adopt Vinh Long's calendar.",
+      "text_review": "Eight existing rows include living bread, the dispute, eating/drinking, resurrection, mutual indwelling and living forever. Local verse 59 is the distinct synagogue-location sentence, absent from the printed Gospel body, and is not included. No shared text is modified."
+    },
+    {
+      "date": "2026-11-22",
+      "mass": "our_lord_jesus_christ_king_of_the_universe",
+      "ref": "Mt 25,31-46",
+      "source": "king",
+      "reviewed_at": "2026-11-10T09:42:04Z",
+      "evidence_date": "2023-11-26",
+      "publication_date": "2023-11-25",
+      "applicability": "Actual older year-A Christ-the-King publication, corroborated by primary Lectionary table I, Sunday 34, and the annual Ordo. The national proclamation establishes November 22, 2026. Reuse the year-A Gospel, not a fabricated 2026 source page or year-B/C reading.",
+      "text_review": "Sixteen existing rows include the throne/separation, both groups' six works, both questions and answers, and the final contrasting destinies. Different Vietnamese wording is not an exact-word or approved-edition certification."
+    },
+    {
+      "date": "2026-11-29",
+      "mass": "advent_1_sunday",
+      "ref": "Mc 13,33-37",
+      "source": "advent",
+      "reviewed_at": "2026-11-10T09:42:04Z",
+      "evidence_date": "2023-12-03",
+      "publication_date": "2023-12-02",
+      "corroborating_source": "advent-verse-source",
+      "applicability": "Actual older Advent-I year-B Gospel. The national proclamation establishes the 2026 date; the Ordo's page 36 independently identifies the new year as B. Do not reuse the civil year's earlier year-A Gospel, fabricate a 2026 page, or approve another year/calendar.",
+      "text_review": "Initially no rows. A reviewed Vatican capture supplies the five selected rows through the existing crawler cleanup and TSV converter. All watchfulness, traveling-master, duties/door, four return times, surprise/sleep and final exhortation clauses are present. Edition/wording differences remain, not a full-chapter or approved-edition certification."
+    }
+  ],
+  "pending": [
+    {
+      "date": "2026-02-19",
+      "mass": "tet_day_3_labor",
+      "source": "labor",
+      "evidence_date": "2026-02-19",
+      "publication_date": "2026-02-18",
+      "candidate_refs_in_page_order": ["Mt 25,14-30", "Ga 5,16-20"],
+      "status": "default-option-order-unestablished",
+      "decision": "No entry/date approval. Both are retained as legitimate published full options. A meditation page's first option and the diocesan Ordo's single Mt 25 listing do not establish the approved national lectionary's ordering/default. Do not approve the legacy candidate or bypass this with a date acceptance."
+    }
+  ],
+  "text_repair": {
+    "scope": "temporary-copy-only",
+    "source": "advent-verse-source",
+    "evidence_date": "2023-12-03",
+    "ref": "Mc 13,33-37",
+    "inserted_verse_numbers": [33, 34, 35, 36, 37],
+    "updated_or_deleted_existing_rows": 0,
+    "pipeline": "Successful captured response replayed offline through existing crawler worker/parser/cleanup, then existing TSV converter; explicit missing-only transactional insertion after review. No HTTP transaction, automatic ingestion or new date observation/acceptance.",
+    "tsv_sha256": "33b6a38ee433a13dff692fcd4cae27ce5a24154b0357b2197094ee35d8763a16",
+    "remaining_missing_range": "Mc 13,24-32 remains absent; repairing 33-37 does not repair the earlier Roman-General year-B Sunday-33 gap"
+  }
+}

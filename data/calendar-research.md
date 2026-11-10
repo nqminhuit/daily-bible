@@ -225,10 +225,33 @@ fingerprints and the different-wording/pericope-text limitations, not an automat
 approval or a complete approved-edition contract.
 
 The full national calendar, remaining option sets and November 15 are still
-unresolved. Two renderable pilot dates are not national archive coverage.
+unresolved. That two-reading checkpoint was not national archive coverage.
 
 New temporary artifacts: `/tmp/daily-bible-vietnam-policy.pZMWNv/` (six recorded
 sources, three supplementary publications, ten search responses, and the actual
 19-request status/timestamp log). All requests succeeded; none approved a dated
 Gospel or changed either shipped SQLite snapshot. Continue with reviewed national
 rule/edition/applicability definitions before cache promotion or rollout.
+
+### Content/source continuation — 2026-11-10
+
+The [next source review](vietnam-content-audit.md) located an official 52-page
+Vĩnh Long 2025–2026 Ordo and the publisher's 2017 three-volume lectionary catalogue.
+Neither establishes the missing full national calendar/approved-edition contract.
+The Ordo's CD 878/90 citation is a useful Martyrs decree lead, not the decree or
+an established default Gospel. Its local anniversaries/choices were not imported.
+
+Six additional pilot mappings were explicitly reviewed. Corpus Christi retains
+its printed `Ga 6,51-59` discrepancy; the primary Ordo citation supports canonical
+`Ga 6,51-58`. Christ-the-King and Advent-I evidence dates remain in 2023.
+Mồng Ba Tết's two full published options remain pending until the authorized
+default order is established. The successful dated Vatican capture for Advent I
+was processed through the crawler/TSV pipeline after a bounded split-heading
+parser fix; only five missing Mark rows were inserted on a temporary copy.
+
+Current pilot result: **eight renderable, one unreviewed, 356 unsupported**.
+The [review/source contract](vietnam-content-review.json) and
+[capture fingerprints](vietnam-content-captures.json) preserve scope, source
+limitations, dates and content fingerprints. Temporary evidence and audit copies:
+`/tmp/daily-bible-vietnam-content.KJ5EK8/`. No shipped database, production policy
+or deployment changed.

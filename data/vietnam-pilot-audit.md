@@ -1,5 +1,10 @@
 # Vietnam national pilot — 2026-11-10
 
+This records the **initial two-reading checkpoint**. The subsequent
+[content/source review](vietnam-content-audit.md) reaches eight renderable dates
+without expanding the nine supported definitions or approving production.
+The initial results and evidence below remain historical, not relabeled.
+
 ## Scope and result
 
 This is an **explicit partial 2026 pilot on temporary database copies**, not a

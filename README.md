@@ -163,8 +163,12 @@ per-day rule evidence and unsupported reasons (migration 005).
 
 An explicit [2026 Vietnam pilot](data/vietnam-pilot-audit.md) now supports nine
 source-backed date definitions, with the remaining 356 dates deliberately
-unsupported. Its temporary-copy demonstration reviews two Gospel mappings; this
-is not full-year or archive coverage. Use
+unsupported. Its [content-review continuation](data/vietnam-content-audit.md)
+now has eight renderable dates after six additional mapping reviews and a
+five-row missing-text repair on a temporary copy. Mồng Ba Tết remains pending;
+the diocesan Ordo found during research is not a national baseline, and the
+approved lectionary/option-order contract is still incomplete. This is not
+full-year or archive coverage. Use
 `node tools/calendar/vietnam-pilot.cjs 2026` only for evaluation. Automatic Vietnam
 Romcal export remains blocked.
 Offline audits include a grouped, read-only `entries` review queue with source

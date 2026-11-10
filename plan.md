@@ -127,6 +127,36 @@ Implemented an explicit source-backed national subset, not a full calendar:
 
 Details and reproducible commands: [`data/vietnam-pilot-audit.md`](data/vietnam-pilot-audit.md).
 
+## Vietnam content/source continuation — 2026-11-10
+
+- Reviewed six of the seven pending pilot mappings on a consistent temporary
+  copy. Eight dates now render; Mồng Ba Tết remains unreviewed because its two
+  published full options do not establish the approved lectionary's default order.
+- Located a downloadable official Vĩnh Long 2025–2026 Ordo and a publisher's 2017
+  three-volume lectionary catalogue. Kept their actual scope/status: the former
+  is diocesan, not an approved national baseline; the latter is not approval
+  frontmatter or an option-order contract. Full national rules remain incomplete.
+- Preserved Corpus Christi's printed `Ga 6,51-59` discrepancy while reviewing
+  canonical `Ga 6,51-58` from the corroborating Ordo, page tag and actual body.
+  Historical Christ-the-King/Advent-I evidence dates remain in 2023.
+- A genuine missing-text repair exposed a split-reference parser gap. Added a
+  bounded sibling-block fallback and 11 regression cases; replayed the successful
+  captured page through the existing crawler/TSV pipeline and inserted only five
+  missing Mark rows on the temporary copy. No existing text/reference, prior
+  review or observation changed. `Mc 13,24-32` remains missing.
+- Repeated audits and review application are idempotent. Full Go/race/build/static
+  checks, 18 calendar tests, 24 frontend tests/lint/build and **1,115 consumer/date
+  checks** passed. Warm reuse and genuine pending/unsupported gaps made zero HTTP;
+  default monitoring still fails honestly. Both shipped databases are unchanged.
+- Current national counts: **8 calendar-resolved, 1 unreviewed, 356 unsupported**.
+  No new national definitions, rules version, schema or production activation.
+  Nothing pushed or deployed. To finish the source contract, obtain the applicable
+  approved national calendar and lectionary approval/edition/options material;
+  do not substitute another local calendar or infer the first web option.
+
+Details: [`data/vietnam-content-audit.md`](data/vietnam-content-audit.md) and the
+machine-readable non-executable review ledger/capture fingerprints alongside it.
+
 ## Design Rules
 
 - Never use the existing estimated seasonal key as sufficient proof of equivalence.

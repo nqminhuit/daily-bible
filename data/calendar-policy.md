@@ -39,6 +39,13 @@ complete national calendar or production-ready archive. Its request timestamps/c
 responses, not review times or immutable dated Gospel pages. See the
 [research continuation](calendar-research.md#confirmed-target-and-primary-national-guidance--2026-11-10).
 
+The [content continuation](vietnam-content-audit.md) has eight renderable pilot
+dates, one pending Tết default and 356 unsupported definitions on a temporary
+copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
+keeps the found Vĩnh Long Ordo diocesan and a publisher's 2017 lectionary catalogue
+separate from approval, authorized option ordering and national-calendar scope.
+Neither document is an importable manifest or automatic approval source.
+
 A diocesan/parish overlay needs its own reviewed policy and distinct implemented
 namespace/adapter; neither local adapter is implemented yet. Do not silently
 treat it as a national profile. If national guidance mentions multiple schedules

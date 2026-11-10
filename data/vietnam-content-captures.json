@@ -1,0 +1,74 @@
+{
+  "ancestors": {
+    "url": "https://hdgmvietnam.com/chi-tiet/cau-cho-cha-me-26-01-2020-chua-nhat-mong-hai-tet-kinh-nho-to-tien--38987",
+    "requested_at": "2026-11-10T09:20:45.293916+00:00",
+    "sha256": "89ff5d12440fbc314425078ef8ffafb2187f3ca9403981b2557b2dbd5bef783e",
+    "text_sha256": "0c16b2eab3ffd94e8c53c5dc824aa1983e0b175f46b417998431782dbbf438d6"
+  },
+  "labor": {
+    "url": "https://hdgmvietnam.com/chi-tiet/toi-to-tot-lanh-va-trung-tin-27-01-2020-thu-hai-mong-ba-tet--37948",
+    "requested_at": "2026-11-10T09:20:46.142489+00:00",
+    "sha256": "3123d65116783baf0cb9d60a5f75c38fe9fa1be971b34a3e3f8c28703d42f73c",
+    "text_sha256": "68e63e5986158b8d3afb466b77c897c15fcb190e8932c9c48c3cfcbf579b361f"
+  },
+  "easter": {
+    "url": "https://hdgmvietnam.com/chi-tiet/ong-da-thay-va-ong-da-tin-21-3-2019-chua-nhat-phuc-sinh-nam-c--34823",
+    "requested_at": "2026-11-10T09:20:46.898655+00:00",
+    "sha256": "ea0bb1b235c670d5749fede7b97c3c525b36f63d38de07c740ff0567af1cfbe2",
+    "text_sha256": "acb4d0ed5b9c1969b5ff4c3d883e31681a80cac5c2c1a6c13e5782ab94a91bcd"
+  },
+  "pentecost": {
+    "url": "https://hdgmvietnam.com/chi-tiet/hay-nhan-lay-thanh-than-4-6-2017-%E2%80%93-le-chua-thanh-than-hien-xuong-29676",
+    "requested_at": "2026-11-10T09:20:47.661484+00:00",
+    "sha256": "72baed64d497944ea2c9d3929600969a5ae4f0748ddc4c309a43216efaa8caa2",
+    "text_sha256": "59df16d664761be945e149f20ad29182445aeba02d522f765c03e0745cbbf6a4"
+  },
+  "corpus-2026": {
+    "url": "https://hdgmvietnam.com/chi-tiet/cho-su-song-cua-the-gian-14-6-2020-chua-nhat-le-minh-va-mau-thanh-chua-kito--40124",
+    "requested_at": "2026-11-10T09:26:37.130469+00:00",
+    "sha256": "bab46348e0d54990c1d7c9ed993c6c0fa65a1c32ddfc6368817b017dce0d23a7",
+    "text_sha256": "ecdc9b4b08758f5ca9a1fa42279a41bfee520b0165b9bb7f902a7cb677507b1c"
+  },
+  "king": {
+    "url": "https://hdgmvietnam.com/chi-tiet/vi-xua-ta-doi-22-11-2020-chua-nhat-34-tn-nam-a-le-chua-kito-vua-vu-tru--40920",
+    "requested_at": "2026-11-10T09:20:49.171590+00:00",
+    "sha256": "eece16fae516ca1b8a003e9b629b66e94a88db35f7e0acaab7c3c823172ec298",
+    "text_sha256": "af504acbfa1c2d8c6bef9516f3db007fb08c912314ee7c9252ebcc1f6999ae4f"
+  },
+  "advent": {
+    "url": "https://hdgmvietnam.com/chi-tiet/tinh-thuc-va-canh-thuc-29-11-2020-chua-nhat-1-mua-vong-nam-b--40996",
+    "requested_at": "2026-11-10T09:25:33.150970+00:00",
+    "sha256": "7b2226560b4941bf6e58e7c1cf62bdb51d21755e0823afd43de203302bbea591",
+    "text_sha256": "4495dfdd20649e325898c9d55f6106707e00560d3560e28f13889e1b07de58f5"
+  },
+  "advent-verse-source": {
+    "url": "https://www.vaticannews.va/vi/loi-chua-hang-ngay/2023/12/03.html",
+    "requested_at": "2026-11-10T09:30:51.856658+00:00",
+    "sha256": "b36bb7e6be071f67ba060dedb85d18c2eb7b7f67d7a0ff0901009adbb66cd15e",
+    "text_sha256": "4081488d0a1d23ddd26a02b2d2a51140f8981c8a70dc7a316a683fea7fa2ea6b"
+  },
+  "vinh-long-ordo": {
+    "url": "https://giaophanvinhlong.net/lich-cong-giao-giao-phan-vinh-long-2025-2026/",
+    "requested_at": "2026-11-10T09:26:36.320888+00:00",
+    "sha256": "fd2d4a651ac3733c2994d3645b3dbc91279f441b6ab868336a055185b709cf3f",
+    "text_sha256": "308722309c9dfc0971f495bc5ddf250a52b34536ecd79d8228624366d2c5befb"
+  },
+  "vinh-long-pdf": {
+    "url": "https://giaophanvinhlong.net/wp-content/uploads/2025/12/38e8267e-b839-4990-9ec9-005af8333e3f.pdf",
+    "requested_at": "2026-11-10T09:27:45.927515+00:00",
+    "sha256": "5edb7a2b8d9c4758464dc0530ca77b01310fd8a3d10fb4868dc878eacbde68b8",
+    "extracted_text_sha256": "f082fe2c244731dce7944f6479b11db93185d3bde7e7e7c5e27d593981367897"
+  },
+  "books-2": {
+    "url": "https://ktcgkpv.org/books?page=2",
+    "requested_at": "2026-11-10T09:12:57.809935+00:00",
+    "sha256": "959ad1b4852b69db3826c09bcd7d4c7ff101f51e7687a3f393b7db1497c8ec1c",
+    "text_sha256": "4ef6c6b1743d17cbc3b966ca41cb702336164f90547d28cb8402e9185b500797"
+  },
+  "editions-notice": {
+    "url": "https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-hdgmvn-chia-se-ve-cuoc-gap-go-voi-toa-thanh-lien-quan-den-ban-dich-sach-le-53050",
+    "requested_at": "2026-11-10T09:25:33.883367+00:00",
+    "sha256": "1165d4564cb582177cc70ee59eec8c4410f6c4e1ccbf9b9270ed73c762ae195a",
+    "text_sha256": "e6a29d286aeae0439bb9d215ed5ca8ba0163eeb1d0ff9bed6c9f4319e0f15b4b"
+  }
+}
