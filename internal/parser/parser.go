@@ -95,6 +95,32 @@ func extractGospelRef(doc *html.Node) (string, error) {
 		if cv := chapterVerseRe.FindString(text); cv != "" {
 			return canonicalizeReference(book + " " + cv), nil
 		}
+		// Some Vatican pages put the reference in a separate Gospel label,
+		// followed by at most one summary paragraph and the liturgical header.
+		// Stay in this sibling block: never borrow a first-reading/acclamation
+		// reference, another Gospel's book, or an unrelated distant paragraph.
+		count := 0
+		for prev := p.PrevSibling; prev != nil && count < 2; prev = prev.PrevSibling {
+			if prev.Type == html.TextNode && strings.TrimSpace(prev.Data) == "" {
+				continue
+			}
+			if prev.Type != html.ElementNode || prev.Data != "p" {
+				break
+			}
+			count++
+			label := NormalizeSpaces(GetText(prev))
+			if !strings.HasPrefix(label, "Tin Mừng ") && !strings.HasPrefix(label, "Tin Mừng:") {
+				continue
+			}
+			raw := strings.TrimSpace(strings.TrimPrefix(label, "Tin Mừng"))
+			raw = strings.TrimSpace(strings.TrimPrefix(raw, ":"))
+			match := bibleRefRe.FindString(raw)
+			ref := canonicalizeReference(match)
+			if match != "" && match == raw && strings.HasPrefix(ref, book+" ") {
+				return ref, nil
+			}
+			return "", fmt.Errorf("separate Gospel reference disagrees with header: %q", label)
+		}
 	}
 	return "", fmt.Errorf("no Bible reference found in text: %q", text)
 }
