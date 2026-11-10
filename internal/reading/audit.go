@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/minh/daily-bible/internal/lectionary"
 	"github.com/minh/daily-bible/internal/scripture"
 )
 
@@ -14,6 +15,7 @@ type AuditRow struct {
 	LegacyRef            string `json:"legacy_ref,omitempty"`
 	ResolvedRef          string `json:"resolved_ref,omitempty"`
 	EntryKey             string `json:"entry_key,omitempty"`
+	RulesVersion         string `json:"rules_version,omitempty"`
 	ObservedRef          string `json:"observed_ref,omitempty"`
 	EvidenceURL          string `json:"evidence_url,omitempty"`
 	EvidenceDate         string `json:"evidence_date,omitempty"`
@@ -28,6 +30,7 @@ type AuditReport struct {
 	Counts            map[string]int `json:"counts"`
 	Rows              []AuditRow     `json:"rows"`
 	SourceDifferences int            `json:"source_differences"`
+	Entries           []EntryAudit   `json:"entries"`
 }
 
 // Audit classifies local evidence without mutating references or making HTTP
@@ -58,7 +61,7 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 		if err := db.QueryRowContext(ctx, `SELECT COALESCE(gospel_ref,'') FROM daily_readings WHERE date=?`, date).Scan(&r.LegacyRef); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return report, err
 		}
-		err := db.QueryRowContext(ctx, `SELECT gospel_ref,source_url,source_date FROM reading_observations WHERE date=? AND calendar_id=? AND mass_option=? ORDER BY id DESC LIMIT 1`, date, SourceCalendar, DayMass).Scan(&r.ObservedRef, &r.ObservationURL, &r.ObservationDate)
+		err := db.QueryRowContext(ctx, `SELECT gospel_ref,source_url,source_date FROM reading_observations WHERE date=? AND calendar_id=? AND mass_option=? ORDER BY julianday(observed_at) DESC,id DESC LIMIT 1`, date, SourceCalendar, DayMass).Scan(&r.ObservedRef, &r.ObservationURL, &r.ObservationDate)
 		if errors.Is(err, sql.ErrNoRows) {
 			err = db.QueryRowContext(ctx, `SELECT gospel_ref,source_url,source_date FROM daily_reading_sources WHERE date=?`, date).Scan(&r.ObservedRef, &r.ObservationURL, &r.ObservationDate)
 		}
@@ -79,11 +82,16 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 					key, version, err := EntryForDate(ctx, db, calendar, date)
 					if errors.Is(err, sql.ErrNoRows) {
 						r.Status = "unsupported_calendar_date"
+						if version != "" && !lectionary.CalendarRulesSupported(calendar, version) {
+							r.Status = "unsupported_calendar_rules"
+							r.RulesVersion = version
+						}
 					} else if err != nil {
 						return report, err
 					} else {
 						r.Status = "unreviewed_entry"
 						r.EntryKey = key
+						r.RulesVersion = version
 						r.ObservationCandidate, err = HasObservationCandidate(ctx, db, calendar, key, version)
 						if err != nil {
 							return report, err
@@ -102,6 +110,7 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 				report.SourceDifferences++
 			}
 			r.EntryKey = m.EntryKey
+			r.RulesVersion = m.RulesVersion
 			r.EvidenceURL = m.SourceURL
 			r.EvidenceDate = m.EvidenceDate
 			r.Status = m.ResolutionMethod
@@ -122,6 +131,9 @@ func Audit(ctx context.Context, db *sql.DB, calendar, from, to string) (AuditRep
 		}
 		report.Counts[r.Status]++
 		report.Rows = append(report.Rows, r)
+	}
+	if err := FinalizeAudit(ctx, db, &report); err != nil {
+		return report, err
 	}
 	return report, ctx.Err()
 }

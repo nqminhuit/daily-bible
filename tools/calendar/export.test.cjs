@@ -24,19 +24,32 @@ test('solemnities transfer around Sundays and Holy Week', async () => {
   assert.match(byDate.get('2023-03-20').observance, /joseph/);
   assert.equal(byDate.get('2026-11-11').observance, 'martin_of_tours_bishop');
 });
-test('versions are deterministic, scope-specific, and output is complete', async () => {
+test('versions are deterministic and output is complete', async () => {
   const roman = await generate('roman-general', [2026]);
   const again = await generate('roman-general', [2026, 2026]);
-  const vietnam = await generate('vietnam', [2026]);
   assert.deepEqual(roman, again);
+  assert.equal(roman.gospel_entry_schema, 2);
   assert.equal(roman.days.length, 365);
   assert.equal((await calendar).days.length, 365 * 4 + 1);
-  assert.notEqual(roman.rules_version, vietnam.rules_version);
   assert.equal(roman.options.ascensionOnSunday, false);
-  assert.equal(vietnam.options.ascensionOnSunday, true);
-  // A national plugin is only a candidate policy, not proof of the particular
-  // parish's celebration. November 15 still requires the deployment decision.
-  assert.equal(vietnam.calendar_id, 'vietnam');
+});
+test('known unreviewed Vietnam plugin discrepancy blocks export', async () => {
+  // Retain the pinned dependency as reproducible regression evidence, not an
+  // enabled national calendar. A version update requires substantive review.
+  const { Romcal } = require('romcal');
+  const { Vietnam_En } = require('@romcal/calendar.vietnam');
+  const days = await new Romcal({ localizedCalendar: Vietnam_En }).generateCalendar(2026);
+  assert.equal(days['2026-11-13'][0].id, 'andrew_dung_lac_priest_and_companions_martyrs');
+  assert.equal(days['2026-11-13'][0].rank, 'FEAST');
+  assert.equal(days['2026-11-24'][0].rank, 'WEEKDAY');
+  await assert.rejects(generate('vietnam', [2026]), /Vietnam Romcal export disabled/);
+  const { spawnSync } = require('node:child_process');
+  const path = require('node:path');
+  const result = spawnSync('bash', [path.join(__dirname, '../../.github/scripts/prepare-calendar.sh'), '2026'], {
+    env: { ...process.env, READING_CALENDAR: 'vietnam' }, encoding: 'utf8',
+  });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Vietnam Romcal export disabled/);
 });
 test('unsupported profiles/years are rejected instead of falling back', async () => {
   await assert.rejects(generate('unknown', [2026]));

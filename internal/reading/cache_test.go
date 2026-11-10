@@ -27,7 +27,7 @@ func testDay(date, id, rank, temporal, sc, wc string) lectionary.CalendarDay {
 	return lectionary.CalendarDay{Date: date, Observance: id, Rank: rank, Temporal: temporal, SundayCycle: sc, WeekdayCycle: wc}
 }
 func testManifest(days ...lectionary.CalendarDay) CalendarManifest {
-	return CalendarManifest{CalendarID: "roman-general", RulesVersion: "test-v1", SourceURL: "https://example.test/calendar", Days: days}
+	return CalendarManifest{GospelEntrySchema: lectionary.GospelEntrySchemaVersion, CalendarID: "roman-general", RulesVersion: "test-v1", SourceURL: "https://example.test/calendar", Days: days}
 }
 func importManifest(t *testing.T, db *sql.DB, m CalendarManifest) {
 	t.Helper()
@@ -80,7 +80,7 @@ func TestProperReferenceReusedAcrossYearsWithoutDatedRows(t *testing.T) {
 	}
 }
 
-func TestOrdinaryReuseDoesNotOverrideFeastOrOtherCycle(t *testing.T) {
+func TestOrdinaryGospelReuseAcrossWeekdayCyclesDoesNotOverrideFeast(t *testing.T) {
 	db := testDB(t)
 	m := testManifest(
 		testDay("2022-11-07", "ordinary_time_32_monday", "WEEKDAY", "ordinary_time_32_monday", "YEAR_C", "YEAR_2"),
@@ -89,12 +89,12 @@ func TestOrdinaryReuseDoesNotOverrideFeastOrOtherCycle(t *testing.T) {
 		testDay("2026-11-09", "dedication_of_the_lateran_basilica", "FEAST", "ordinary_time_32_monday", "YEAR_A", "YEAR_2"))
 	importManifest(t, db, m)
 	review(t, db, m.CalendarID, "2022-11-07", "Lc 17,1-6")
-	for _, date := range []string{"2022-11-07", "2028-11-13"} {
+	for _, date := range []string{"2022-11-07", "2028-11-13", "2023-11-13"} {
 		if got, err := LookupFor(t.Context(), db, date, m.CalendarID, DayMass); err != nil || got.Ref != "Lc 17,1-6" {
 			t.Fatalf("ordinary reuse: %+v %v", got, err)
 		}
 	}
-	for _, date := range []string{"2023-11-13", "2026-11-09"} {
+	for _, date := range []string{"2026-11-09"} {
 		if _, err := LookupFor(t.Context(), db, date, m.CalendarID, DayMass); err != sql.ErrNoRows {
 			t.Fatalf("wrong entry reused on %s: %v", date, err)
 		}
@@ -190,6 +190,51 @@ func TestManifestValidationAndAtomicImport(t *testing.T) {
 	db.QueryRow(`SELECT rules_version FROM reading_calendars`).Scan(&version)
 	if version != "test-v1" {
 		t.Fatalf("partial import changed calendar version: %s", version)
+	}
+}
+
+func TestUnreviewedVietnamProviderIsBlockedWithoutLosingDateEvidence(t *testing.T) {
+	db := testDB(t)
+	m := testManifest(testDay("2026-11-09", "dedication_of_the_lateran_basilica", "FEAST", "ordinary_time_32_monday", "YEAR_A", "YEAR_2"))
+	m.CalendarID = "vietnam"
+	m.RulesVersion = "romcal-3.0.0-dev.144-unreviewed"
+	if err := ImportCalendar(t.Context(), db, m); err == nil {
+		t.Fatal("unreviewed national provider imported")
+	}
+	var count int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM reading_calendars`).Scan(&count); err != nil || count != 0 {
+		t.Fatalf("rejected import mutated data: %d %v", count, err)
+	}
+	// Simulate a cache made by the previous adapter before this discrepancy
+	// was identified. Readers and maintenance must also fail closed for it.
+	m.RulesVersion = "reviewed-fixture-v1"
+	importManifest(t, db, m)
+	review(t, db, m.CalendarID, "2026-11-09", "Ga 2,13-22")
+	for _, table := range []string{"reading_calendars", "reading_calendar_days", "reading_entries", "reading_entry_reviews"} {
+		if _, err := db.Exec(`UPDATE ` + table + ` SET rules_version='romcal-3.0.0-dev.144-unreviewed'`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := LookupFor(t.Context(), db, "2026-11-09", m.CalendarID, DayMass); err != sql.ErrNoRows {
+		t.Fatalf("unsafe warm cache used: %v", err)
+	}
+	if _, _, err := EntryForDate(t.Context(), db, m.CalendarID, "2026-11-09"); err != sql.ErrNoRows {
+		t.Fatalf("unsafe crawl candidate: %v", err)
+	}
+	r := EntryReview{CalendarID: m.CalendarID, Date: "2026-11-09", Ref: "Ga 2,13-22", EvidenceURL: SourceURL("2026-11-09"), EvidenceDate: "2026-11-09", Note: "Independently reviewed scoped date"}
+	if err := ReviewEntry(t.Context(), db, r); err == nil {
+		t.Fatal("reusable mapping approved against unsupported calendar rules")
+	}
+	report, err := Audit(t.Context(), db, m.CalendarID, "2026-11-09", "2026-11-09")
+	if err != nil || report.Counts["unsupported_calendar_rules"] != 1 {
+		t.Fatalf("unsupported policy not visible: %+v %v", report, err)
+	}
+	if err := ReviewDate(t.Context(), db, r, "Reviewed date label"); err != nil {
+		t.Fatal(err)
+	}
+	got, err := LookupFor(t.Context(), db, r.Date, m.CalendarID, DayMass)
+	if err != nil || got.ResolutionMethod != "source_checked" || got.Ref != r.Ref {
+		t.Fatalf("independent date evidence was lost: %+v %v", got, err)
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/minh/daily-bible/internal/lectionary"
 	"github.com/minh/daily-bible/internal/scripture"
 )
 
@@ -51,6 +52,9 @@ func sourceObservationAgrees(ctx context.Context, db *sql.DB, date, ref string) 
 // EntryForDate deliberately does not accept the old generated seasonal key.
 func EntryForDate(ctx context.Context, db *sql.DB, calendar, date string) (key, version string, err error) {
 	err = db.QueryRowContext(ctx, `SELECT d.entry_key,d.rules_version FROM reading_calendar_days d JOIN reading_calendars c ON c.calendar_id=d.calendar_id AND c.rules_version=d.rules_version WHERE d.calendar_id=? AND d.date=? AND d.mass_option=? AND d.entry_key<>''`, calendar, date, DayMass).Scan(&key, &version)
+	if err == nil && !lectionary.CalendarRulesSupported(calendar, version) {
+		return "", version, sql.ErrNoRows
+	}
 	return
 }
 

@@ -18,7 +18,7 @@ Every original `gospel_ref` was compared with the audit copy: **zero changes**.
 Six legacy seasonal keys have multiple reference values; this is a review queue,
 not permission to choose their first/majority value.
 
-## Offline evaluation
+## First checkpoint: offline evaluation
 
 Imported the candidate Roman General definitions for 2021–2027: **2,556 dates**.
 Importing them alone approved no readings. Then explicitly reviewed these eight
@@ -80,7 +80,7 @@ This is a bounded source audit, not a crawl of 2,556 dates. Structural verse
 coverage alone cannot detect a preexisting fragment inside a legacy base-verse
 row; passage comparisons remain necessary when certifying new mappings.
 
-## Validation
+## First checkpoint: validation
 
 Passed:
 
@@ -107,6 +107,86 @@ They include the baseline hash, `audit.db`, both calendar manifests,
 `before.json`/`after.json`/`repeat.json`, inventory, source comparison HTML/JSON,
 source-only report, Go test/race logs, warm-cache log, independent runtime copies,
 and `smoke.py`/`smoke-results.json`. Temporary artifacts are not release assets.
+
+## Continuation: annual reuse, grouped queue, and provider rejection
+
+A fresh consistent copy was evaluated with Gospel entry schema 2. Lectionary §69
+establishes annual weekday **Gospel** reuse across I/II first-reading cycles;
+Sunday/proper/memorial identities remain separate. The eight initial reusable
+mappings were explicitly re-reviewed under the new rules version, retaining their
+actual source evidence. Three additional Roman General Sunday-33 mappings
+(A/B/C) were reviewed against the primary Lectionary tables. These are scoped
+reference reviews, **not new Vietnamese-text comparisons or production approval**.
+
+| Classification | After continuation |
+| --- | ---: |
+| `calendar_resolved` | 40 |
+| `calendar_resolved_legacy_difference` | 4 |
+| `source_checked` (date decisions) | 2 |
+| `missing_text` (reviewed year-B Sunday 33) | 3 |
+| `unreviewed_entry` (date rows) | 2,493 |
+| `unsupported_calendar_date` | 14 |
+
+This provides **46 available demonstration dates**, up from 34, without a Gospel
+HTTP request for calendar import/reuse. Eleven reusable reviews support 47 date
+selections, three of which cannot render because `Mc 13,24-32` has no local verse
+rows; two independent date choices bring reference-supported selections to 49.
+A normal missing-text run made **zero HTTP**, returned failure as expected, and
+reported `unresolved=0 missing_text=1` rather than crawling a known reference again.
+
+The read-only `entries` queue contains **1,052 distinct versioned entries**, of
+which **1,041 require review**. Earlier unresolved counts were **date rows**, not
+distinct entries. There are **27 entries with reference variants**. Legacy
+candidate groups have 817 `structurally_available` and 48 `missing_text` statuses;
+none was promoted by frequency or text coverage. Independent exact-date/source-only
+choices are not grouped into reusable entries.
+
+The Vietnam-provider evaluation uncovered an unsafe fixed date/rank: the pinned
+plugin selects the Vietnamese Martyrs on November 13 and leaves November 24 as a
+weekday. Automatic national export/import/reusable reviews and existing derived
+caches with `romcal-` rules versions are now blocked. The rejected manifest was
+not imported. Reviewed custom definitions need their own rules version; changing
+the rejected version's name is not review. Independent accepted date choices are
+not erased by this derived-provider restriction. See
+[the research, primary references, and limitations](calendar-research.md).
+
+For November 15, 2026, the temporary **Roman General** selection is `Mt 25,14-30`,
+citing the real Lectionary PDF without a fabricated evidence date. The original
+`Lc 9,23-26` is retained and can be a legitimate Vietnamese Martyrs alternative;
+the intended local formulary/default remains undecided. The source-only policy
+continues to report its one conflict. No evidence crosses namespaces silently.
+
+Validation passed again:
+
+- Uncached Go/race suites, builds, Staticcheck, and both repositories' workflow lint.
+- Clean calendar install (zero vulnerabilities), five provider tests, and schema,
+  version, annual reuse, rejected-provider and read-only queue regressions.
+- Fifteen frontend tests, lint, reading checker and optimized production build.
+- All **46 available dates plus four unavailable controls** across API, CLI,
+  frontend lookup and production-mode pages: **200 consumer/date checks**.
+  Missing-text, unreviewed and absent-definition controls remain unavailable;
+  undated normative and older-year citations remain honest.
+- Repeat export/import/audit is byte-identical and retains 11 entry reviews,
+  two date reviews and 15 observations. Future Lateran warm reuse makes zero HTTP.
+- Integrity/FK checks passed; all 2,191 original refs and the shipped database hash
+  remain unchanged. Source-only still has 14 supported dates, one conflict and
+  2,541 unverified dates over the extended range.
+
+Three attempted dated Vatican research checks returned HTTP 403; none was
+accepted and no access-control workaround was used. These were separate from the
+zero-HTTP cache runs; the earlier 10-page word comparison was not repeated or
+misrepresented as a fresh source check.
+
+Continuation artifacts (temporary, not release assets):
+
+```text
+/tmp/daily-bible-calendar-continue.h2FdOQ/
+/tmp/daily-bible-calendar-research-continue/
+```
+
+They retain before/after/repeat reports and grouped queues, the rejected provider
+example, normative/public Church sources, test logs, missing-text/warm-cache logs,
+independent DELETE-mode runtime copies and the 46-date parity smoke results.
 
 ## Remaining gates
 

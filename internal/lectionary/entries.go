@@ -19,6 +19,10 @@ type CalendarDay struct {
 	Alternatives []string `json:"alternatives,omitempty"`
 }
 
+// GospelEntrySchemaVersion changes whenever reusable Gospel identities change.
+// Maintenance manifests must explicitly agree; supported caches are not rewritten.
+const GospelEntrySchemaVersion = 2
+
 type EntryDefinition struct {
 	Key         string
 	Celebration string
@@ -66,7 +70,9 @@ func (d CalendarDay) Entry() (EntryDefinition, error) {
 	}
 	switch d.Rank {
 	case "WEEKDAY":
-		e.Key = "temporal:" + d.Observance + ":" + d.WeekdayCycle + ":day"
+		// OLM 69: weekday Gospels repeat annually. I/II distinguishes the
+		// first reading, not the Gospel; proper observances stay separate.
+		e.Key = "temporal:" + d.Observance + ":day"
 	case "SUNDAY":
 		e.Key = "temporal:" + d.Observance + ":" + d.SundayCycle + ":day"
 	case "MEMORIAL", "OPTIONAL_MEMORIAL", "COMMEMORATION":
@@ -88,8 +94,16 @@ func InvariantGospel(entry string) string {
 	return ""
 }
 
-// CalendarSupported describes adapter profiles, not ecclesiastical approval.
+// CalendarSupported describes implemented namespaces, not ecclesiastical approval.
 func CalendarSupported(id string) bool { return id == "roman-general" || id == "vietnam" }
+
+// CalendarRulesSupported blocks the unreviewed national Romcal profile: its
+// pinned Vietnam plugin puts the Vietnamese Martyrs on November 13, not 24.
+// Reviewed national definitions need their own explicit rules version;
+// merely renaming that provider's output does not constitute calendar review.
+func CalendarRulesSupported(id, version string) bool {
+	return CalendarSupported(id) && ValidRulesVersion(version) && !(id == "vietnam" && strings.HasPrefix(version, "romcal-"))
+}
 
 func ValidRulesVersion(version string) bool {
 	return len(version) > 0 && len(version) <= 128 && !strings.ContainsAny(version, "\n\r\t")

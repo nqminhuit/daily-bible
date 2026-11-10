@@ -16,10 +16,11 @@ const SourceCalendar = "vatican-vi"
 const DayMass = "day"
 
 type CalendarManifest struct {
-	CalendarID   string                   `json:"calendar_id"`
-	RulesVersion string                   `json:"rules_version"`
-	SourceURL    string                   `json:"source_url"`
-	Days         []lectionary.CalendarDay `json:"days"`
+	GospelEntrySchema int                      `json:"gospel_entry_schema"`
+	CalendarID        string                   `json:"calendar_id"`
+	RulesVersion      string                   `json:"rules_version"`
+	SourceURL         string                   `json:"source_url"`
+	Days              []lectionary.CalendarDay `json:"days"`
 }
 
 func validEvidenceURL(raw string) bool {
@@ -30,8 +31,14 @@ func validEvidenceURL(raw string) bool {
 // ImportCalendar imports selected observances, not Gospel mappings. Versions
 // invalidate only the resolutions/mappings of this calendar. No legacy refs change.
 func ImportCalendar(ctx context.Context, db *sql.DB, m CalendarManifest) error {
+	if m.GospelEntrySchema != lectionary.GospelEntrySchemaVersion {
+		return fmt.Errorf("calendar Gospel entry schema %d is unsupported; regenerate the manifest with schema %d", m.GospelEntrySchema, lectionary.GospelEntrySchemaVersion)
+	}
 	if !lectionary.CalendarSupported(m.CalendarID) || !lectionary.ValidRulesVersion(m.RulesVersion) || !validEvidenceURL(m.SourceURL) || len(m.Days) == 0 {
 		return fmt.Errorf("invalid calendar manifest")
+	}
+	if !lectionary.CalendarRulesSupported(m.CalendarID, m.RulesVersion) {
+		return fmt.Errorf("unsupported calendar rules: unreviewed Vietnam Romcal profile; provide reviewed national definitions")
 	}
 	definitions := make([]lectionary.EntryDefinition, len(m.Days))
 	seen := map[string]bool{}
@@ -120,6 +127,9 @@ func ReviewEntry(ctx context.Context, db *sql.DB, r EntryReview) error {
 	var version, key string
 	if err := tx.QueryRowContext(ctx, `SELECT d.rules_version,d.entry_key FROM reading_calendar_days d JOIN reading_calendars c ON c.calendar_id=d.calendar_id AND c.rules_version=d.rules_version WHERE d.calendar_id=? AND d.date=? AND d.mass_option=? AND d.entry_key<>''`, r.CalendarID, r.Date, DayMass).Scan(&version, &key); err != nil {
 		return err
+	}
+	if !lectionary.CalendarRulesSupported(r.CalendarID, version) {
+		return fmt.Errorf("unsupported calendar rules; reusable review requires reviewed calendar definitions")
 	}
 	if expected := lectionary.InvariantGospel(key); expected != "" && !scripture.Equivalent(ref, expected) {
 		return fmt.Errorf("reference disagrees with the reviewed proper Gospel %s", expected)

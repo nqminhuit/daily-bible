@@ -47,31 +47,44 @@ calendar approval, remaining archive reviews, and rollout are not complete**.
 
 - Added additive reviewed-entry/date-decision/observation schemas and scoped,
   versioned lookups. Existing `verses`/legacy refs and review history are retained.
-- Added a pinned, maintenance-only calendar adapter for candidate `roman-general`
-  and `vietnam` profiles, with precedence/transfer fixtures. These profiles are
-  not a substitute for approval of the intended national/diocesan calendar.
+- Added a pinned, maintenance-only Roman General evaluation adapter with
+  precedence/transfer fixtures. Continued research exposed a Vietnam-plugin
+  date/rank discrepancy: automatic national export/import, reusable reviews and
+  derived lookups under `romcal-` versions are now blocked. The `vietnam` namespace
+  requires reviewed custom definitions; no guessed national overlay replaces it.
 - API, CLI and companion frontend now support both evidence methods and genuine
   source dates; cache-first maintenance, offline annual extension, and separate
   source-audit automation are implemented.
-- Audited 2,556 dates (2021–2027) on a consistent copy, preserving all 2,191
-  baseline dates and Gospel references. Eight reviewed reusable mappings plus
-  two date-only decisions support 34 dates, including three dates in 2027, with
-  zero reference-crawl requests. **2,508 entries remain unreviewed and 14 generic
-  daytime dates unsupported; this is not release-ready archive coverage.**
+- Audited 2,556 dates (2021–2027) on consistent copies, preserving all 2,191
+  baseline dates and Gospel references. The first checkpoint supported 34 dates;
+  the continuation supports **46** from 11 reviewed reusable mappings and two
+  date-only choices, using zero Gospel HTTP for import/reuse. **2,493 date rows
+  remain unreviewed (1,041 distinct entries); three approved selections lack text,
+  and 14 generic daytime dates are unsupported. This is not release-ready coverage.**
+- Corrected Gospel-only weekday identities to annual reuse across I/II first-reading
+  cycles, supported by Lectionary §69; Sunday A/B/C and proper identities remain
+  separate. Schema-2 manifests/version invalidation require explicit re-review.
+- Added deterministic read-only entry review queues, with scoped/versioned grouping,
+  normalized legacy candidates, structural text statuses and genuine observations.
+  There are 27 grouped entries with reference variants, not automatic corrections.
 - A separate 10-page source sample confirmed all references and Gospel words;
   one cached passage differs only by its terminal closing quotation mark.
 - Uncached/race Go suites, builds, Staticcheck, workflow lint, calendar/frontend
-  tests and production build passed. All 34 available dates and three unavailable
-  controls agree across API, CLI, frontend lookup and production-mode pages.
+  tests and production build passed. The latest run has five provider tests,
+  15 frontend tests, and parity across all **46** available dates plus four
+  unavailable controls in API, CLI, frontend lookup and production-mode pages.
 - Warm future-year reuse makes zero HTTP requests. Missing text is reported and
   remains an operator repair through the existing verse pipeline; no automatic
   missing-text ingestion or blanket legacy approval was introduced.
-- Default remains source-only `vatican-vi`; no intended local calendar has been
-  assumed. November 15 remains unresolved. Neither shipped database was modified,
-  and nothing was pushed/deployed.
+- Default remains source-only `vatican-vi`; no intended local calendar is assumed.
+  November 15's intended local selection remains unresolved. Its Roman General
+  temporal reference is independently established without replacing the legacy
+  Martyrs candidate or approving the local formulary. Neither shipped database
+  was modified, and nothing was pushed/deployed.
 
 Details: [`data/calendar-policy.md`](data/calendar-policy.md) and
-[`data/reading-cache-audit.md`](data/reading-cache-audit.md). Unchecked items below
+[`data/reading-cache-audit.md`](data/reading-cache-audit.md), and
+[`data/calendar-research.md`](data/calendar-research.md). Unchecked items below
 are substantive approval/archive-release work, not permission to bypass evidence.
 
 ## Design Rules
@@ -201,7 +214,7 @@ requests unless an audit or refresh is explicitly requested.
   existing observations. Do not automatically trust each old key's first reference
   or its majority reference.
 - [x] Demonstrate restored date coverage through supported entry reuse without
-  fetching a dated page for each historical row (34 supported candidate dates).
+  fetching a dated page for each historical row (46 available candidate dates).
 - [ ] Review remaining archive mappings and restore production-policy coverage
   after the intended calendar/local rules are confirmed.
 - [ ] Crawl only remaining gaps and a risk-based audit sample: proper celebrations,
@@ -250,8 +263,9 @@ recrawl or an automatic promotion of legacy predictions.
 - [x] November 11, 2026: no leakage of the Lateran Gospel; reviewed `Lc 17,11-19`.
 - [x] Same ordinary entry across eligible dates/years reuses one reference; a
   superseding celebration does not share that entry.
-- [x] Different cycles, Mass options, and calendar scopes do not accidentally share
-  incompatible selections. Equivalent Gospel mappings may share text/reference
+- [x] Weekday Gospel-only entries reuse across I/II first-reading cycles; Sunday
+  A/B/C, proper choices, Mass options, and calendar scopes do not accidentally
+  share incompatible selections. Equivalent Gospel mappings may share text/reference
   storage without conflating their date-resolution rules.
 - [x] November 15 remains explicitly unresolved until the calendar decision is
   supported; a wrong-scope observation cannot silently replace a local selection.

@@ -4,7 +4,8 @@ set -euo pipefail
 calendar=${READING_CALENDAR:-vatican-vi}
 case "$calendar" in
   vatican-vi) exit 0 ;;
-  roman-general|vietnam) ;;
+  roman-general) ;;
+  vietnam) echo 'Vietnam Romcal export disabled; reviewed national definitions required (data/calendar-research.md)' >&2; exit 1 ;;
   *) echo "Unsupported READING_CALENDAR: $calendar" >&2; exit 2 ;;
 esac
 IFS=',' read -r -a years <<< "${1:?comma-separated years required}"

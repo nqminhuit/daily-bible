@@ -9,6 +9,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/minh/daily-bible/internal/lectionary"
 )
 
 type Metadata struct {
@@ -124,6 +126,9 @@ func LookupFor(ctx context.Context, db *sql.DB, date, calendar, option string) (
 	 LEFT JOIN daily_readings dr ON dr.date=d.date
 	 WHERE d.calendar_id=? AND d.date=? AND d.mass_option=? AND d.entry_key<>'' AND r.review_note<>'' AND r.evidence_url<>'' AND r.reviewed_at<>''`, calendar, date, option).Scan(&m.LectionaryKey, &m.Ref, &m.SourceURL, &m.VerifiedAt, &m.Celebration, &m.EntryKey, &m.RulesVersion, &m.EvidenceDate, &m.ReviewNote, &m.CalendarSourceURL, &m.Observance)
 	m.ResolutionMethod = "calendar_resolved"
+	if err == nil && !lectionary.CalendarRulesSupported(calendar, m.RulesVersion) {
+		return m, sql.ErrNoRows
+	}
 	return m, err
 }
 

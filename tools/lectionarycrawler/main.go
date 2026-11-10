@@ -40,7 +40,7 @@ func main() {
 	flag.StringVar(&window.to, "to", "", "last date to verify (YYYY-MM-DD; requires -from)")
 	flag.BoolVar(&window.refresh, "refresh", false, "recheck already verified dates against the source")
 	flag.BoolVar(&window.acceptCorrections, "accept-corrections", false, "allow reviewed source references to replace differing stored refs")
-	flag.StringVar(&window.calendar, "calendar", reading.DefaultCalendar(), "calendar policy: vatican-vi, roman-general, or vietnam (explicit opt-in)")
+	flag.StringVar(&window.calendar, "calendar", reading.DefaultCalendar(), "calendar policy: vatican-vi, roman-general, or vietnam (reviewed national definitions required)")
 	flag.StringVar(&window.calendarFile, "calendar-file", "", "import a versioned calendar manifest; does not approve reading mappings")
 	flag.BoolVar(&window.offline, "offline", false, "resolve from local evidence only; never request source pages")
 	flag.StringVar(&window.auditReport, "audit-report", "", "write an offline classification report; does not repair legacy refs")

@@ -78,6 +78,9 @@ func writeAudit(ctx context.Context, db *sql.DB, years []string, w crawlWindow) 
 			}
 		}
 	}
+	if err := reading.FinalizeAudit(ctx, db, &report); err != nil {
+		return err
+	}
 	f, err := os.Create(w.auditReport)
 	if err != nil {
 		return err
@@ -89,7 +92,7 @@ func writeAudit(ctx context.Context, db *sql.DB, years []string, w crawlWindow) 
 	if err != nil {
 		return err
 	}
-	log.Printf("offline audit: calendar=%s dates=%d http_requests=0 counts=%v", w.calendar, len(report.Rows), report.Counts)
+	log.Printf("offline audit: calendar=%s dates=%d entries=%d http_requests=0 counts=%v", w.calendar, len(report.Rows), len(report.Entries), report.Counts)
 	return closeErr
 }
 

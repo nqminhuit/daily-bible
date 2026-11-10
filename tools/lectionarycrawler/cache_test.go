@@ -18,7 +18,7 @@ func cacheFixture(t *testing.T, reviewed bool) (*http.Client, func(bool, bool) (
 	if _, err := db.Exec(readingsSchema + `; CREATE TABLE verses(book TEXT,chapter INTEGER,verse INTEGER,verse_suffix TEXT,text TEXT)`); err != nil {
 		t.Fatal(err)
 	}
-	manifest := reading.CalendarManifest{CalendarID: "roman-general", RulesVersion: "fixture-v1", SourceURL: "https://example.test/calendar", Days: []lectionary.CalendarDay{
+	manifest := reading.CalendarManifest{GospelEntrySchema: lectionary.GospelEntrySchemaVersion, CalendarID: "roman-general", RulesVersion: "fixture-v1", SourceURL: "https://example.test/calendar", Days: []lectionary.CalendarDay{
 		{Date: "2025-11-09", Observance: "dedication_of_the_lateran_basilica", Rank: "FEAST", Temporal: "ordinary_time_32_sunday", SundayCycle: "YEAR_C", WeekdayCycle: "YEAR_1"},
 		{Date: "2027-11-09", Observance: "dedication_of_the_lateran_basilica", Rank: "FEAST", Temporal: "ordinary_time_32_tuesday", SundayCycle: "YEAR_B", WeekdayCycle: "YEAR_1"},
 	}}

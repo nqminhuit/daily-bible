@@ -142,14 +142,21 @@ conflicts must stay unavailable rather than silently replacing a local reading.
 
 The default `READING_CALENDAR=vatican-vi` preserves the source-only contract:
 exact-date evidence must match the current reference and actual dated page.
-`roman-general` and `vietnam` are **explicit opt-in candidate profiles**, not a
-claim that the intended production calendar or local rules have been approved.
-They use imported, versioned calendar days and **explicitly reviewed reusable
+`roman-general` is an **opt-in evaluation profile**, not production approval.
+The `vietnam` namespace requires reviewed custom national definitions:
+automatic Romcal export/import and derived caches are blocked because the pinned
+plugin misplaces the Vietnamese Martyrs. See [the investigation](data/calendar-research.md).
+Supported calendars use versioned definitions and **explicitly reviewed reusable
 entry mappings**, with date-specific reviewed choices taking precedence. Only the
 `day` Mass option is currently supported; unspecified variants are not guessed.
 
-Sharing verse text and supported lectionary mappings is intentional. What is
-forbidden is treating an estimated seasonal key, legacy majority, or arbitrary
+Sharing verse text and supported lectionary mappings is intentional. Weekday
+Gospels repeat annually across I/II first-reading cycles; Sunday Gospels retain
+A/B/C. Version-2 exports declare `gospel_entry_schema: 2`; regenerate old manifests
+and review changed dependencies rather than silently relabeling approvals.
+Offline audits include a grouped, read-only `entries` review queue with source
+observations and structural text diagnostics, not automatic candidate promotion.
+What is forbidden is treating an estimated seasonal key, legacy majority, or arbitrary
 source observation as proof of equivalent celebrations. Unreviewed references and
 all observed disagreements remain available for audit. Missing/partial verse text
 is reported separately rather than rendered as a complete Gospel.
