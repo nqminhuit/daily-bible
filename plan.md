@@ -40,7 +40,7 @@ publishing. Do not make nearly the entire archive unavailable merely because it
 lacks individual dated-page records if trustworthy calendar-based reuse can
 establish those readings.
 
-## Execution Status — 2026-11-09
+## Execution Status — 2026-11-09/10
 
 The implementation and temporary-copy validation are complete; **production
 calendar approval, remaining archive reviews, and rollout are not complete**.
@@ -71,8 +71,14 @@ calendar approval, remaining archive reviews, and rollout are not complete**.
   one cached passage differs only by its terminal closing quotation mark.
 - Uncached/race Go suites, builds, Staticcheck, workflow lint, calendar/frontend
   tests and production build passed. The latest run has five provider tests,
-  15 frontend tests, and parity across all **46** available dates plus four
+  20 frontend tests, and parity across all **46** available dates plus five
   unavailable controls in API, CLI, frontend lookup and production-mode pages.
+- Frontend diagnostics now use the rendering resolver and one snapshot per
+  monitoring window, distinguishing evidence conflicts/unsupported rules from
+  missing text. Cliff warnings now request supported definitions rather than
+  legacy estimates; a pass certifies its window, not full archive coverage.
+  The November 10 default three-day check correctly fails for unreviewed November
+  12; it was not made green by changing defaults or approvals.
 - Warm future-year reuse makes zero HTTP requests. Missing text is reported and
   remains an operator repair through the existing verse pipeline; no automatic
   missing-text ingestion or blanket legacy approval was introduced.

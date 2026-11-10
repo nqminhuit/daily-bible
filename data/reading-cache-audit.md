@@ -1,4 +1,4 @@
-# Cache implementation audit — 2026-11-09
+# Cache implementation audit — 2026-11-09/10
 
 ## Scope and publication status
 
@@ -187,6 +187,44 @@ Continuation artifacts (temporary, not release assets):
 They retain before/after/repeat reports and grouped queues, the rejected provider
 example, normative/public Church sources, test logs, missing-text/warm-cache logs,
 independent DELETE-mode runtime copies and the 46-date parity smoke results.
+
+## November 10 follow-up: diagnostics and genuine upcoming gap
+
+The frontend availability check previously reinterpreted selection failures with
+a weaker second query path. It could mislabel a new same-source conflict as
+missing verse rows, or an unsupported provider as a missing entry approval.
+Rendering and operator diagnostics now share one resolver; the whole monitoring
+window reads one consistent in-memory snapshot instead of reopening the file for
+each date. The public unavailable-response shape is unchanged.
+
+Diagnostics distinguish unsupported calendar rules/options, missing definitions
+or current reviews, stale explicit date choices, same-source conflicts, invalid
+canonical references and actual missing text. Gospel normalization/equivalence
+also rejects impossible chapter/endpoints, matching Go's canonical checks; it
+does not suggest crawling nonexistent verses.
+
+Validation:
+
+- **20 frontend tests**, lint, optimized production build and workflow lint passed.
+  Disposable subprocess regressions confirm exactly one snapshot file read for
+  the full three-day window, including missing-date diagnostics, and verify
+  distinct source-policy versus calendar-definition cliff remedies. Passing
+  output explicitly limits its claim to the checked window, not the archive.
+- Latest API/CLI/frontend lookup/rendered-page parity: **46 available dates plus
+  five unavailable controls = 204 consumer/date checks**, with honest citations.
+- On November 10 the **unchanged default three-day window correctly fails** for
+  November 12's unreviewed Josaphat selection. This is a genuine demonstration-
+  coverage gap, not a regression or permission to approve a reference automatically.
+- An explicitly bounded November 10–11 positive control passes; the production
+  lookahead default was not reduced. An unsupported `vigil` control fails with
+  its correct configuration diagnostic, not a missing-text/crawl recommendation.
+- Both shipped snapshots remain unchanged. No new source crawl, mapping approval,
+  calendar activation or publication was performed in this diagnostics follow-up.
+
+The continuation directory now also retains `checker-results.json`, the expected
+three-day failure, positive/unsupported-option control logs and updated smoke
+results. The earlier successful November 9–11 check is a historical checkpoint,
+not a claim that later rolling windows have complete coverage.
 
 ## Remaining gates
 
