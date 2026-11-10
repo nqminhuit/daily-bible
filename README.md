@@ -136,9 +136,13 @@ reading or celebration name. Feasts, transferred solemnities, and local calendar
 can override a normal weekday or Sunday. Vatican News's **Vietnamese dated page**
 is the default reading source, but its language is **not proof that it follows a
 Vietnamese diocesan or national calendar**. Parish-specific Masses, local calendar
-rules, and permitted alternatives can legitimately differ. Confirm the intended
-calendar before applying an archive-wide repair; unresolved source/calendar
-conflicts must stay unavailable rather than silently replacing a local reading.
+rules, and permitted alternatives can legitimately differ. The owner confirmed
+**Vietnam's approved national calendar, daytime Mass, no assumed local overlay**
+as the target on 2026-11-10. Follow an authoritative Gospel assignment; otherwise
+use the approved lectionary's first-listed full authorized option. National
+rules, editions, allowed sets and coverage still require review before archive
+repair or activation. Unresolved source/calendar conflicts must stay unavailable
+rather than silently replacing a national reading.
 
 The default `READING_CALENDAR=vatican-vi` preserves the source-only contract:
 exact-date evidence must match the current reference and actual dated page.

@@ -42,8 +42,11 @@ establish those readings.
 
 ## Execution Status — 2026-11-09/10
 
-The implementation and temporary-copy validation are complete; **production
-calendar approval, remaining archive reviews, and rollout are not complete**.
+The cache implementation and Roman General temporary-copy validation are
+complete. The owner **confirmed the Vietnam national/daytime target on
+2026-11-10**, with documented authorized defaults and no assumed local overlay.
+**Authoritative national definitions, remaining archive reviews, and rollout
+are not complete.**
 
 - Added additive reviewed-entry/date-decision/observation schemas and scoped,
   versioned lookups. Existing `verses`/legacy refs and review history are retained.
@@ -70,7 +73,7 @@ calendar approval, remaining archive reviews, and rollout are not complete**.
 - A separate 10-page source sample confirmed all references and Gospel words;
   one cached passage differs only by its terminal closing quotation mark.
 - Uncached/race Go suites, builds, Staticcheck, workflow lint, calendar/frontend
-  tests and production build passed. The latest run has five provider tests,
+  tests and production build passed. That full validation had five provider tests,
   20 frontend tests, and parity across all **46** available dates plus five
   unavailable controls in API, CLI, frontend lookup and production-mode pages.
 - Frontend diagnostics now use the rendering resolver and one snapshot per
@@ -82,11 +85,18 @@ calendar approval, remaining archive reviews, and rollout are not complete**.
 - Warm future-year reuse makes zero HTTP requests. Missing text is reported and
   remains an operator repair through the existing verse pipeline; no automatic
   missing-text ingestion or blanket legacy approval was introduced.
-- Default remains source-only `vatican-vi`; no intended local calendar is assumed.
-  November 15's intended local selection remains unresolved. Its Roman General
-  temporal reference is independently established without replacing the legacy
-  Martyrs candidate or approving the local formulary. Neither shipped database
-  was modified, and nothing was pushed/deployed.
+- Runtime default remains source-only `vatican-vi`; target approval does not
+  activate a profile. November 15's national celebration/default formulary remains
+  unresolved. Its Roman General temporal reference is independently established
+  without replacing the legacy Martyrs candidate or approving the national
+  formulary. Neither shipped database was modified, and nothing was pushed/deployed.
+- Added a six-source national dossier and offline specification tests. Official
+  2026 guidance assigns February 18/19 to Tết Masses and February 20 to the Ash
+  Mass, while Lent and Ash Wednesday Hours remain February 18. The national
+  proclamation mentions both Ascension schedules without settling their default
+  applicability. These facts are not a complete calendar or Gospel approvals.
+  The offline calendar test command now includes five provider tests and five
+  source-dossier/specification guards.
 
 Details: [`data/calendar-policy.md`](data/calendar-policy.md) and
 [`data/reading-cache-audit.md`](data/reading-cache-audit.md), and
@@ -114,12 +124,14 @@ are substantive approval/archive-release work, not permission to bypass evidence
 
 ## Phase 1 — Establish the Calendar Contract
 
-- [ ] Confirm the site's default: a specified Roman calendar, Vietnam's national
-  calendar, or a named diocese/parish calendar.
+- [x] Confirm the site's default: Vietnam's approved national calendar, daytime
+  Mass, no assumed diocesan/parish overlay (owner agreement, 2026-11-10).
 - [ ] Identify authoritative calendar and lectionary references for that scope;
   document Vatican News's role and limitations.
-- [ ] Define the default Mass/reading option where alternatives are permitted.
-  Distinguish a legitimate alternative from an incorrect selection.
+- [x] Define the default Mass/reading option: follow an authoritative assignment;
+  otherwise the first-listed full authorized Gospel in the approved lectionary.
+  Applying this still requires the selected formulary and allowed set to be
+  established. Distinguish legitimate alternatives from incorrect selections.
 - [x] Resolve the November 15 discrepancy against the chosen calendar, or retain
   an explicit unresolved status. Do not hard-code a presumed local explanation.
 - [x] Record calendar identity, rules version, and supported exceptions. Unsupported
@@ -169,6 +181,9 @@ Primary files: `internal/lectionary/types.go`, `calendar.go`, and `generators.go
   `hasDateSpecificReadings()`. Do not simply allow every fixed celebration to
   replace every Sunday.
 - [ ] Add approved national/local rules only within their declared calendar scope.
+  Source facts/specification cases are recorded in `data/vietnam-national-sources.json`;
+  the national adapter is not implemented. Keep assigned Mass, season and Hours
+  distinct; a transferred Ash Mass must not shift the start of Lent.
 - [x] Resolve cycles and Mass options before constructing a reusable entry identity.
 - [x] Produce a structured explanation: selected observance, displaced seasonal
   entry where relevant, rules version, and any unsupported/ambiguous choice.
@@ -221,8 +236,8 @@ requests unless an audit or refresh is explicitly requested.
   or its majority reference.
 - [x] Demonstrate restored date coverage through supported entry reuse without
   fetching a dated page for each historical row (46 available candidate dates).
-- [ ] Review remaining archive mappings and restore production-policy coverage
-  after the intended calendar/local rules are confirmed.
+- [ ] Review remaining archive mappings and restore coverage under the confirmed
+  national target after its authoritative rules/source contract are reviewed.
 - [ ] Crawl only remaining gaps and a risk-based audit sample: proper celebrations,
   transferred dates, Sundays, local exceptions, and dates affected by prior key
   collisions. Audit ordinary dates as controls too.
@@ -302,11 +317,13 @@ build, and production-mode page checks against the reviewed snapshot.
 
 ### Release gates
 
-- [ ] Calendar scope and evidence contract are approved.
+- [x] Target calendar scope and editorial default options are approved.
+- [ ] Authoritative national rules, historical applicability, lectionary editions
+  and evidence contract are reviewed; a supported national adapter is available.
 - [x] Blanket key propagation is removed, and direct-date proof is no longer the
   sole availability contract: explicit calendar profiles support reviewed reuse
   without a legacy fallback. The deliberately source-only default stays date-bound
-  until an intended Mass calendar is approved.
+  until the confirmed national target has reviewed definitions, mappings and coverage.
 - [ ] Coverage and data differences are reviewed; any remaining unavailable dates
   are explicit, not a surprise caused by migration.
 - [ ] Representative source comparisons validate liturgical correctness, not merely

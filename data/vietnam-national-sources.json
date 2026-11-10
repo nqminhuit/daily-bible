@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "purpose": "national-calendar-source-dossier",
+  "status": "partial-primary-rule-facts-not-an-executable-calendar",
+  "target_policy": {
+    "calendar_id": "vietnam",
+    "scope_approved_on": "2026-11-10",
+    "approval_kind": "site-owner-editorial-choice-not-ecclesiastical-promulgation",
+    "mass_option": "day",
+    "gospel_choice": "assigned-reference-then-first-listed-full-authorized-option",
+    "diocesan_overlay": null,
+    "activation": "blocked-pending-reviewed-rules-readings-and-coverage"
+  },
+  "sources": [
+    {
+      "id": "ash-2026",
+      "kind": "national-committee-directive",
+      "authority": "HĐGMVN / Ủy ban Phụng tự",
+      "title": "Thông báo về việc cử hành Lễ Tro năm 2026",
+      "issued_on": "2025-07-14",
+      "page_updated_on": "2026-02-04",
+      "url": "https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-thong-bao-ve-viec-cu-hanh-le-tro-nam-2026",
+      "requested_at": "2026-11-10T05:26:02.095974+00:00",
+      "html_sha256": "ffcf284320cfa98ea0bccffb75c9504103bf9f1db40958a19b47bda4f100927d",
+      "text_sha256": "7bef30c13382c3cff4e25ae23b191abba156920da4dc3b099bca3359bfcc2953"
+    },
+    {
+      "id": "all-saints-2026",
+      "kind": "national-committee-directive",
+      "authority": "HĐGMVN / Ủy ban Phụng tự",
+      "title": "Hướng dẫn cử hành phụng vụ lễ Các Thánh năm 2026",
+      "issued_on": "2026-10-23",
+      "page_updated_on": "2026-10-24",
+      "url": "https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-huong-dan-cu-hanh-phung-vu-le-cac-thanh-nam-2026",
+      "requested_at": "2026-11-10T05:26:02.766928+00:00",
+      "html_sha256": "676bde89788c5e39144fcb476279121c3ef43c88423901a7603aa057ccbced84",
+      "text_sha256": "c80b55d94ea5cf3c88510c422dbb3593f6ee38ea77dfaef293f68aa58a592d5a"
+    },
+    {
+      "id": "tet-2024",
+      "kind": "national-committee-directive",
+      "authority": "HĐGMVN / Ủy ban Phụng tự",
+      "title": "Hướng dẫn cử hành phụng vụ Tết Nguyên Đán Giáp Thìn 2024",
+      "issued_on": "2024-01-15",
+      "page_updated_on": "2024-01-16",
+      "url": "https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-huong-dan-cu-hanh-phung-vu-tet-nguyen-dan-giap-thin-2024-54309",
+      "requested_at": "2026-11-10T05:26:03.331013+00:00",
+      "html_sha256": "79dcb1dcfbe20742c43ed124313bde36d68c361ab45df5767b635121a6541f1a",
+      "text_sha256": "a2ab9dbee50aafb668f3cf91990d7223b41798f0294fb6e8ca22ba890cc5ba43"
+    },
+    {
+      "id": "christmas-2021-2022",
+      "kind": "national-committee-guidance",
+      "authority": "HĐGMVN / Ủy ban Phụng tự",
+      "title": "Giải đáp về phụng vụ Mùa Giáng Sinh năm nay (2021-2022)",
+      "page_updated_on": "2021-12-22",
+      "url": "https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-giai-dap-ve-phung-vu-mua-giang-sinh-nam-nay-2021-2022--44276",
+      "requested_at": "2026-11-10T05:26:03.929324+00:00",
+      "html_sha256": "0ce525edc41cd947a3bda6720e076906af079f1d3926476edf380eceb6e1fddf",
+      "text_sha256": "009f4362c5b6f76283937c021ebd2481fb5480d19defc89c8406fef7157a386e"
+    },
+    {
+      "id": "proclamation-2026",
+      "kind": "national-committee-proclamation-template",
+      "authority": "HĐGMVN / Ủy ban Phụng tự",
+      "title": "Lời thông báo long trọng về lễ Phục sinh và những ngày lễ chính trong năm phụng vụ 2026",
+      "page_updated_on": "2025-12-19",
+      "url": "https://hdgmvietnam.com/chi-tiet/loi-thong-bao-long-trong-ve-le-phuc-sinh-va-nhung-ngay-le-chinh-trong-nam-phung-vu-2026-duoc-cong-bo-vao-ngay-le-chua-hien-linh",
+      "requested_at": "2026-11-10T05:31:10.459939+00:00",
+      "html_sha256": "4d8e2f53f42300815f6af7a6506c669561a1899283a54779ba1ba48ab0b03355",
+      "text_sha256": "ae38f39c23e664d0c4c7a8fc517e2e21c21cf4b4fd2f0164ffd31ff4204d0fa6"
+    },
+    {
+      "id": "tet-explanation-2021",
+      "kind": "committee-endorsed-explanation-not-a-new-decree",
+      "authority": "HĐGMVN / Ủy ban Phụng tự, Lm. Giuse Phạm Đình Ái, SSS",
+      "title": "Hỏi đáp về Thánh lễ trong dịp Tết Nguyên Đán",
+      "page_published_on": "2021-02-05",
+      "page_updated_on": "2021-02-27",
+      "url": "https://hdgmvietnam.com/chi-tiet/hoi-dap-ve-thanh-le-trong-dip-tet-nguyen-dan-41422",
+      "requested_at": "2026-11-10T05:31:11.247080+00:00",
+      "html_sha256": "5b6ca34da48a5ae414d77f01b5af8f5f0151e4608cd28ed0ba8705738760689f",
+      "text_sha256": "3c947e428fcb83fd4d468182126fe153dc168c863cea8f702ff8b5b2d2d2bdbb"
+    }
+  ],
+  "mass_assignments": [
+    { "date": "2022-01-02", "formulary": "epiphany_of_the_lord", "source_id": "christmas-2021-2022", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2024-02-10", "formulary": "tet_day_1_new_year", "source_id": "tet-2024", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2024-02-11", "formulary": "tet_day_2_ancestors", "source_id": "tet-2024", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2026-02-18", "formulary": "tet_day_2_ancestors", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2026-02-19", "formulary": "tet_day_3_labor", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2026-02-20", "formulary": "ash_wednesday", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
+    { "date": "2026-11-01", "formulary": "all_saints", "source_id": "all-saints-2026", "scope": "vietnam", "mass_option": "day" }
+  ],
+  "season_and_hours": {
+    "year": 2026,
+    "lent_starts_on": "2026-02-18",
+    "ash_wednesday_hours_on": "2026-02-18",
+    "ash_wednesday_mass_on": "2026-02-20",
+    "source_ids": ["ash-2026", "proclamation-2026"]
+  },
+  "proclaimed_dates": [
+    { "date": "2026-04-05", "observance": "easter_sunday", "source_id": "proclamation-2026" },
+    { "date": "2026-05-24", "observance": "pentecost_sunday", "source_id": "proclamation-2026" },
+    { "date": "2026-06-07", "observance": "most_holy_body_and_blood_of_christ", "source_id": "proclamation-2026" },
+    { "date": "2026-11-22", "observance": "our_lord_jesus_christ_king_of_the_universe", "source_id": "proclamation-2026" },
+    { "date": "2026-11-29", "observance": "advent_1_sunday", "source_id": "proclamation-2026" }
+  ],
+  "conditional_dates": [
+    {
+      "observance": "ascension_of_the_lord",
+      "dates": ["2026-05-14", "2026-05-17"],
+      "source_id": "proclamation-2026",
+      "status": "template-mentions-both-schedules-territorial-applicability-and-default-not-established"
+    }
+  ],
+  "unresolved": [
+    "Complete approved national calendar and lectionary editions, historical applicability and source contract",
+    "Territorial/default applicability of the Ascension schedules, without assuming a diocesan overlay",
+    "National authority and default formulary for the Vietnamese Martyrs external solemnity on 2026-11-15",
+    "Permitted Gospel sets and first full options from the approved lectionary, separately from calendar facts",
+    "Other national propers, lunar-calendar computations, precedence and year-specific directives",
+    "An adapter separating assigned Mass, season and Hours; no blanket season shift or Roman General fallback"
+  ]
+}

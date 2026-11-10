@@ -226,10 +226,39 @@ three-day failure, positive/unsupported-option control logs and updated smoke
 results. The earlier successful November 9–11 check is a historical checkpoint,
 not a claim that later rolling windows have complete coverage.
 
+## November 10 follow-up: target agreed, national rules not yet implemented
+
+The owner confirmed the Vietnam national/daytime target, with no assumed local
+overlay and a consistent authorized Gospel default; see
+[the policy](calendar-policy.md). This does not promote the Roman General
+checkpoint into national coverage or activate the blocked plugin.
+
+Six HĐGMVN/Ủy ban Phụng tự sources are recorded in the partial
+[national source dossier](vietnam-national-sources.json), with actual URLs,
+request times and captured-response/text fingerprints. They establish seven
+specific Mass cases and the distinction between the 2026 Ash Mass transfer and
+the unchanged start of Lent/Hours. The conditional Ascension proclamation leaves
+territorial/default applicability unresolved. Five offline specification guards
+join the five existing provider tests; they are not a working national adapter.
+See [the research findings](calendar-research.md#confirmed-target-and-primary-national-guidance--2026-11-10).
+
+Validation for this source/policy follow-up: clean pinned calendar install,
+**10 offline calendar tests**, `go test -tags "fts5" -count=1 ./...`, **20 frontend
+tests**, and both worktrees' whitespace checks passed. All six recorded HTML/text
+fingerprint pairs match the captured responses.
+
+No calendar definitions, Gospel reviews, observations, verse rows or shipped
+snapshots were changed by this research. Both shipped database SHA-256 hashes
+remain `e4cbcfe55f603c4e7cdb7c36bf8a3075469d72500fe490fab122c330b36ad1c7`.
+The 46-date demonstration and all unresolved counts above remain **Roman General
+evaluation results**, not Vietnam production coverage. Nothing was pushed or deployed.
+
 ## Remaining gates
 
-Confirm the intended calendar and Mass options; review the remaining archive
-mappings/local exceptions and any needed text repairs; generate a coverage/diff
-report for that policy; approve compatible backend/frontend snapshots and rollback
-procedure. Do not replace unavailable archive rows with unreviewed predictions or
-publish the opt-in demonstration as a production calendar decision.
+Review and implement authoritative national rules, historical applicability,
+lectionary editions and allowed/default formularies for the confirmed target;
+review the remaining archive mappings/local exceptions and any needed text
+repairs; generate a national-policy coverage/diff report; approve compatible
+backend/frontend snapshots and rollback procedure. Do not replace unavailable
+archive rows with unreviewed predictions or publish the opt-in demonstration as
+a supported national calendar.

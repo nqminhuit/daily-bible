@@ -1,9 +1,10 @@
 # Calendar research continuation — 2026-11-09
 
 These findings support scoped implementation/review decisions, **not activation
-of a production calendar**. The intended national/diocesan/parish policy and Mass
-option defaults are still unconfirmed. Research used public sources; no shipped
-verse or reading snapshot was changed.
+of a production calendar**. The initial November 9 research preceded the owner's
+November 10 confirmation of the Vietnam national/daytime target; see the
+[continuation below](#confirmed-target-and-primary-national-guidance--2026-11-10).
+Research used public sources; no shipped verse or reading snapshot was changed.
 
 ## Annual weekday Gospel reuse
 
@@ -121,3 +122,90 @@ the second contains version-2 manifests, the rejected Vietnam-provider example,
 read-only inventory/review queues, explicit demonstration reviews and validation.
 See [the audit checkpoints](reading-cache-audit.md) and
 [the operating contract](calendar-policy.md) for release gates.
+
+## Confirmed target and primary national guidance — 2026-11-10
+
+The owner agreed to **Vietnam's approved national calendar, daytime Mass, no
+assumed diocesan/parish overlay**. Follow an authoritative Gospel assignment;
+otherwise use the first-listed full authorized Gospel in the approved lectionary.
+This is an editorial target/default decision, not ecclesiastical promulgation,
+approval of the beta provider, or permission to publish a snapshot.
+
+The [machine-readable source dossier](vietnam-national-sources.json) captures six
+public HĐGMVN/Ủy ban Phụng tự sources, their actual URLs, document/page dates,
+request timestamps and response/text SHA-256 fingerprints. Request times are not
+review timestamps; page dates are not dates of Gospel evidence. Full responses
+remain research artifacts rather than runtime data. Dynamic page bytes can change;
+a fingerprint identifies the captured response, not an immutable publication.
+This dossier deliberately has no executable calendar schema, complete date set,
+Gospel approvals or production rules version.
+
+### Tết and the 2026 Ash Mass are not ordinary calendar overrides
+
+The [official 2026 Ash directive](https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-thong-bao-ve-viec-cu-hanh-le-tro-nam-2026)
+is signed July 14, 2025; its page includes an English translation added February
+4, 2026. It cites Holy See indult **2407/98L, November 26, 1998**, and explicitly
+assigns the following Masses **in Vietnam**:
+
+| Civil date | Assigned Mass |
+| --- | --- |
+| 2026-02-18 | Mồng Hai Tết — ancestors and parents |
+| 2026-02-19 | Mồng Ba Tết — sanctification of human labor |
+| 2026-02-20 | Ash Wednesday Mass, ashes, fasting and abstinence |
+
+This is a **Mass transfer**, not just a fasting dispensation. The Hours remain
+Ash Wednesday on February 18. The committee's
+[2026 proclamation](https://hdgmvietnam.com/chi-tiet/loi-thong-bao-long-trong-ve-le-phuc-sinh-va-nhung-ngay-le-chinh-trong-nam-phung-vu-2026-duoc-cong-bo-vao-ngay-le-chua-hien-linh)
+explicitly says **Lent still begins February 18**, including omission of Alleluia.
+Do not move the entire season, recalculate Easter, or map Mass and Hours through
+one undifferentiated observance override. The national adapter must distinguish
+these concepts; the present Roman General exporter is not that adapter.
+
+The [2024 Tết directive](https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-huong-dan-cu-hanh-phung-vu-tet-nguyen-dan-giap-thin-2024-54309)
+assigns the New Year Mass throughout February 10 and the ancestors/parents Mass
+throughout Sunday February 11, including evening instructions. Thus national Tết
+Masses cannot simply be appended as optional saints while retaining every
+underlying Sunday. Evening handling remains outside the implemented `day` option.
+
+The [committee-endorsed 2021 explanation](https://hdgmvietnam.com/chi-tiet/hoi-dap-ve-thanh-le-trong-dip-tet-nguyen-dan-41422)
+identifies distinct Tết formularies and the national supplication-day framework.
+It also says a specific announcement accompanies an Ash transfer. It is an
+explanation, not a newly issued decree; do not extrapolate the 2026 assignment
+across all historical/future lunar-calendar collisions without reviewing the
+applicable norms/notices. Its quoted excerpts are not a complete approved Gospel
+option set or a basis for inserting partial passage text.
+
+### Other confirmed dates and an unresolved transfer choice
+
+- The [2026 All Saints directive](https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-huong-dan-cu-hanh-phung-vu-le-cac-thanh-nam-2026),
+  signed October 23, confirms All Saints on November 1 in place of Ordinary
+  Sunday 31; October 31 evening also belongs to All Saints. No generic daytime
+  reading for October 31 is changed by this research.
+- The [Christmas 2021–2022 guidance](https://hdgmvietnam.com/chi-tiet/uy-ban-phung-tu-giai-dap-ve-phung-vu-mua-giang-sinh-nam-nay-2021-2022--44276)
+  explicitly identifies Epiphany on Sunday January 2, 2022. This is an established
+  dated example, not by itself a complete national transfer law for every year.
+- The 2026 proclamation lists Easter April 5, Pentecost May 24, Corpus Christi
+  June 7, Christ the King November 22 and Advent I November 29. Its Ascension
+  text gives **both May 14 (Thursday) and May 17 (Sunday), conditionally**. It does
+  not establish which territorial/default schedule this site should apply.
+  Do not silently select Sunday, Thursday, or a diocesan practice as universally
+  national. Corpus Christi's 2026 date likewise does not alone document every
+  historical year's transfer rule.
+
+These sources do **not** settle November 15's national external-solemnity policy,
+its authorized Gospel/default, all national propers, or the approved lectionary
+editions. The target scope is now confirmed; those source/rule reviews remain
+substantive work, not another request to choose the target calendar.
+
+`tools/calendar/vietnam-policy.test.cjs` provides **specification/guard tests**:
+seven sourced Mass cases (six differ from the configured Roman General profile),
+Mass versus season/Hours, conditional Ascension, evidence integrity, and continued
+provider blocking despite target approval. These tests do not implement or
+certify a national resolver. The full calendar test command now runs five
+provider tests plus five dossier/specification guards, entirely offline.
+
+New temporary artifacts: `/tmp/daily-bible-vietnam-policy.pZMWNv/` (six recorded
+sources, three supplementary publications, ten search responses, and the actual
+19-request status/timestamp log). All requests succeeded; none approved a dated
+Gospel or changed either shipped SQLite snapshot. Continue with reviewed national
+rule/edition/applicability definitions before cache promotion or rollout.
