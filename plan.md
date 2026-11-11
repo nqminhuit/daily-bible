@@ -33,14 +33,14 @@ Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension an
 - Four weekday entries depend on the Sunday cycle (Lent V Monday, Easter IV Monday, Ordinary XVIII Monday and Tuesday); the last two apply only when Sunday XVIII is actually celebrated.
 - Scripts: `tools/archive/` (`crawl.py`, `replay.sh`, `analyze.py`, `versediff.py`).
 
-**Open for the owner before steps 3, 6 and 7:**
+**Owner decisions, 2026-11-11 (the owner took the recommendations):**
 
-1. Presentation and Nativity of Mary: full form (table, owner policy) or the short form the two Vietnamese calendars print for 2026?
-2. Mary, Mother of the Church: the reviewed date says `Ga 19,25-34`; four pages print `Ga 19,25-27`. The table keeps the reviewed value.
-3. 27 entries rest on a single page and no reviewed date (mostly Year B and C Sundays). The plan says to list them as uncovered; shipping them marked single-source would avoid blank Sundays.
-4. Holy Week: Palm Sunday and Good Friday need a reference that crosses chapters (`Mc 14,1-15,47`), which the reference parser does not accept; Holy Thursday and Holy Saturday have no daytime Mass.
-5. The 11 uncovered Sundays need a source other than Vatican News.
-6. Steps 3, 6 and 7 are code changes that go through a pushed branch and draft PR. Nothing may be pushed without the owner's go-ahead, and the base branch needs confirming.
+1. Presentation and Nativity of Mary keep the full form (`Lc 2,22-40`, `Mt 1,1-16.18-23`).
+2. Mary, Mother of the Church keeps the reviewed `Ga 19,25-34`.
+3. The 27 single-page entries ship, marked single-source.
+4. Holy Week stays blank in this release (Palm Sunday, Holy Thursday, Good Friday, Holy Saturday). Cross-chapter Passion references are follow-up work, wanted before Palm Sunday 2027-03-21.
+5. The 11 uncovered Sundays stay uncovered for now; the first falls on 2028-06-25. Fill them later from another source.
+6. `fix/date-verified-mass-readings` may be pushed; its base is `master`. Code tasks go on child branches with draft PRs into it. Deploying still needs a separate go-ahead.
 
 ### Known limits to state plainly at release
 
