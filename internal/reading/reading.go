@@ -40,13 +40,15 @@ func SourceURL(date string) string {
 	return "https://www.vaticannews.va/vi/loi-chua-hang-ngay/" + strings.ReplaceAll(date, "-", "/") + ".html"
 }
 
-// DefaultCalendar preserves the source-only policy until a local calendar is
-// explicitly selected. Importing a profile never silently activates it.
+// ActiveCalendar is the owner-approved production policy (2026-11-11).
+// READING_CALENDAR=vatican-vi restores the source-only contract.
+const ActiveCalendar = "vietnam"
+
 func DefaultCalendar() string {
 	if id := os.Getenv("READING_CALENDAR"); id != "" {
 		return id
 	}
-	return SourceCalendar
+	return ActiveCalendar
 }
 func DefaultMassOption() string {
 	if option := os.Getenv("READING_MASS_OPTION"); option != "" {

@@ -54,6 +54,11 @@ Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension an
 
 **Left for step 7 (needs the owner's go-ahead):** copy the release candidate over both `resources/bible.db` files with rollback copies, switch `READING_CALENDAR` to `vietnam` in both repositories and their workflows, update the frontend docs, push the frontend branch, deploy, then check the live site. After activation the heal job may fetch dated Vatican pages as candidates for unreviewed entries; candidates are not approvals.
 
+### Step 7 — 2026-11-11 (owner said go)
+
+- Backend: `resources/bible.db` replaced by the release candidate (SHA-256 `f3c3bd62…`, journal mode DELETE); the previous file is in git history at `c8a74f3` and in `build/rollback-2026-11-11/`. The default calendar is `vietnam` in `internal/reading`, `prepare-calendar.sh` and the three workflows. The probe passes for today plus two days; over 60 days only 2026-12-20 misses. The yearly and heal workflows were simulated offline on a copy with zero HTTP requests.
+- To roll back: restore `resources/bible.db` from `c8a74f3` and set `READING_CALENDAR=vatican-vi` (repository variable or environment).
+
 ### Known limits to state plainly at release
 
 - Tết days show the ordinary day, or Ash Wednesday when they clash.

@@ -27,7 +27,7 @@ env:
   DB_PATH: resources/bible.db
   LOOKAHEAD_DAYS: ${{ inputs.lookahead_days || '2' }}
   # Activate a national/local policy only after its scope/mappings are reviewed.
-  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vietnam' }}
 
 jobs:
   heal:

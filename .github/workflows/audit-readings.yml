@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vietnam' }}
   DB_PATH: build/source-audit.db
 
 jobs:

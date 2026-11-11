@@ -294,3 +294,14 @@ func TestAuditPreservesLegacyRowsAndDetectsTextGaps(t *testing.T) {
 		t.Fatal(ok, err)
 	}
 }
+
+func TestDefaultCalendarIsVietnamUnlessOverridden(t *testing.T) {
+	t.Setenv("READING_CALENDAR", "")
+	if got := DefaultCalendar(); got != "vietnam" {
+		t.Fatalf("default calendar = %q", got)
+	}
+	t.Setenv("READING_CALENDAR", SourceCalendar)
+	if got := DefaultCalendar(); got != SourceCalendar {
+		t.Fatalf("override = %q", got)
+	}
+}

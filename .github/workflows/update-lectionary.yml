@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 env:
-  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vatican-vi' }}
+  READING_CALENDAR: ${{ vars.READING_CALENDAR || 'vietnam' }}
 
 jobs:
   update-lectionary:

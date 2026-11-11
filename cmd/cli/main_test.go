@@ -16,6 +16,8 @@ import (
 var cliPath string
 
 func TestMain(m *testing.M) {
+	// This suite exercises the source-only contract; the production default is the Vietnam calendar.
+	os.Setenv("READING_CALENDAR", "vatican-vi")
 	tmpDir, err := os.MkdirTemp("", "daily-bible-cli-test")
 	if err != nil {
 		os.Stderr.WriteString("setup: " + err.Error() + "\n")
