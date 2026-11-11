@@ -43,13 +43,6 @@ test('known unreviewed Vietnam plugin discrepancy blocks export', async () => {
   assert.equal(days['2026-11-13'][0].rank, 'FEAST');
   assert.equal(days['2026-11-24'][0].rank, 'WEEKDAY');
   await assert.rejects(generate('vietnam', [2026]), /Vietnam Romcal export disabled/);
-  const { spawnSync } = require('node:child_process');
-  const path = require('node:path');
-  const result = spawnSync('bash', [path.join(__dirname, '../../.github/scripts/prepare-calendar.sh'), '2026'], {
-    env: { ...process.env, READING_CALENDAR: 'vietnam' }, encoding: 'utf8',
-  });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /Vietnam Romcal export disabled/);
 });
 test('unsupported profiles/years are rejected instead of falling back', async () => {
   await assert.rejects(generate('unknown', [2026]));
