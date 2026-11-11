@@ -134,6 +134,20 @@ func IsVerseParagraph(p *html.Node) bool {
 	return false
 }
 
+// continuesVerse reports an unnumbered paragraph (verse continuation, e.g. quoted
+// poetry) directly followed by a numbered one. A trailing unnumbered paragraph is not taken.
+func continuesVerse(p *html.Node) bool {
+	if strings.TrimSpace(GetText(p)) == "" || IsGospelHeader(p) {
+		return false
+	}
+	for next := p.NextSibling; next != nil; next = next.NextSibling {
+		if next.Type == html.ElementNode {
+			return next.Data == "p" && IsVerseParagraph(next)
+		}
+	}
+	return false
+}
+
 func IsGospelHeader(p *html.Node) bool {
 	return IsGospelHeaderText(GetText(p))
 }
@@ -155,7 +169,7 @@ func ExtractGospelSection(content *html.Node) string {
 			continue
 		}
 
-		if IsVerseParagraph(c) {
+		if IsVerseParagraph(c) || continuesVerse(c) {
 			html.Render(&b, c)
 			continue
 		}

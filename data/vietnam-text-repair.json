@@ -1,0 +1,128 @@
+{
+ "schema_version": 1,
+ "purpose": "temporary-copy-verse-repair-ledger-not-an-automatic-ingestion",
+ "scope": "temporary-copy-only",
+ "date": "2026-11-11",
+ "source": "Captured dated Vatican News pages (fingerprints in vietnam-vatican-captures.json), replayed offline through the fixed crawler worker and the TSV converter.",
+ "source_dates": [
+  "2026-03-17",
+  "2026-03-19",
+  "2026-04-14",
+  "2026-05-05",
+  "2026-05-11",
+  "2026-05-15",
+  "2026-05-16",
+  "2026-05-19",
+  "2026-05-20",
+  "2026-06-04",
+  "2026-07-13",
+  "2026-08-13",
+  "2026-08-19",
+  "2026-09-09",
+  "2026-09-16",
+  "2026-09-26"
+ ],
+ "tsv_sha256": [
+  "845a61054d47e5f1b5f9886063ba8339e257247dc3bddcfaadd55f3b580d01a3",
+  "d18fcf0f65840f85a3884b137122202ddc71e894a5d3ae27b5249f1775c85012"
+ ],
+ "inserted_missing_rows": [
+  "Mt 1,24a",
+  "Ga 3,7b",
+  "Ga 14,31a",
+  "Ga 16,1",
+  "Ga 16,2",
+  "Ga 16,3",
+  "Ga 16,4a",
+  "Ga 16,23a",
+  "Ga 17,11a",
+  "Ga 17,11b",
+  "Mc 12,28b",
+  "Mt 19,1",
+  "Mt 20,16a",
+  "Lc 6,26",
+  "Lc 7,33",
+  "Lc 7,34",
+  "Lc 7,35",
+  "Lc 9,43b",
+  "Ga 5,3a",
+  "Ga 16,23b",
+  "Mt 11,1"
+ ],
+ "replaced_corrupted_rows": [
+  {
+   "verse": "Ga 14,30",
+   "old_sha256": "22357b5a96a66101214f7691565c9cad62751473c4a7bd4b36d7d259a2b8583f",
+   "new_sha256": "7fc67c342cee8169008c03459465cd20a682ae8990642cd43f4095e61b225af0",
+   "old_length": 238,
+   "new_length": 114
+  },
+  {
+   "verse": "Ga 15,27",
+   "old_sha256": "7f7cc7008b2f23890ef2701d5ef8a7c5789f066198dbcfaa95ffa656e6793dff",
+   "new_sha256": "748e0417bcde137d1e3a9662fb0e1e490a33977749b2dbf276f3a4d8e15d015a",
+   "old_length": 73,
+   "new_length": 71
+  },
+  {
+   "verse": "Ga 16,22",
+   "old_sha256": "af77890ddd8ff29f56a89758da86ffb6836e00ae79a435c5a5636c3647011c36",
+   "new_sha256": "ab19a79c9813ed599f22261cfca58286bf1cb19d9dd0ccfdb208630fe5dcb553",
+   "old_length": 196,
+   "new_length": 143
+  },
+  {
+   "verse": "Ga 17,10",
+   "old_sha256": "5c956d5ad721bc21e973ccde449444700ea3851b42657a8fe9f7baffc0fdcf13",
+   "new_sha256": "1196e866c066b4c8d22c07155198ad0b879040527ef0f7d8ec43b9ba0dd24975",
+   "old_length": 208,
+   "new_length": 107
+  },
+  {
+   "verse": "Mt 20,15",
+   "old_sha256": "a73ec065c628fcefbb38055f8d90562b642db65ae3f6dabd4e7c17b748f266e2",
+   "new_sha256": "83b14bf7c3aa3c4a4a63d96b543462a1a3b7061c0e146466ef61df044409cc4d",
+   "old_length": 228,
+   "new_length": 128
+  },
+  {
+   "verse": "Lc 6,25",
+   "old_sha256": "1355e12af7fe0dbf29a23246436acb89929b02ac3d311c932fd7b05c148fc354",
+   "new_sha256": "14db54a33d61cfc0a71bfca173582b5bbbaf4bd66e442c7648132643f8141909",
+   "old_length": 84,
+   "new_length": 186
+  },
+  {
+   "verse": "Lc 7,32",
+   "old_sha256": "4ff021f50fe5c0b371d053ce6de6c8f2f6712bd345f00e67a56240ef26649d34",
+   "new_sha256": "154b68915b3e56a70a018dfc5ee57cdc30ddd4bd92e4f171289e097963815610",
+   "old_length": 52,
+   "new_length": 165
+  },
+  {
+   "verse": "Ga 5,2",
+   "old_sha256": "93ec75bf26ffe82b2b32e34c0c30c9a2415344497ad6365c6ba7ac53c779b250",
+   "new_sha256": "6ab9879cc6a7e04590fb50f27a4c98b616bf68c9a96f86e7b41a93340e583ddc",
+   "old_length": 169,
+   "new_length": 106
+  },
+  {
+   "verse": "Mt 10,42",
+   "old_sha256": "37d8dba60233e401460f5ba644dabf9bc233ba2b1588963083afa2a6929555fd",
+   "new_sha256": "79687139a3bc0debcc0b25e2a639d45188b6a9c7fb53a8116ff83fffba316b45",
+   "old_length": 173,
+   "new_length": 171
+  }
+ ],
+ "replacement_reason": "Each replaced row carried importer damage, not a wording choice: the next liturgical part fused into it (for example verse 30 containing the text of 31a), a stray next-chapter number at its end, or a passage cut at an unnumbered paragraph. The same reviewed capture supplies the corrected row. This departs from the earlier missing-only rule and needs owner confirmation before any promotion.",
+ "wording_differences_left_unchanged": [
+  "Mt 1,16",
+  "Ga 3,13",
+  "Ga 3,15",
+  "Lc 6,20",
+  "Ga 5,9"
+ ],
+ "still_missing": [
+  "Ga 19,25-34 (May 25): the dated Vatican page prints Ga 19,25-27, so no reviewed capture covers verses 28-34"
+ ]
+}

@@ -5,6 +5,8 @@ const review = require('../../data/vietnam-content-review.json');
 const captures = require('../../data/vietnam-content-captures.json');
 const rules = require('../../data/vietnam-pilot-2026.json');
 const baseline = require('../../data/vietnam-baseline-reviews.json');
+const vatican = require('../../data/vietnam-vatican-captures.json');
+const repair = require('../../data/vietnam-text-repair.json');
 
 test('content reviews retain actual captures and do not become automatic calendar approvals', () => {
   assert.equal(review.auto_approve, false);
@@ -101,20 +103,43 @@ test('baseline review ledger is a record of explicit temporary-copy reviews, not
   const dates = new Set();
   const earlier = JSON.stringify(require('../../data/vietnam-pilot-reading-evidence.json'));
   const captured = new Set(Object.values(captures).map(c => c.url));
-  for (const url of baseline.evidence_urls) assert.ok(captured.has(url) || earlier.includes(JSON.stringify(url)), url);
+  const vaticanDates = new Set(vatican.captures.map(c => c[0]));
+  const vaticanDate = url => (url.match(/^https:\/\/www\.vaticannews\.va\/vi\/loi-chua-hang-ngay\/(\d{4})\/(\d{2})\/(\d{2})\.html$/) || []).slice(1).join('-');
+  for (const url of baseline.evidence_urls) assert.ok(captured.has(url) || earlier.includes(JSON.stringify(url)) || vaticanDates.has(vaticanDate(url)), url);
   for (const [date, ref, kind, url, evidenceDate, reviewedAt, status] of baseline.reviews) {
     assert.match(date, /^2026-\d{2}-\d{2}$/);
     assert.ok(!dates.has(date));
     dates.add(date);
     assert.match(ref, /^(Mt|Mc|Lc|Ga) \d/);
-    assert.ok(kind === 'individual' || kind === 'agreement');
+    assert.ok(['individual', 'agreement', 'vatican-agreement'].includes(kind));
+    if (kind === 'vatican-agreement') assert.equal(vaticanDate(baseline.evidence_urls[url]), date);
     assert.ok(baseline.evidence_urls[url]);
-    if (kind === 'agreement') assert.equal(evidenceDate, date);
+    if (kind !== 'individual') assert.equal(evidenceDate, date);
     assert.ok(Date.parse(reviewedAt) >= Date.parse('2026-11-11T00:00:00Z'));
     assert.ok(['calendar_resolved', 'calendar_resolved_legacy_difference', 'missing_text'].includes(status));
     assert.ok(!rules.unsupported[date]);
   }
-  assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 18);
+  assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 25);
   for (const date of baseline.not_reviewed.unreviewed_dates) assert.ok(!dates.has(date));
   assert.equal(dates.size + baseline.not_reviewed.unreviewed_dates.length + baseline.not_reviewed.unsupported_dates.length, 365);
+});
+
+test('verse repair ledger lists bounded inserts and explicit corrections of importer damage', () => {
+  assert.equal(repair.scope, 'temporary-copy-only');
+  assert.match(repair.purpose, /not-an-automatic-ingestion/);
+  assert.equal(repair.inserted_missing_rows.length, 21);
+  assert.equal(repair.replaced_corrupted_rows.length, 9);
+  assert.match(repair.replacement_reason, /needs owner confirmation/);
+  const vaticanDates = new Set(vatican.captures.map(c => c[0]));
+  for (const date of repair.source_dates) assert.ok(vaticanDates.has(date), date);
+  for (const row of repair.replaced_corrupted_rows) {
+    assert.match(row.old_sha256, /^[a-f0-9]{64}$/);
+    assert.match(row.new_sha256, /^[a-f0-9]{64}$/);
+    assert.notEqual(row.old_sha256, row.new_sha256);
+    assert.ok(!repair.inserted_missing_rows.includes(row.verse));
+  }
+  for (const capture of vatican.captures) {
+    assert.match(capture[2], /^[a-f0-9]{64}$/);
+    assert.match(capture[3], /^[a-f0-9]{64}$/);
+  }
 });

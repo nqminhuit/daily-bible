@@ -21,8 +21,13 @@ import (
 	"github.com/minh/daily-bible/internal/parser"
 )
 
-var verseLine = regexp.MustCompile(`\s*\{\{(\d+)\}\}`)
-var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+)\s*(?:</[^>]+>\s*)*</sup>`)
+var verseLine = regexp.MustCompile(`\s*\{\{(\d+[a-z]?)\}\}`)
+
+// A liturgical part marker such as <sup>24a</sup> is its own verse row, not text.
+var verseHTML = regexp.MustCompile(`<sup[^>]*>\s*(?:<[^>]+>\s*)*(\d+[a-z]?)\s*(?:</[^>]+>\s*)*</sup>`)
+
+// A paragraph opening with a bare or bold number before verse 1 starts a new chapter.
+var chapterHTML = regexp.MustCompile(`(<p[^>]*>)\s*(?:<(?:b|strong)[^>]*>\s*)?(\d{1,3})\s*(?:</(?:b|strong)>\s*)?(<sup[^>]*>\s*1[a-z]?\s*</sup>)`)
 
 type crawlCounters struct {
 	checked      int64
@@ -139,8 +144,11 @@ func cleanText(s string) string {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	s = strings.ReplaceAll(s, "\r", "\n")
 
+	s = chapterHTML.ReplaceAllString(s, "$1\n"+cst.ChapterMarkerPrefix+"$2"+cst.ChapterMarkerSuffix+"\n$3")
 	s = wrapVerseHTML(s)
 	s = verseLine.ReplaceAllString(s, "\n{{$1}} ")
+	// Keep an unnumbered continuation paragraph from fusing with the previous word.
+	s = strings.ReplaceAll(s, "</p>", " </p>")
 
 	s = stripHtmlTags(s)
 

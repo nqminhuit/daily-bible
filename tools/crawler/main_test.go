@@ -724,3 +724,22 @@ func TestProcessedAndMissingWriters(t *testing.T) {
 		}
 	}
 }
+
+func TestCleanTextKeepsSuffixVersesChaptersAndContinuations(t *testing.T) {
+	in := `<p>✠Tin Mừng. Ga 15,26 - 16,4a</p><p><sup>27</sup> Từ đầu.</p> <p>16 <sup>1</sup> Một. <sup>4a</sup> Bốn.</p>` +
+		`<p><b>19</b> <sup>1</sup> Mười chín.</p><p><sup>32</sup> Họ nói :</p><p>‘Tụi tôi thổi sáo.’</p><p><sup>33</sup> Thật vậy. 16 người.</p>`
+	want := []string{
+		"{{27}}  Từ đầu.",
+		"[[chapter:16]]",
+		"{{1}}  Một.",
+		"{{4a}}  Bốn.",
+		"[[chapter:19]]",
+		"{{1}}  Mười chín.",
+		"{{32}}  Họ nói : ‘Tụi tôi thổi sáo.’",
+		"{{33}}  Thật vậy. 16 người.",
+	}
+	got := strings.Split(cleanText(in), "\n")[1:]
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+}

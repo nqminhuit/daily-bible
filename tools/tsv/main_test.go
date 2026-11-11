@@ -110,3 +110,34 @@ func TestTSVMain_SkipsUnknownBookReferences(t *testing.T) {
 		t.Fatalf("unexpected output line: %q", lines[0])
 	}
 }
+
+func TestTSVMain_SuffixRowsAndConsecutiveChapterMarkers(t *testing.T) {
+	dir := t.TempDir()
+	in := strings.Join([]string{
+		"__ref__: Ga 15,26-16,4a",
+		"{{27}} Từ đầu.",
+		"[[chapter:16]]",
+		"{{1}} Một.",
+		"{{4a}} Bốn.",
+		"[[chapter:18]]", // not the next chapter: ignored
+		"{{5}} Năm.",
+		"__ref__: Mt 1,16.18-21.24a",
+		"[[chapter:x]]",
+		"{{24a}} Khi tỉnh giấc.",
+	}, "\n")
+	inputPath, outputPath := filepath.Join(dir, "gospels.txt"), filepath.Join(dir, "gospels.tsv")
+	if err := os.WriteFile(inputPath, []byte(in), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := convert(inputPath, outputPath); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(outputPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "Ga\t15\t27\t\tTừ đầu.\nGa\t16\t1\t\tMột.\nGa\t16\t4\ta\tBốn.\nGa\t16\t5\t\tNăm.\nMt\t1\t24\ta\tKhi tỉnh giấc.\n"
+	if string(b) != want {
+		t.Fatalf("got %q want %q", b, want)
+	}
+}

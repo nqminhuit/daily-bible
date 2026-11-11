@@ -256,3 +256,51 @@ The owner then chose the **ordinary day** for February 17, October 4 and October
 250 explicit reviews: 232 by the two-calendar rule and 18 individual. The four new individual ones are `Mc 8,14-21` (February 17, Vĩnh Long), `Mt 21,33-43` (October 4) and `Mt 22,15-21` (October 18), both listed by Hà Nội and Vĩnh Long for the Sunday, and `Mt 10,7-13` for Saint Barnabas on June 11 from the dated Vatican News page; the two calendars' `Mt 10,6-13` stays recorded as a discrepancy.
 
 The same validation was repeated and passes: Go tests, race suite, Staticcheck, 22 calendar tests, CLI/frontend parity on 367 dates, idempotent re-review, integrity checks, unchanged shipped hashes. The missing-text list and the July/December gap are unchanged. Artifacts: `build/vietnam-baseline-2026-11-11b/` (ignored), `audit.db` SHA-256 `0a1cfd281009004aada178582230998971845bb099134d5c61c624d22e76a204`.
+
+## Text repair and gap review — 2026-11-11 (current state)
+
+Same rules version (`…803f03d3d1f36e12fe27`); no definition changed, so earlier reviews stand. The sections above are earlier states of the same day.
+
+| Status | Dates |
+| --- | ---: |
+| Renderable | **327** |
+| Reviewed, verse text missing | 1 |
+| Supported definition, Gospel unreviewed | 35 |
+| Unsupported (Holy Thursday, Holy Saturday) | 2 |
+
+### Importer bugs found and fixed
+
+The 13 missing-text passages were not missing downloads. The verse importer mishandled three page shapes, and the same bugs had already damaged stored rows:
+
+1. **Part markers** such as `<sup>24a</sup>` were not verse markers, so `31a` was fused into verse 30 and no `31a` row existed.
+2. **Chapter changes** inside a passage (`<b>19</b> <sup>1</sup>`) left the chapter number glued to the previous verse and filed the next verses under the old chapter.
+3. **Unnumbered paragraphs** (quoted poetry, continued sentences) ended extraction, cutting `Lc 7,31-35` after verse 32.
+
+Fixes: `tools/crawler` accepts suffixed markers and emits a `[[chapter:N]]` line; `tools/tsv` follows it only for the directly following chapter; `internal/parser` keeps one unnumbered paragraph when a numbered one follows it. A trailing unnumbered paragraph is still not taken. Regression tests cover all three and their rejection cases.
+
+### Verse repair on the temporary copy
+
+Sixteen captured dated Vatican News pages were replayed offline through the fixed crawler and TSV converter. [`vietnam-text-repair.json`](vietnam-text-repair.json) lists the result: **21 rows inserted** and **9 existing rows replaced**. Verse rows go from 2,922 to 2,943; FTS matches.
+
+The nine replacements **depart from the earlier missing-only rule and need owner confirmation before any promotion**. Each replaced row carried importer damage, not a wording choice: `Ga 14,30`, `Ga 16,22`, `Ga 17,10`, `Mt 20,15` and `Ga 5,2` contained the following part's text; `Ga 15,27` and `Mt 10,42` ended in a stray chapter number; `Lc 6,25` and `Lc 7,32` were cut short. Inserting the missing part without correcting them would print sentences twice. Five rows that differ only in wording or spacing were left alone. Old and new hashes are in the ledger.
+
+Still missing: `Ga 19,25-34` (May 25). The Vatican page prints `Ga 19,25-27`, so no reviewed capture covers verses 28-34.
+
+### Gap review
+
+Hà Nội's July page returned HTTP 520 a fifth time. For the 82 non-December dates still unreviewed, the dated Vatican News page was captured (one request each, 97 Vatican captures in total, fingerprints in [`vietnam-vatican-captures.json`](vietnam-vatican-captures.json)).
+
+- **71 by a fallback rule**: the Vatican page's Gospel must equal the reference Vĩnh Long or Hà Nội lists for that date. All of July is here (Vatican plus Vĩnh Long).
+- **7 by hand**, each with its discrepancy written into the note: `Ga 5,1-3a.5-16` (March 17), `Ga 14,1-6` (May 1, single-calendar evidence), `Ga 19,25-34` (May 25, the two calendars against Vatican), `Mt 10,26-33` (June 21), `Mc 6,17-29` (August 29), `Ga 19,25-27` (September 15), `Lc 19,11-28` (November 18). On May 1 and November 18 Vatican News follows an optional memorial, which the owner's policy does not select.
+
+Three memorials (August 22, October 7, November 21) took the proper Gospel that Vatican and Vĩnh Long share; Hà Nội lists the weekday Gospel there. That is a real choice between permitted readings, recorded in the note.
+
+Totals: 328 explicit reviews (232 two-calendar, 71 Vatican fallback, 25 individual). On 57 reviewed dates the legacy stored reference differs.
+
+Unreviewed: December except Advent I's Sunday (31 dates; neither calendar has published the new year's readings), Palm Sunday and Good Friday (no usable single Gospel line), All Souls (several permitted sets) and Saint Andrew on November 30.
+
+### Validation
+
+Go tests, race suite, `go vet` and Staticcheck pass; 23 calendar tests and 24 frontend tests pass. CLI and frontend agree on **reference and passage text** for all 367 checked dates. Reapplying all 328 reviews added no history; the repeat audit is byte-identical. Integrity and foreign-key checks pass; 2,191 legacy date rows and 15 observations unchanged; shipped hashes unchanged. Frontend lint, production build and page smoke tests were not rerun.
+
+Artifacts: `build/vietnam-baseline-2026-11-11c/` (ignored), `audit.db` SHA-256 `6e484f46f9c41902c663e285bf3e99e2d192395d06091ac3f650b034c39e6465`, with both replay pipelines and all captures.

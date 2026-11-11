@@ -5,16 +5,19 @@ Updated **2026-11-11**, Asia/Ho_Chi_Minh. This is the current handoff, not a res
 ## Current state — 2026-11-11 (wins over any older statement below)
 
 - **Owner decisions made on 2026-11-11. Do not ask again:** Sunday XXXIII on November 15; Ascension on Sunday; agreeing official calendars of two dioceses count as evidence; the General Roman calendar is the baseline for dates with no known Vietnamese rule; keep the ordinary day over optional celebrations (February 17, October 4, October 18).
-- **Pilot on the temporary copy: 237 renderable / 13 missing text / 113 unreviewed / 2 unsupported** (Holy Thursday, Holy Saturday), rules version `vietnam-national-pilot-2026-803f03d3d1f36e12fe27`, 2026 only. Not activated; both shipped databases unchanged (`e4cbcfe5…`); nothing deployed.
-- Current DB: `build/vietnam-baseline-2026-11-11b/audit.db` (ignored; SHA-256 `0a1cfd281009004aada178582230998971845bb099134d5c61c624d22e76a204`). Manifest, reports, review plan, captures and matching scripts sit beside it. `build/vietnam-baseline-2026-11-11/` and `build/vietnam-rules-2026-11-11/` are earlier copies under superseded rules versions.
-- 250 explicit entry reviews: 18 individual, 232 by the two-calendar rule (Hà Nội Gospel found inside Vĩnh Long's entry for the same date). Ledger: `data/vietnam-baseline-reviews.json`. Mồng Ba Tết is `Mt 25,14-30`.
+- **Pilot on the temporary copy: 327 renderable / 1 missing text / 35 unreviewed / 2 unsupported** (Holy Thursday, Holy Saturday), rules version `vietnam-national-pilot-2026-803f03d3d1f36e12fe27`, 2026 only. Not activated; both shipped databases unchanged (`e4cbcfe5…`); nothing deployed.
+- Current DB: `build/vietnam-baseline-2026-11-11c/audit.db` (ignored; SHA-256 `6e484f46f9c41902c663e285bf3e99e2d192395d06091ac3f650b034c39e6465`), with manifest, reports, review plan, captures, scripts and both replay pipelines. Older `build/vietnam-*` directories are superseded.
+- 328 explicit entry reviews: 232 two-calendar (Hà Nội Gospel found in Vĩnh Long's entry for the date), 71 Vatican fallback (dated Vatican page equals one calendar), 25 individual. Ledger: `data/vietnam-baseline-reviews.json`.
+- **Importer fixed** (suffixed part markers, chapter changes inside a passage, unnumbered continuation paragraphs) with tests. Verse repair on the copy: 21 rows inserted, **9 importer-damaged rows replaced**; ledger `data/vietnam-text-repair.json`. **The nine replacements break the old missing-only rule and need the owner's confirmation before any promotion.** The shipped databases almost certainly hold more rows damaged the same way outside these passages; nobody has scanned for them.
+- **Owner confirmations still outstanding:** (1) the script-applied reviews (232 + 71); (2) the nine row replacements.
 - **Next work, in order:**
-  1. Repair the 13 missing-text passages through the verse crawler/TSV pipeline (list in the last section of `data/vietnam-content-audit.md`).
-  2. Review the 113 unreviewed dates: retry the Hà Nội July page (HTTP 520 three times on November 11), wait for its December page, and hand-check the 51 other dates where the two calendars differ or the parser missed.
-  3. Then other years, snapshots, rollback and activation. Each year needs its own definitions; the exporter rejects anything but 2026.
+  1. December 2026 (31 dates): neither calendar has published the new year's readings; Hà Nội's December page and the next Vĩnh Long Ordo are the sources to wait for. Hà Nội's July page returned HTTP 520 five times; July was reviewed from Vatican plus Vĩnh Long.
+  2. Four special dates: Palm Sunday, Good Friday (not a Mass; decide what the site shows), All Souls (several permitted sets), Saint Andrew November 30. And `Ga 19,25-34` text for May 25.
+  3. Scan the verse store for importer damage (fused `NNa`/`NNb` parts, trailing chapter numbers, truncated verses) and decide the repair policy with the owner.
+  4. Then other years, snapshots, rollback and activation. Each year needs its own definitions; the exporter rejects anything but 2026.
 - Not obtained: the Martyrs decree (CD 878/90), the HĐGMVN 4-1991 act, the approved lectionary's pages. Đà Lạt returned 403; not bypassed.
 - **Git:** the backend branch is on origin at `5483740`; later commits are local only. The frontend worktree has no upstream and its docs still describe the old nine-date pilot. This session pushed nothing.
-- Validation this session: Go tests, race, Staticcheck, 22 calendar tests, 24 frontend tests, CLI/frontend parity on 367 dates, idempotent re-review. Lint, production build and page smoke tests were not rerun. Go tests fail if `DB_PATH`/`READING_CALENDAR` are exported in the shell; unset them first.
+- Validation this session: Go tests, race, vet, Staticcheck, 23 calendar tests, 24 frontend tests, CLI/frontend parity on reference and text for 367 dates, idempotent re-review. Frontend lint, production build and page smoke tests were not rerun. Go tests fail if `DB_PATH`/`READING_CALENDAR` are exported in the shell; unset them first.
 
 ## Read this first
 

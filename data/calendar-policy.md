@@ -43,7 +43,7 @@ On 2026-11-11 the owner further approved: the **General Roman calendar as baseli
 
 The owner also keeps the ordinary day on February 17, October 4 and October 18, 2026 rather than the optional Tết, Rosary and Mission Masses.
 
-The [content continuation](vietnam-content-audit.md) has 237 renderable pilot dates, 13 with missing text, 113 unreviewed and 2 unsupported definitions on a temporary copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
+The [content continuation](vietnam-content-audit.md) has 327 renderable pilot dates, 1 with missing text, 35 unreviewed and 2 unsupported definitions on a temporary copy. Its verse repair replaced nine importer-damaged rows; that exception to the missing-only rule needs owner confirmation before promotion. Its [source contract/review ledger](vietnam-content-review.json) explicitly
 keeps the found Vĩnh Long Ordo diocesan and a publisher's 2017 lectionary catalogue
 separate from approval, authorized option ordering and national-calendar scope.
 Neither document is an importable manifest or automatic approval source.

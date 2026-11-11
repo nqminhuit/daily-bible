@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	cst "github.com/minh/daily-bible/internal/crawlerconfig"
@@ -47,6 +48,27 @@ func parseReference(ref string) (book, chapter string, ok bool) {
 	return book, m[2], true
 }
 
+// nextChapter accepts only a marker for the chapter directly after the current one.
+func nextChapter(line, chapter string) (string, bool) {
+	raw, ok := strings.CutPrefix(line, cst.ChapterMarkerPrefix)
+	if !ok {
+		return "", false
+	}
+	raw, ok = strings.CutSuffix(raw, cst.ChapterMarkerSuffix)
+	if !ok {
+		return "", false
+	}
+	current, err := strconv.Atoi(chapter)
+	if err != nil {
+		return "", false
+	}
+	announced, err := strconv.Atoi(raw)
+	if err != nil || announced != current+1 {
+		return "", false
+	}
+	return raw, true
+}
+
 func main() {
 	if err := convert(cst.OutFilename, cst.OutTsvFilename); err != nil {
 		panic(err)
@@ -86,6 +108,11 @@ func convert(inputPath, outputPath string) error {
 				book = ""
 				chapter = ""
 			}
+			continue
+		}
+
+		if next, ok := nextChapter(line, chapter); ok {
+			chapter = next
 			continue
 		}
 

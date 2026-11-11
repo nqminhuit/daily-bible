@@ -12,6 +12,10 @@ const (
 	FailedFile     = "build/failed.txt"
 	MissingVerseF  = "build/missing_verse_number.txt"
 	OutTsvFilename = "build/gospels.tsv"
+
+	// Crawler output line announcing a chapter change inside one passage.
+	ChapterMarkerPrefix = "[[chapter:"
+	ChapterMarkerSuffix = "]]"
 )
 
 const (
