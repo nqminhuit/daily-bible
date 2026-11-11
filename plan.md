@@ -1,5 +1,39 @@
 # Plan: Correct Daily Gospels with Safe Cache Reuse
 
+## Current plan — 2026-11-11: one complete lectionary table for every future date
+
+**This section is the active plan. Everything below it is history of how we got here.**
+
+Decided by the owner on 2026-11-11: the site should work for all future dates without yearly review, and **Tết Masses are out of scope**. Not started; the owner will say when to begin.
+
+### Why this works
+
+The lectionary is a finite table of roughly 900 entries: Sundays on a three-year cycle, weekdays on a yearly cycle, saints' days on fixed dates. Which entry falls on which date is calculation, which the pinned calendar provider does through 2199. Fill the table once and no date needs individual review again. The 2026 pilot filled it one date at a time; this plan fills all of it.
+
+Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension and Corpus Christi on Sunday, and the Vietnamese Martyrs solemnity on November 24. Earlier owner decisions still apply: General Roman baseline, ordinary day over optional celebrations, first-listed full option, daytime Mass, no diocesan overlay.
+
+### Steps
+
+1. **Crawl the Vatican News archive once.** Every dated page from 2021-01-01 to 2026-12-31, about 2,200 pages at one request per second (roughly 40 minutes). Reuse the 97 pages already captured. Capture to disk with a request log and fingerprints; no bypassing of failures; record them and move on. The owner approved this crawl.
+2. **Rebuild verse text from the crawl.** Replay every captured page offline through the fixed importer (suffixed parts, chapter changes, continuation paragraphs) and the TSV converter. Diff against the shipped store. This replaces pattern scanning: it finds every fused, mis-chaptered or truncated row, including the five known ones (`Ga 15,1-3`, `Mt 10,1`, `Mt 18,1`, `Mc 8,38`, `Mt 11,17`). Wording-only differences are listed, not applied silently.
+3. **Make entry identities year-independent.** Today saints' days carry their year's cycles and weekday context, so nothing reuses. Target identities: weekday by season/week/day; Sunday plus A/B/C; fixed-date celebration by its name, with a cycle only where the Gospel really varies. This is a Gospel-entry schema change (schema 4): regenerate, never relabel old approvals.
+4. **Fill the table from six years of evidence.** Map each crawled date to its entry with the provider, group the page Gospels by entry, and accept an entry only when every year that has it agrees. List disagreements for a hand check. Memorials need care: Vatican News sometimes follows an optional memorial; the owner's policy keeps the ordinary day.
+5. **Check against independent evidence.** The 328 reviewed 2026 dates in `data/vietnam-baseline-reviews.json` (checked against the Hà Nội and Vĩnh Long calendars) are the test set. Any table entry that contradicts them is investigated, not overridden.
+6. **Generate the calendar far ahead** (through 2050) with the Sunday transfers and the November 24 rule, lifting the 2026-only guard. Remove the Tết and Ash-transfer definitions and the now-unused formulary identities.
+7. **Ship.** Build matching backend and frontend snapshots from the table, calendar and rebuilt verse store; diff against the current shipped database; keep rollback snapshots; switch `READING_CALENDAR` in both repositories; update the frontend docs. Push and deploy only on the owner's explicit go-ahead.
+
+### Known limits to state plainly at release
+
+- Tết days show the ordinary day, or Ash Wednesday when they clash.
+- Where the Church allows a choice the site shows one fixed option.
+- A newly added saint's day needs a one-line table update.
+- The calendar provider is a beta. It matched the diocesan calendars on the reviewed 2026 dates; keep a yearly spot-check against a published calendar.
+- Vatican News is the single text source. Entries that occur only once in 2021-2026, or never (rare week/weekday combinations), will be listed as uncovered rather than guessed.
+
+### Urgent regardless of this plan
+
+The shipped date table ends on **2026-12-31** (2,191 rows, 2021-2026). The frontend monitor warns 45 days before the end, around 2026-11-16, and the site has no reading for 2027-01-01 until either this plan ships or the old table is extended as a stopgap.
+
 ## Goal
 
 Match the Gospel to the intended Mass calendar without crawling every date or

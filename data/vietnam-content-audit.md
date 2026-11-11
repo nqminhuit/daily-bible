@@ -304,3 +304,20 @@ Unreviewed: December except Advent I's Sunday (31 dates; neither calendar has pu
 Go tests, race suite, `go vet` and Staticcheck pass; 23 calendar tests and 24 frontend tests pass. CLI and frontend agree on **reference and passage text** for all 367 checked dates. Reapplying all 328 reviews added no history; the repeat audit is byte-identical. Integrity and foreign-key checks pass; 2,191 legacy date rows and 15 observations unchanged; shipped hashes unchanged. Frontend lint, production build and page smoke tests were not rerun.
 
 Artifacts: `build/vietnam-baseline-2026-11-11c/` (ignored), `audit.db` SHA-256 `6e484f46f9c41902c663e285bf3e99e2d192395d06091ac3f650b034c39e6465`, with both replay pipelines and all captures.
+
+## Verse-store damage scan — 2026-11-11 (read-only, nothing changed)
+
+The owner accepted the script-applied reviews and the nine row replacements, then asked for a scan of the shipped `resources/bible.db` (2,917 rows) for the importer damage described above. Method: text patterns over every row, plus a row-by-row comparison against the 93 Vatican pages already captured and replayed through the fixed importer (674 rows, about 23% of the store). No request was made and no database was modified.
+
+| Kind | Rows in the shipped store | Fixed on the temporary copy |
+| --- | --- | --- |
+| **Wrong chapter**: the row holds the next chapter's verse | `Ga 15,1`, `Ga 15,2`, `Ga 15,3` (hold `Ga 16,1-3`), `Mt 10,1` (holds `Mt 11,1`), `Mt 18,1` (holds `Mt 19,1`) | none |
+| Next part fused into the row | `Ga 5,2`, `Ga 14,30`, `Ga 15,3`, `Ga 16,22`, `Ga 17,10`, `Mt 20,15` | all but `Ga 15,3` |
+| Stray chapter number at the end | `Ga 15,27`, `Mc 8,38`, `Mt 10,42` | all but `Mc 8,38` |
+| Cut short | `Lc 6,25`, `Lc 7,32`, `Mt 11,17` (only "và nói :"; verses 18-19 absent) | all but `Mt 11,17` |
+
+Fourteen distinct damaged rows; nine are already corrected on the copy. **The five wrong-chapter rows are the serious ones**: the structural text check passes, but the passage prints the wrong verse. The true `Ga 15,1-3` is not in the store at all. They sit in `Ga 15,1-8`, `Mt 10,1-7`, `Mt 9,36-10,8`, `Mt 18,1-5`, `Mt 18,1-5.10` and `Mt 18,1-5.10.12-14`: six reviewed 2026 pilot dates (May 6, June 14, July 8, August 11, October 1, October 2) and 18 legacy dates from 2021 to 2026, so the live site is affected too.
+
+Not damage: 20-odd rows differ from the captures only by a liturgical opening ("Khi ấy, Đức Giê-su nói…") or a revised translation.
+
+Limits: a row cut short without a telltale ending, or a wrong-chapter row outside the five chapter-crossing references in `daily_readings`, can only be found by comparing against source pages, and 77% of the store was not compared. A full check means replaying every source page through the fixed importer and diffing. Scan script and results: `build/verse-scan-2026-11-11/` (ignored).
