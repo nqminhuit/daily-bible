@@ -57,6 +57,9 @@ Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension an
 ### Step 7 — 2026-11-11 (owner said go)
 
 - Backend: `resources/bible.db` replaced by the release candidate (SHA-256 `f3c3bd62…`, journal mode DELETE); the previous file is in git history at `c8a74f3` and in `build/rollback-2026-11-11/`. The default calendar is `vietnam` in `internal/reading`, `prepare-calendar.sh` and the three workflows. The probe passes for today plus two days; over 60 days only 2026-12-20 misses. The yearly and heal workflows were simulated offline on a copy with zero HTTP requests.
+- Frontend: same database (identical SHA-256), default `vietnam` in `lib/reading.js`, the checker and its workflow; README updated. 24 tests, lint, production build and a seven-page check pass.
+- **Shipped 2026-11-11:** both `master` branches were fast-forwarded from `fix/date-verified-mass-readings` (backend first, because the frontend's sync job copies the backend's database). Backend CI passes on `master`. The live site shows `Lc 17,11-19` today from the Vietnam calendar, `Lc 9,23-26` on 2026-11-24, `Lc 2,16-21` on 2027-01-01, a 2035 date, and the no-reading message on 2026-12-20 and Good Friday 2027.
+- **Still to do:** the 2026-12-20 entry (before that Sunday); Passion readings before 2027-03-21; the other 10 uncovered Sundays (first 2028-06-25); celebration labels; the database grew from 1.4 MB to 12.7 MB, mostly per-day definition text, and could be slimmed.
 - To roll back: restore `resources/bible.db` from `c8a74f3` and set `READING_CALENDAR=vatican-vi` (repository variable or environment).
 
 ### Known limits to state plainly at release
