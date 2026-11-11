@@ -20,8 +20,11 @@ function martyrsDate(year) {
 }
 
 function rulesVersion(base) {
-  // Independent of the requested years, so importing more years keeps reviews valid.
-  const kinds = Object.keys(entries).sort().map(key => [key, entries[key].ref ? 'ref' : 'weekday']);
+  // Independent of the requested years, and of table keys that cannot change a day's key
+  // (plain temporal entries), so filling an uncovered Sunday keeps existing reviews valid.
+  const kinds = Object.keys(entries).sort()
+    .filter(key => key.startsWith('observance:') || /^temporal:(?!.*_sunday:|sunday_).*:YEAR_[ABC]$/.test(key))
+    .map(key => [key, entries[key].ref ? 'ref' : 'weekday']);
   const hash = crypto.createHash('sha256')
     .update(fs.readFileSync(__filename)).update(fs.readFileSync(require.resolve('./export.cjs')))
     .update(JSON.stringify({ base: base.rules_version, kinds })).digest('hex').slice(0, 20);

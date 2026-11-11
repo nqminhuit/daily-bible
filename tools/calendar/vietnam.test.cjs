@@ -69,3 +69,13 @@ test('the committed 2026 reviews agree with the table except six known dates', a
   }
   assert.deepEqual(differing, ['2026-02-02', '2026-02-18', '2026-02-19', '2026-02-20', '2026-09-08', '2026-09-25']);
 });
+
+test('filling an uncovered Sunday entry does not change the rules version', async () => {
+  const before = (await all).rules_version;
+  entries['temporal:ordinary_time_12_sunday:YEAR_C'] = { ref: 'Lc 9,18-24', evidence: [] };
+  try {
+    assert.equal((await generateVietnam([2026])).rules_version, before);
+  } finally {
+    delete entries['temporal:ordinary_time_12_sunday:YEAR_C'];
+  }
+});
