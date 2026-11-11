@@ -8,8 +8,8 @@ const rules = require('../../data/vietnam-pilot-2026.json');
 test('content reviews retain actual captures and do not become automatic calendar approvals', () => {
   assert.equal(review.auto_approve, false);
   assert.equal(review.activation, 'temporary-evaluation-only-not-production-approved');
-  assert.equal(review.reviews.length, 6);
-  assert.equal(new Set(review.reviews.map(r => r.date)).size, 6);
+  assert.equal(review.reviews.length, 7);
+  assert.equal(new Set(review.reviews.map(r => r.date)).size, 7);
   assert.equal(review.days, undefined);
   assert.equal(review.gospel_entry_schema, undefined);
   for (const r of review.reviews) {
@@ -38,11 +38,17 @@ test('the diocesan Ordo and catalogue are not relabeled as a national baseline o
   assert.ok(c.access_limits.some(s => s.includes('success=false')));
 });
 
-test('unknown Tet default stays pending and endpoint/history differences stay explicit', () => {
-  assert.deepEqual(review.pending.map(r => r.date), ['2026-02-19']);
-  assert.equal(review.pending[0].status, 'default-option-order-unestablished');
-  assert.deepEqual(review.pending[0].candidate_refs_in_page_order, ['Mt 25,14-30', 'Ga 5,16-20']);
-  assert.ok(!review.reviews.some(r => r.date === review.pending[0].date));
+test('the Tet default is an explicit first-listed review with its alternative and pending history retained', () => {
+  assert.deepEqual(review.pending, []);
+  const earlier = review.resolved_pending[0];
+  assert.equal(earlier.status, 'default-option-order-unestablished');
+  assert.deepEqual(earlier.candidate_refs_in_page_order, ['Mt 25,14-30', 'Ga 5,16-20']);
+  const tet = review.reviews.find(r => r.date === earlier.date);
+  assert.equal(tet.ref, earlier.candidate_refs_in_page_order[0]);
+  assert.deepEqual(tet.alternative_refs_retained, ['Ga 5,16-20']);
+  assert.match(tet.option_order_basis, /approved-lectionary-pages-not-inspected/);
+  assert.equal(earlier.resolved_by_review_at, tet.reviewed_at);
+  for (const id of tet.corroborating_sources) assert.ok(captures[id]);
   const corpus = review.reviews.find(r => r.date === '2026-06-07');
   assert.equal(corpus.ref, 'Ga 6,51-58');
   assert.equal(corpus.printed_ref, 'Ga 6,51-59');
@@ -69,4 +75,21 @@ test('text repair covers only five explicitly reviewed rows, not a chapter or an
   assert.equal(captures[r.source].url, 'https://www.vaticannews.va/vi/loi-chua-hang-ngay/2023/12/03.html');
   assert.match(r.tsv_sha256, /^[a-f0-9]{64}$/);
   assert.match(r.remaining_missing_range, /24-32 remains absent/);
+});
+
+test('diocesan rule findings stay evidence and never become supported national definitions', () => {
+  const f = review.rule_findings;
+  assert.equal(f.status, 'evidence-only-no-definition-or-rules-version-change');
+  assert.equal(review.rules_version, 'vietnam-national-pilot-2026-0db4f1f3fdf6cd9a137a');
+  for (const date of ['2026-01-04', '2026-05-14', '2026-05-17', '2026-11-15', '2026-11-24']) {
+    assert.ok(rules.unsupported[date]);
+    assert.ok(!rules.decisions.some(d => d.date === date));
+    assert.ok(!review.reviews.some(r => r.date === date));
+  }
+  assert.match(f.martyrs_2026_11_15.status, /needs-owner-decision/);
+  assert.match(f.ascension_2026.status, /needs-owner-decision/);
+  assert.deepEqual(f.martyrs_proper_gospels.refs_in_listed_order, ['Lc 9,23-26', 'Ga 17,11b-19']);
+  for (const finding of Object.values(f).filter(v => v.sources)) {
+    for (const id of finding.sources) assert.ok(captures[id], id);
+  }
 });

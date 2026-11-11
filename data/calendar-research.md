@@ -255,3 +255,7 @@ The [review/source contract](vietnam-content-review.json) and
 limitations, dates and content fingerprints. Temporary evidence and audit copies:
 `/tmp/daily-bible-vietnam-content.KJ5EK8/`. No shipped database, production policy
 or deployment changed.
+
+### Rule-evidence continuation — 2026-11-11
+
+Mồng Ba Tết was reviewed as `Mt 25,14-30`, first-listed in every located listing; the pilot is now nine renderable, zero unreviewed, 356 unsupported. Hà Nội's official calendar cites HĐGMVN 4-1991 for an **optional** Martyrs celebration on Sunday XXXIII, and Ascension is confirmed to differ by diocese (Hà Nội Thursday; Vĩnh Long and Phan Thiết Sunday). Neither has a national default to discover: both need an owner editorial rule. See [the continuation](vietnam-content-audit.md#continuation--2026-11-11-tết-default-reviewed-rule-evidence-recorded).

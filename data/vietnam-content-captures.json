@@ -70,5 +70,95 @@
     "requested_at": "2026-11-10T09:25:33.883367+00:00",
     "sha256": "1165d4564cb582177cc70ee59eec8c4410f6c4e1ccbf9b9270ed73c762ae195a",
     "text_sha256": "e6a29d286aeae0439bb9d215ed5ca8ba0163eeb1d0ff9bed6c9f4319e0f15b4b"
+  },
+  "hdgm-martyrs-2025": {
+    "url": "https://hdgmvietnam.com/chi-tiet/le-kinh-trong-the-cac-thanh-tu-dao-viet-nam-%E2%80%93-bach-hai-va-tu-dao-thoi-tan-uoc",
+    "requested_at": "2026-11-11T03:09:30Z",
+    "sha256": "7eb3a9483359755369d4c977dae81347b8339d7a0a29b30b46f0eb2996a17cc6",
+    "text_sha256": "99f72e79895d22ba34d55bbd52348d6e982d6a101db622362c02cf8aaccd9452"
+  },
+  "hdgm-martyrs-2021": {
+    "url": "https://hdgmvietnam.com/chi-tiet/vao-ma-huong-niem-vui-15-11-2020-chua-nhat-33-thuong-nien-nam-a--40895",
+    "requested_at": "2026-11-11T03:09:30Z",
+    "sha256": "4101475d8f2a5735717d42256b97b3328ee89418f709643148ccfbf1bcafdf3c",
+    "text_sha256": "5a9acf8107933fa35d9c378887a56e9875cc96b767a07b88bbee0149e533698c"
+  },
+  "hdgm-ascension-2026": {
+    "url": "https://hdgmvietnam.com/chi-tiet/le-chua-thang-thien",
+    "requested_at": "2026-11-11T03:09:31Z",
+    "sha256": "19eb914c463731744cfdd4ee730b958664e25651317b705f4fe8dfe0d3b50b63",
+    "text_sha256": "dcb6eeb2316cb962d357a8e2780dca6d5022aa111b3c5fcaa257dadf99f10310"
+  },
+  "hdgm-martyrs-2018": {
+    "url": "https://hdgmvietnam.com/chi-tiet/cn-33-thuong-nien-nam-b-suy-niem-le-kinh-trong-the-cac-thanh-tu-dao-viet-nam-34547",
+    "requested_at": "2026-11-11T03:09:31Z",
+    "sha256": "3143ce52d268a87344641b8ac73bc4125e971eab503a4228f3cab199f0779b75",
+    "text_sha256": "6250a75216e82c17f5b9f4f03c132cbd6c91fb233d7e7b43b577fd047af917cd"
+  },
+  "hdgm-sunday33-2023": {
+    "url": "https://hdgmvietnam.com/chi-tiet/vao-ma-huong-niem-vui-19-11-2017-%E2%80%93-chua-nhat-33-thuong-nien-nam-a-31351",
+    "requested_at": "2026-11-11T03:10:10Z",
+    "sha256": "86af0470ea26653958b0eb4eb3dea1027e46364cdda4c944ff671d3660f9f2d1",
+    "text_sha256": "5c56e47b946470b6906a36836082933321b1131da0ae1825cd27ef0844c13560"
+  },
+  "haiphong-martyrs": {
+    "url": "https://gphaiphong.org/chi-tiet/bai-doc-le-kinh-trong-the-cac-thanh-tu-dao-vn",
+    "requested_at": "2026-11-11T03:10:10Z",
+    "sha256": "36b24d7918b61f6ede86fa4e7b28236779b33ba920f2f299982c695533e86b05",
+    "text_sha256": "146c347ad4ca21e9219229b035f22ebb5737e16a34da46bcb3e872b9543102b7"
+  },
+  "hue-martyrs": {
+    "url": "https://tonggiaophanhue.org/loi-chua/bai-doc-trong-thanh-le/bai-doc-trong-thanh-le-kinh-trong-the-cac-thanh-tu-dao-viet-nam/",
+    "requested_at": "2026-11-11T03:10:11Z",
+    "sha256": "640730055e26fcea5f1d700cef9fc9013834d1ee2f4f39f4647d878bdcd2d3b5",
+    "text_sha256": "cf556a8d72d593dd8e7486db437f389e3e8fcb034b0ba7b37b091273a3b0a93b"
+  },
+  "hanoi-martyrs-proper": {
+    "url": "https://www.tonggiaophanhanoi.org/ngay-24-11-le-cac-thanh-tu-dao-viet-nam/",
+    "requested_at": "2026-11-11T03:10:13Z",
+    "sha256": "2d5139d9b995943d1120a0ced813810776739cfbc64026af7f1d0dc77cb4ac06",
+    "text_sha256": "5059926b67ca81aaaf8a79be893fe4e3c8b3426df05e11eadce654b50bf72ecb"
+  },
+  "hanoi-may-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-nam-2026/",
+    "requested_at": "2026-11-11T03:10:13Z",
+    "sha256": "1f8712a2b66a51218508731448e171c799b6c37e03119002230d09c3a2cfdc32",
+    "text_sha256": "ea9ba1c4898d74d90d652fb2ecd1a97c1d0a3f212f75f3d90fbf6a768e427be3"
+  },
+  "bacninh-ordo-notes": {
+    "url": "https://giaophanbacninh.org/lich-cong-giao-2022-2023-nhung-dieu-can-biet-truoc/",
+    "requested_at": "2026-11-11T03:10:14Z",
+    "sha256": "6bee1c66a9e5cb78570c3a34b30b86eb46660ac122f9248f1ece111c1bb84e00",
+    "text_sha256": "385e89657c5f5b1d0ce0e088c7974dc97eb31cd12ee31adbb6ea0599a676e236"
+  },
+  "hdgm-phanthiet-may-2026": {
+    "url": "https://hdgmvietnam.com/chi-tiet/giao-phan-phan-thiet-thu-muc-vu-thang-52026",
+    "requested_at": "2026-11-11T03:10:15Z",
+    "sha256": "14c78227a6416513be11b8e149e83ea038bc7faf39449a597c3bc03b7c602ada",
+    "text_sha256": "d64fa4c58063a6e1590ccec56e388366f2cb093fa3ff11a61f011c06a91e6ccd"
+  },
+  "hanoi-nov-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-muoi-mot-2026/",
+    "requested_at": "2026-11-11T03:10:54Z",
+    "sha256": "fbeb3853eb66db66d5f92703c0b3f2375dbf912f5cd4983a74e2f30573d8e631",
+    "text_sha256": "5c6494c66750e63507b40dd420903788b0d80fce2a3d1823ca1b3b93442a075e"
+  },
+  "hanoi-feb-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-hai-2026/",
+    "requested_at": "2026-11-11T03:10:55Z",
+    "sha256": "132565a7ae163b6c687b8d579b03cbffc445d41210b575b790ea0f2856fddbb4",
+    "text_sha256": "adf2e2e7527dcd2697b766fb8fc0885566a4a72f9082a4eb529c7fcb4dde263e"
+  },
+  "haiphong-tet": {
+    "url": "https://gphaiphong.org/chi-tiet/bai-doc-cac-thanh-le-dip-tet-nguyen-dan-at-ty",
+    "requested_at": "2026-11-11T03:12:12Z",
+    "sha256": "2eecf19e8177539d599f1803f0b79ce62d25022bea53cc693e466c2192805214",
+    "text_sha256": "0be3b887329e8374e2a3024af584843809a449936f91ca52dbf21c2fb875f423"
+  },
+  "hanoi-jan-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-gieng-2026/",
+    "requested_at": "2026-11-11T03:12:13Z",
+    "sha256": "3a128fc6486fd5eb8575aab28f07240066e08aea1dabdede2e91b8a23e46c59a",
+    "text_sha256": "885d694df232a17d7040e01797cc8765ff7fbdc864eb939e6375411efa3efda0"
   }
 }

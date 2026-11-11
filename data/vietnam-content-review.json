@@ -133,9 +133,24 @@
       "corroborating_source": "advent-verse-source",
       "applicability": "Actual older Advent-I year-B Gospel. The national proclamation establishes the 2026 date; the Ordo's page 36 independently identifies the new year as B. Do not reuse the civil year's earlier year-A Gospel, fabricate a 2026 page, or approve another year/calendar.",
       "text_review": "Initially no rows. A reviewed Vatican capture supplies the five selected rows through the existing crawler cleanup and TSV converter. All watchfulness, traveling-master, duties/door, four return times, surprise/sleep and final exhortation clauses are present. Edition/wording differences remain, not a full-chapter or approved-edition certification."
+    },
+    {
+      "date": "2026-02-19",
+      "mass": "tet_day_3_labor",
+      "ref": "Mt 25,14-30",
+      "source": "labor",
+      "reviewed_at": "2026-11-11T03:13:10Z",
+      "evidence_date": "2026-02-19",
+      "publication_date": "2026-02-18",
+      "corroborating_sources": ["hanoi-feb-2026", "haiphong-tet", "vinh-long-pdf"],
+      "alternative_refs_retained": ["Ga 5,16-20"],
+      "option_order_basis": "first-listed-in-every-located-listing-approved-lectionary-pages-not-inspected",
+      "applicability": "First-listed full Gospel for the named Mồng Ba Tết Mass. The dated HĐGMVN page prints Mt 25,14-30 first and Ga 5,16-20 under 'Hoặc đọc'. The Hà Nội archdiocesan 2026 calendar, the Vĩnh Long Ordo and a Hải Phòng reproduction credited to Nhóm Phiên Dịch CGKPV each list Mt 25,14-30 alone. No located listing puts Ga 5,16-20 first. Ga 5,16-20 remains a legitimate published alternative, not an error. The approved lectionary's own title/approval and option pages were still not inspected, so this is the owner's first-listed policy applied to consistent published listings, not an edition certification. Pilot daytime entry only; no other year, calendar or whole-Mass approval.",
+      "text_review": "Seventeen existing rows run from the departing master entrusting talents, through the five-, two- and one-talent accounts and both commendations, to the redistribution, the saying about having and the outer darkness. No shorter form is selected. Wording is not certified against an approved Vietnamese edition."
     }
   ],
-  "pending": [
+  "pending": [],
+  "resolved_pending": [
     {
       "date": "2026-02-19",
       "mass": "tet_day_3_labor",
@@ -144,9 +159,69 @@
       "publication_date": "2026-02-18",
       "candidate_refs_in_page_order": ["Mt 25,14-30", "Ga 5,16-20"],
       "status": "default-option-order-unestablished",
-      "decision": "No entry/date approval. Both are retained as legitimate published full options. A meditation page's first option and the diocesan Ordo's single Mt 25 listing do not establish the approved national lectionary's ordering/default. Do not approve the legacy candidate or bypass this with a date acceptance."
+      "decision": "No entry/date approval. Both are retained as legitimate published full options. A meditation page's first option and the diocesan Ordo's single Mt 25 listing do not establish the approved national lectionary's ordering/default. Do not approve the legacy candidate or bypass this with a date acceptance.",
+      "resolved_by_review_at": "2026-11-11T03:13:10Z",
+      "resolution": "Superseded by the explicit Mt 25,14-30 entry review after two further independent listings (Hà Nội calendar, Hải Phòng CGKPV-credited reproduction) agreed with the earlier page order and Vĩnh Long listing. The earlier pending decision is retained as history, not rewritten."
     }
   ],
+  "rule_findings": {
+    "status": "evidence-only-no-definition-or-rules-version-change",
+    "note": "Findings from 17 captured requests on 2026-11-11 (all HTTP 200; 15 fingerprinted in the captures file, the gcatholic aggregator and one unrelated HĐGMVN page were not used) plus four uncaptured tool fetches. Diocesan publications are evidence about national law they cite, not national directives; the pilot exporter still accepts only hdgmvietnam.com directive facts, so no date below became a supported definition. A separate Đà Lạt page on the canonization legal texts returned 403 and was not bypassed; one Qui Nhơn PDF URL now serves an unrelated HTML page.",
+    "martyrs_2026_11_15": {
+      "sources": [
+        "hanoi-nov-2026",
+        "vinh-long-pdf",
+        "hdgm-martyrs-2025",
+        "hdgm-martyrs-2021",
+        "hdgm-martyrs-2018",
+        "hdgm-sunday33-2023"
+      ],
+      "finding": "The Hà Nội archdiocesan calendar keeps Sunday XXXIII in Ordinary Time (Mt 25,14-30) as the day's Mass and adds that the Vietnamese Martyrs may be solemnly celebrated 'tùy theo nhu cầu mục vụ', citing HĐGMVN 4-1991. Vĩnh Long lists both. HĐGMVN's own site published the Martyrs Mass for Sunday 33 in 2018, 2021 and 2025 and the Sunday Mass in 2023.",
+      "status": "external-solemnity-is-permitted-not-prescribed-per-cited-HĐGMVN-4-1991-act-itself-not-obtained-site-default-needs-owner-decision"
+    },
+    "martyrs_2026_11_24": {
+      "sources": [
+        "hanoi-nov-2026",
+        "hanoi-martyrs-proper",
+        "vinh-long-pdf"
+      ],
+      "finding": "Hà Nội prints rank 'Trọng' for Thánh An-rê Dũng Lạc và các bạn tử đạo on November 24; Vĩnh Long prints 'Lễ trọng' citing CD 878/90. Uncaptured secondary summaries only: a 2009 Sài Gòn article reportedly dates a Congregation decree to 14-02-1990 with rank 'Lễ Kính' and no protocol number, and a search summary reports HĐGMVN obtaining solemnity rank in 1991. Neither is fingerprinted evidence, and the decree text itself was not obtained.",
+      "status": "solemnity-rank-consistently-published-by-two-official-diocesan-calendars-primary-decree-not-obtained-not-a-supported-definition"
+    },
+    "martyrs_proper_gospels": {
+      "sources": [
+        "hanoi-nov-2026",
+        "hanoi-martyrs-proper",
+        "haiphong-martyrs",
+        "hue-martyrs"
+      ],
+      "refs_in_listed_order": [
+        "Lc 9,23-26",
+        "Ga 17,11b-19"
+      ],
+      "finding": "Four listings give the same proper set and order; Hải Phòng credits Nhóm Phiên Dịch CGKPV. The Vĩnh Long statement that readings come from the Commons is a different description of the same formulary and is not reconciled here.",
+      "status": "first-listed-option-consistent-no-entry-approved-because-no-definition-is-supported"
+    },
+    "ascension_2026": {
+      "sources": [
+        "hanoi-may-2026",
+        "vinh-long-pdf",
+        "hdgm-phanthiet-may-2026",
+        "bacninh-ordo-notes",
+        "hdgm-ascension-2026"
+      ],
+      "finding": "Hà Nội keeps Thursday May 14 as an obligatory solemnity and May 17 as Easter Sunday VII. Vĩnh Long and Phan Thiết keep Ascension on Sunday May 17. Bắc Ninh's notes state such solemnities may be kept on the day or moved to Sunday.",
+      "status": "confirmed-diocesan-variation-no-national-default-exists-to-find-site-default-needs-owner-decision"
+    },
+    "epiphany_2026": {
+      "sources": [
+        "hanoi-jan-2026",
+        "vinh-long-pdf"
+      ],
+      "finding": "Both located 2026 calendars keep Epiphany on Sunday January 4. No national 2026 directive naming the date was located.",
+      "status": "consistent-diocesan-practice-no-primary-national-fact-captured-still-unsupported"
+    }
+  },
   "text_repair": {
     "scope": "temporary-copy-only",
     "source": "advent-verse-source",

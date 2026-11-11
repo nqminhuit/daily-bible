@@ -172,3 +172,29 @@ universal-calendar updates before expanding the archive; do not extrapolate this
 2026 pilot to another year. Then audit coverage and prepare coordinated release
 snapshots/rollback assets. Eight dates are not adequate production/archive
 coverage. Nothing from this continuation was pushed or deployed.
+
+## Continuation — 2026-11-11: Tết default reviewed, rule evidence recorded
+
+Result on a new temporary copy: **nine renderable, zero unreviewed, 356 unsupported**. Definitions and rules version `vietnam-national-pilot-2026-0db4f1f3fdf6cd9a137a` are unchanged. Still not national coverage, an edition certification or a release asset; both shipped databases are unchanged.
+
+### Mồng Ba Tết: `Mt 25,14-30` as the first-listed option
+
+Two further independent listings were captured. The [Hà Nội archdiocesan February 2026 calendar](https://www.tonggiaophanhanoi.org/thang-hai-2026/) and a [Hải Phòng reproduction](https://gphaiphong.org/chi-tiet/bai-doc-cac-thanh-le-dip-tet-nguyen-dan-at-ty) credited to Nhóm Phiên Dịch CGKPV each give `Mt 25,14-30` alone, as does Vĩnh Long; the dated HĐGMVN page prints it first with `Ga 5,16-20` under "Hoặc đọc". No located listing puts John first. The entry was explicitly reviewed at `2026-11-11T03:13:10Z` with the HĐGMVN page as evidence (evidence date 2026-02-19). `Ga 5,16-20` stays recorded as a legitimate alternative, and the earlier pending decision is kept in `resolved_pending`.
+
+Limit: the approved lectionary's own title/approval and option pages were **still not inspected**. This applies the owner's first-listed policy to consistent published listings. If the book shows a different order, replace the mapping with `-replace-entry`.
+
+The 17 existing verse rows were read end to end, not counted. Reapplying the review added no history or timestamp, and the repeat audit was byte-identical. Ten review records, nine active mappings, zero date reviews, 15 observations, 2,191 date rows and 2,922 verse rows; integrity and foreign-key checks pass. CLI and frontend resolver both return `Mt 25,14-30` for February 19 and nothing for November 15 or May 14.
+
+### Rule evidence that did not become definitions
+
+The pilot exporter accepts only HĐGMVN directive facts, and none of the following is one. Details and fingerprints are in `rule_findings` and the captures file.
+
+| Question | What the captured sources say | Status |
+| --- | --- | --- |
+| November 15 | Hà Nội keeps Sunday XXXIII (`Mt 25,14-30`) and says the Martyrs **may** be solemnly celebrated "tùy theo nhu cầu mục vụ", citing **HĐGMVN 4-1991**. Vĩnh Long lists both. HĐGMVN's site published the Martyrs Mass for Sunday 33 in 2018, 2021 and 2025, the Sunday Mass in 2023. | Permitted, not prescribed. The site's default is an owner decision; the 1991 act itself was not obtained. |
+| November 24 | Hà Nội prints rank "Trọng"; Vĩnh Long "Lễ trọng (CD 878/90)". | Consistent, but the decree was not obtained. Unsupported. |
+| Martyrs Gospel | Hà Nội (twice), Hải Phòng and Huế list `Lc 9,23-26` first, then `Ga 17,11b-19`. | Order consistent; nothing approved because no definition is supported. |
+| Ascension | Hà Nội: Thursday May 14, obligatory. Vĩnh Long and Phan Thiết: Sunday May 17. Bắc Ninh: either is allowed. | Real diocesan variation. No national default exists to find; owner decision. |
+| Epiphany | Hà Nội and Vĩnh Long: Sunday January 4. | No primary national 2026 fact captured. Unsupported. |
+
+Seventeen captured requests all returned 200. A Đà Lạt page on the canonization legal texts returned **403** and was not bypassed; a Qui Nhơn Ordo PDF URL now serves an unrelated page. Artifacts: `build/vietnam-rules-2026-11-11/` (ignored): captures, request log, `audit.db`, before/after/repeat reports and review logs.
