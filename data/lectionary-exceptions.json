@@ -1,0 +1,135 @@
+{
+ "purpose": "hand-check of dated pages that are not evidence for the baseline entry; not approvals",
+ "tet": {
+  "note": "Tết Masses are out of scope (owner, 2026-11-11); the page prints a Tết or year-end Mass, or the 2026 transferred Ash Mass.",
+  "dates": [
+   "2022-02-01",
+   "2022-02-02",
+   "2022-02-03",
+   "2023-01-21",
+   "2023-01-22",
+   "2023-01-23",
+   "2023-01-24",
+   "2024-02-09",
+   "2024-02-10",
+   "2024-02-11",
+   "2024-02-12",
+   "2025-01-29",
+   "2025-01-30",
+   "2025-01-31",
+   "2026-02-17",
+   "2026-02-18",
+   "2026-02-19",
+   "2026-02-20"
+  ]
+ },
+ "martyrs_external": {
+  "note": "Page prints the Vietnamese Martyrs Gospel (Lc 9,23-26) on Sunday XXXIII or the day after Christ the King; the owner keeps Sunday XXXIII and the November 24 rule.",
+  "dates": [
+   "2022-11-13",
+   "2023-11-19",
+   "2024-11-17",
+   "2024-11-25"
+  ]
+ },
+ "optional": {
+  "note": "Page follows an optional memorial, a memorial's optional proper Gospel, or an external solemnity; owner policy keeps the ordinary day.",
+  "dates": [
+   "2021-05-01",
+   "2026-05-01",
+   "2026-02-11",
+   "2026-11-18",
+   "2025-10-05",
+   "2023-02-06",
+   "2021-10-04",
+   "2026-08-08",
+   "2026-10-17",
+   "2026-10-15",
+   "2023-07-31"
+  ]
+ },
+ "other": {
+  "2022-04-12": "Typo on the page: Ga 13,21-33.36-3 for 36-38.",
+  "2026-08-29": "Typo on the page: Mc 6,17-29z.",
+  "2021-05-10": "Page prints Ga 15,26-16,4 without the part letter; other years print 4a.",
+  "2022-01-06": "Page prints Lc 4,14-22 without the part letter; other years print 22a.",
+  "2022-06-23": "Page prints the Nativity of John the Baptist, anticipated to June 23 in 2022 because June 24 was the Sacred Heart; the provider leaves June 23 a weekday.",
+  "2025-11-02": "All Souls fell on Sunday; the page prints the Sunday XXXI Gospel.",
+  "2026-09-25": "Page prints the Mid-Autumn (Tết Trung Thu) Mass, a lunar-date Vietnamese Mass like Tết; the ordinary day is kept. The 2026 ledger accepted the page's Gospel for this date.",
+  "2023-08-07": "Transfiguration replaced Sunday XVIII in 2023, so Monday kept Mt 14,13-21 although the year was A.",
+  "2023-08-08": "Same 2023 case: Tuesday kept Mt 14,22-36.",
+  "2023-12-24": "Page prints the Christmas night Mass (Lc 2,1-14) on the Fourth Sunday of Advent."
+ },
+ "page_read": {
+  "note": "Reference printed on the page but rejected by the importer; read by hand.",
+  "refs": {
+   "2022-02-12": "Mc 8,1-10",
+   "2024-09-12": "Lc 6,27-38",
+   "2024-12-11": "Mt 11,28-30",
+   "2024-12-25": "Ga 1,1-18",
+   "2025-02-15": "Mc 8,1-10"
+  }
+ },
+ "conditional": {
+  "note": "Real lectionary rules that depend on the Sunday cycle; entries get a cycle-specific key.",
+  "entries": {
+   "temporal:lent_5_monday": {
+    "YEAR_C": "Ga 8,12-20",
+    "default": "Ga 8,1-11",
+    "why": "Year C reads Ga 8,1-11 on the Sunday before."
+   },
+   "temporal:easter_time_4_monday": {
+    "YEAR_A": "Ga 10,11-18",
+    "default": "Ga 10,1-10",
+    "why": "Year A reads Ga 10,1-10 on the Sunday before."
+   },
+   "temporal:ordinary_time_18_monday": {
+    "YEAR_A": "Mt 14,22-36",
+    "default": "Mt 14,13-21",
+    "why": "Year A reads Mt 14,13-21 on the Sunday before. Applies only when Sunday XVIII is actually celebrated (not in 2023, when August 6 was that Sunday)."
+   },
+   "temporal:ordinary_time_18_tuesday": {
+    "YEAR_A": "Mt 15,1-2.10-14",
+    "default": "Mt 14,22-36",
+    "why": "Follows the Monday rule in Year A."
+   }
+  }
+ },
+ "decisions": {
+  "note": "Entries set by owner policy rather than by page majority.",
+  "entries": {
+   "observance:nativity_of_the_lord": {
+    "ref": "Ga 1,1-18",
+    "why": "Daytime Mass (owner policy). Pages printed the dawn Mass (Lc 2,15-20) in 2021, 2022 and 2025 and the day Mass in 2023 and 2024."
+   },
+   "observance:timothy_of_ephesus_and_titus_of_crete_bishops": {
+    "ref": "Lc 10,1-9",
+    "why": "Proper Gospel: 2024 and 2026 pages and the reviewed 2026 date (two Vietnamese calendars). 2022 and 2023 pages printed the weekday."
+   },
+   "observance:our_lady_of_the_rosary": {
+    "ref": "Lc 1,26-38",
+    "why": "Proper Gospel on five of six pages and the reviewed 2026 date; the 2021 page printed the weekday."
+   },
+   "observance:mary_mother_of_the_church": {
+    "ref": "Ga 19,25-34",
+    "why": "Reviewed 2026 date (individual review). Four pages print Ga 19,25-27 and two print the weekday. Open: pages and review differ on the last verse."
+   },
+   "observance:presentation_of_the_lord": {
+    "ref": "Lc 2,22-40",
+    "why": "First-listed full option (owner policy): three pages print the full form. The 2026 page and reviewed date use the short form Lc 2,22-32. Open for the owner."
+   },
+   "observance:nativity_of_the_blessed_virgin_mary": {
+    "ref": "Mt 1,1-16.18-23",
+    "why": "First-listed full option (owner policy): four pages print the full form. The 2026 page and reviewed date use the short form Mt 1,18-23. Open for the owner."
+   },
+   "temporal:ordinary_time_6_sunday:YEAR_A": {
+    "ref": "Mt 5,17-37",
+    "why": "Full form: 2023 page and reviewed 2026 date; the 2026 page prints the short form."
+   },
+   "temporal:ordinary_time_18_sunday:YEAR_A": {
+    "ref": "Mt 14,13-21",
+    "why": "Reviewed 2026 date (two calendars); the 2026 page prints no reference and 2023 was displaced by the Transfiguration."
+   }
+  }
+ }
+}

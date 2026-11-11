@@ -1,0 +1,5203 @@
+{
+ "purpose": "candidate-year-independent-entry-to-gospel-table-not-approvals",
+ "auto_approve": false,
+ "built": "2026-11-11",
+ "source": "dated Vatican News pages 2021-03-11..2026-12-15 (data/vatican-archive-captures.json), grouped by tools/archive/analyze.py with data/lectionary-exceptions.json",
+ "calendar": {
+  "provider_rules_version": "romcal-3.0.0-dev.144-01f234f8d49d17c9",
+  "transfers": [
+   "epiphanyOnSunday",
+   "ascensionOnSunday",
+   "corpusChristiOnSunday"
+  ]
+ },
+ "key_rules": {
+  "temporal": "temporal:<day>, with :YEAR_A/B/C for Sundays and for the four conditional weekdays",
+  "observance": "observance:<id>, with :YEAR_A/B/C only where the Gospel varies",
+  "weekday": "a memorial marked weekday:true, and any memorial not listed, reads the weekday entry"
+ },
+ "test_2026_reviews": {
+  "agree": 322,
+  "uncovered": 0,
+  "contradict": [
+   [
+    "2026-02-02",
+    "Lc 2,22-32",
+    "Lc 2,22-40",
+    "presentation_of_the_lord",
+    ""
+   ],
+   [
+    "2026-02-18",
+    "Mt 15,1-6",
+    "Mt 6,1-6.16-18",
+    "ash_wednesday",
+    "tet"
+   ],
+   [
+    "2026-02-19",
+    "Mt 25,14-30",
+    "Lc 9,22-25",
+    "thursday_after_ash_wednesday",
+    "tet"
+   ],
+   [
+    "2026-02-20",
+    "Mt 6,1-6.16-18",
+    "Mt 9,14-15",
+    "friday_after_ash_wednesday",
+    "tet"
+   ],
+   [
+    "2026-09-08",
+    "Mt 1,18-23",
+    "Mt 1,1-16.18-23",
+    "nativity_of_the_blessed_virgin_mary",
+    ""
+   ],
+   [
+    "2026-09-25",
+    "Mc 10,13-16",
+    "Lc 9,18-22",
+    "ordinary_time_25_friday",
+    "other"
+   ]
+  ]
+ },
+ "counts": {
+  "entries": 580,
+  "with_ref": 527,
+  "weekday_memorials": 53,
+  "single_source": 27
+ },
+ "uncovered_2027_2050": {
+  "temporal:palm_sunday_of_the_passion_of_the_lord": [
+   "2027-03-21",
+   "2028-04-09",
+   "2029-03-25",
+   "2030-04-14",
+   "2031-04-06",
+   "2032-03-21",
+   "2033-04-10",
+   "2034-04-02",
+   "2035-03-18",
+   "2036-04-06",
+   "2037-03-29",
+   "2038-04-18",
+   "2039-04-03",
+   "2040-03-25",
+   "2041-04-14",
+   "2042-03-30",
+   "2043-03-22",
+   "2044-04-10",
+   "2045-04-02",
+   "2046-03-18",
+   "2047-04-07",
+   "2048-03-29",
+   "2049-04-11",
+   "2050-04-03"
+  ],
+  "temporal:holy_thursday": [
+   "2027-03-25",
+   "2028-04-13",
+   "2029-03-29",
+   "2030-04-18",
+   "2031-04-10",
+   "2032-03-25",
+   "2033-04-14",
+   "2034-04-06",
+   "2035-03-22",
+   "2036-04-10",
+   "2037-04-02",
+   "2038-04-22",
+   "2039-04-07",
+   "2040-03-29",
+   "2041-04-18",
+   "2042-04-03",
+   "2043-03-26",
+   "2044-04-14",
+   "2045-04-06",
+   "2046-03-22",
+   "2047-04-11",
+   "2048-04-02",
+   "2049-04-15",
+   "2050-04-07"
+  ],
+  "temporal:friday_of_the_passion_of_the_lord": [
+   "2027-03-26",
+   "2028-04-14",
+   "2029-03-30",
+   "2030-04-19",
+   "2031-04-11",
+   "2032-03-26",
+   "2033-04-15",
+   "2034-04-07",
+   "2035-03-23",
+   "2036-04-11",
+   "2037-04-03",
+   "2038-04-23",
+   "2039-04-08",
+   "2040-03-30",
+   "2041-04-19",
+   "2042-04-04",
+   "2043-03-27",
+   "2044-04-15",
+   "2045-04-07",
+   "2046-03-23",
+   "2047-04-12",
+   "2048-04-03",
+   "2049-04-16",
+   "2050-04-08"
+  ],
+  "temporal:holy_saturday": [
+   "2027-03-27",
+   "2028-04-15",
+   "2029-03-31",
+   "2030-04-20",
+   "2031-04-12",
+   "2032-03-27",
+   "2033-04-16",
+   "2034-04-08",
+   "2035-03-24",
+   "2036-04-12",
+   "2037-04-04",
+   "2038-04-24",
+   "2039-04-09",
+   "2040-03-31",
+   "2041-04-20",
+   "2042-04-05",
+   "2043-03-28",
+   "2044-04-16",
+   "2045-04-08",
+   "2046-03-24",
+   "2047-04-13",
+   "2048-04-04",
+   "2049-04-17",
+   "2050-04-09"
+  ],
+  "temporal:ordinary_time_12_sunday:YEAR_C": [
+   "2028-06-25",
+   "2031-06-22",
+   "2034-06-25",
+   "2037-06-21",
+   "2043-06-21"
+  ],
+  "temporal:ordinary_time_10_sunday:YEAR_A": [
+   "2029-06-10",
+   "2032-06-06",
+   "2035-06-10"
+  ],
+  "temporal:advent_4_sunday:YEAR_B": [
+   "2029-12-23",
+   "2032-12-19",
+   "2035-12-23",
+   "2038-12-19",
+   "2041-12-22",
+   "2044-12-18",
+   "2047-12-22",
+   "2050-12-18"
+  ],
+  "temporal:ordinary_time_6_sunday:YEAR_B": [
+   "2030-02-17",
+   "2033-02-13",
+   "2036-02-17",
+   "2039-02-13",
+   "2042-02-16",
+   "2045-02-12",
+   "2048-02-16"
+  ],
+  "temporal:ordinary_time_7_sunday:YEAR_B": [
+   "2030-02-24",
+   "2033-02-20",
+   "2036-02-24",
+   "2039-02-20",
+   "2045-02-19"
+  ],
+  "temporal:ordinary_time_8_sunday:YEAR_B": [
+   "2030-03-03",
+   "2033-02-27"
+  ],
+  "temporal:ordinary_time_11_sunday:YEAR_C": [
+   "2034-06-18",
+   "2037-06-14",
+   "2040-06-17",
+   "2043-06-14",
+   "2046-06-17"
+  ],
+  "temporal:ordinary_time_9_sunday:YEAR_A": [
+   "2035-06-03",
+   "2038-03-07"
+  ],
+  "temporal:ordinary_time_8_sunday:YEAR_A": [
+   "2038-02-28",
+   "2041-03-03",
+   "2044-02-28"
+  ],
+  "temporal:ordinary_time_10_sunday:YEAR_C": [
+   "2040-06-10",
+   "2043-06-07",
+   "2046-06-10"
+  ],
+  "temporal:ordinary_time_9_sunday:YEAR_C": [
+   "2046-06-03"
+  ]
+ },
+ "entries": {
+  "observance:agatha_of_sicily_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2022-02-05",
+    "2024-02-05",
+    "2025-02-05",
+    "2026-02-05"
+   ]
+  },
+  "observance:agnes_of_rome_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2022-01-21",
+    "2025-01-21",
+    "2026-01-21"
+   ]
+  },
+  "observance:all_saints": {
+   "ref": "Mt 5,1-12a",
+   "evidence": [
+    "2021-11-01",
+    "2022-11-01",
+    "2023-11-01",
+    "2024-11-01",
+    "2025-11-01",
+    "2026-11-01"
+   ]
+  },
+  "observance:aloysius_gonzaga_religious": {
+   "weekday": true,
+   "evidence": [
+    "2021-06-21",
+    "2022-06-21",
+    "2023-06-21",
+    "2024-06-21",
+    "2025-06-21"
+   ]
+  },
+  "observance:alphonsus_mary_liguori_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-08-01",
+    "2023-08-01",
+    "2024-08-01",
+    "2025-08-01"
+   ]
+  },
+  "observance:ambrose_of_milan_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-12-07",
+    "2022-12-07",
+    "2023-12-07",
+    "2024-12-07",
+    "2026-12-07"
+   ]
+  },
+  "observance:andrew_apostle": {
+   "ref": "Mt 4,18-22",
+   "evidence": [
+    "2021-11-30",
+    "2022-11-30",
+    "2023-11-30",
+    "2024-11-30",
+    "2026-11-30"
+   ]
+  },
+  "observance:andrew_dung_lac_priest_and_companions_martyrs": {
+   "ref": "Lc 9,23-26",
+   "evidence": [
+    "2021-11-24",
+    "2023-11-24",
+    "2025-11-24",
+    "2026-11-24"
+   ]
+  },
+  "observance:andrew_kim_tae_gon_priest_paul_chong_ha_sang_and_companions_martyrs": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-20",
+    "2022-09-20",
+    "2023-09-20",
+    "2024-09-20",
+    "2025-09-20"
+   ]
+  },
+  "observance:annunciation_of_the_lord": {
+   "ref": "Lc 1,26-38",
+   "evidence": [
+    "2021-03-25",
+    "2022-03-25",
+    "2023-03-25",
+    "2024-04-08",
+    "2025-03-25",
+    "2026-03-25"
+   ]
+  },
+  "observance:anthony_of_egypt_abbot": {
+   "weekday": true,
+   "evidence": [
+    "2022-01-17",
+    "2023-01-17",
+    "2024-01-17",
+    "2025-01-17",
+    "2026-01-17"
+   ]
+  },
+  "observance:anthony_of_padua_priest": {
+   "weekday": true,
+   "evidence": [
+    "2022-06-13",
+    "2023-06-13",
+    "2024-06-13",
+    "2025-06-13"
+   ]
+  },
+  "observance:ascension_of_the_lord:YEAR_A": {
+   "ref": "Mt 28,16-20",
+   "evidence": [
+    "2023-05-21",
+    "2026-05-17"
+   ]
+  },
+  "observance:ascension_of_the_lord:YEAR_B": {
+   "ref": "Mc 16,15-20",
+   "evidence": [
+    "2021-05-16",
+    "2024-05-12"
+   ]
+  },
+  "observance:ascension_of_the_lord:YEAR_C": {
+   "ref": "Lc 24,46-53",
+   "evidence": [
+    "2022-05-29",
+    "2025-06-01"
+   ]
+  },
+  "observance:assumption_of_the_blessed_virgin_mary": {
+   "ref": "Lc 1,39-56",
+   "evidence": [
+    "2021-08-15",
+    "2022-08-15",
+    "2023-08-15",
+    "2024-08-15",
+    "2025-08-15",
+    "2026-08-15"
+   ]
+  },
+  "observance:athanasius_of_alexandria_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-05-02",
+    "2023-05-02",
+    "2024-05-02",
+    "2025-05-02",
+    "2026-05-02"
+   ]
+  },
+  "observance:augustine_of_hippo_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-28",
+    "2023-08-28",
+    "2024-08-28",
+    "2025-08-28",
+    "2026-08-28"
+   ]
+  },
+  "observance:baptism_of_the_lord:YEAR_A": {
+   "ref": "Mt 3,13-17",
+   "evidence": [
+    "2023-01-09",
+    "2026-01-11"
+   ]
+  },
+  "observance:baptism_of_the_lord:YEAR_B": {
+   "ref": "Mc 1,7-11",
+   "evidence": [
+    "2024-01-08"
+   ],
+   "single_source": true
+  },
+  "observance:baptism_of_the_lord:YEAR_C": {
+   "ref": "Lc 3,15-16.21-22",
+   "evidence": [
+    "2022-01-09",
+    "2025-01-12"
+   ]
+  },
+  "observance:barnabas_apostle": {
+   "ref": "Mt 10,7-13",
+   "evidence": [
+    "2022-06-11",
+    "2024-06-11",
+    "2025-06-11",
+    "2026-06-11"
+   ]
+  },
+  "observance:bartholomew_apostle": {
+   "ref": "Ga 1,45-51",
+   "evidence": [
+    "2021-08-24",
+    "2022-08-24",
+    "2023-08-24",
+    "2024-08-24",
+    "2026-08-24"
+   ]
+  },
+  "observance:basil_the_great_and_gregory_nazianzen_bishops": {
+   "weekday": true,
+   "evidence": []
+  },
+  "observance:benedict_of_nursia_abbot": {
+   "weekday": true,
+   "evidence": [
+    "2022-07-11",
+    "2023-07-11",
+    "2024-07-11",
+    "2025-07-11",
+    "2026-07-11"
+   ]
+  },
+  "observance:bernard_of_clairvaux_abbot": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-20",
+    "2022-08-20",
+    "2024-08-20",
+    "2025-08-20",
+    "2026-08-20"
+   ]
+  },
+  "observance:bonaventure_of_bagnoregio_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-07-15",
+    "2022-07-15",
+    "2023-07-15",
+    "2024-07-15",
+    "2025-07-15",
+    "2026-07-15"
+   ]
+  },
+  "observance:boniface_of_mainz_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-06-05",
+    "2024-06-05",
+    "2025-06-05",
+    "2026-06-05"
+   ]
+  },
+  "observance:catherine_of_siena_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2021-04-29",
+    "2022-04-29",
+    "2023-04-29",
+    "2024-04-29",
+    "2025-04-29",
+    "2026-04-29"
+   ]
+  },
+  "observance:cecilia_of_rome_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-22",
+    "2022-11-22",
+    "2023-11-22",
+    "2024-11-22",
+    "2025-11-22"
+   ]
+  },
+  "observance:chair_of_saint_peter_the_apostle": {
+   "ref": "Mt 16,13-19",
+   "evidence": [
+    "2022-02-22",
+    "2024-02-22",
+    "2025-02-22"
+   ]
+  },
+  "observance:charles_borromeo_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-04",
+    "2022-11-04",
+    "2023-11-04",
+    "2024-11-04",
+    "2025-11-04",
+    "2026-11-04"
+   ]
+  },
+  "observance:charles_lwanga_and_companions_martyrs": {
+   "weekday": true,
+   "evidence": [
+    "2021-06-03",
+    "2022-06-03",
+    "2023-06-03",
+    "2025-06-03",
+    "2026-06-03"
+   ]
+  },
+  "observance:clare_of_assisi_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-11",
+    "2022-08-11",
+    "2023-08-11",
+    "2025-08-11",
+    "2026-08-11"
+   ]
+  },
+  "observance:commemoration_of_all_the_faithful_departed": {
+   "ref": "Ga 6,37-40",
+   "evidence": [
+    "2021-11-02",
+    "2022-11-02",
+    "2023-11-02",
+    "2024-11-02",
+    "2026-11-02"
+   ]
+  },
+  "observance:conversion_of_saint_paul_the_apostle": {
+   "ref": "Mc 16,15-18",
+   "evidence": [
+    "2022-01-25",
+    "2023-01-25",
+    "2024-01-25",
+    "2025-01-25"
+   ]
+  },
+  "observance:cornelius_i_pope_and_cyprian_of_carthage_bishop_martyrs": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-16",
+    "2022-09-16",
+    "2023-09-16",
+    "2024-09-16",
+    "2025-09-16",
+    "2026-09-16"
+   ]
+  },
+  "observance:cyril_constantine_the_philosopher_monk_and_methodius_michael_of_thessaloniki_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-02-14",
+    "2023-02-14",
+    "2025-02-14",
+    "2026-02-14"
+   ]
+  },
+  "observance:dedication_of_the_lateran_basilica": {
+   "ref": "Ga 2,13-22",
+   "evidence": [
+    "2021-11-09",
+    "2022-11-09",
+    "2023-11-09",
+    "2024-11-09",
+    "2025-11-09",
+    "2026-11-09"
+   ]
+  },
+  "observance:dominic_de_guzman_priest": {
+   "weekday": true,
+   "evidence": [
+    "2022-08-08",
+    "2024-08-08",
+    "2025-08-08"
+   ]
+  },
+  "observance:easter_friday": {
+   "ref": "Ga 21,1-14",
+   "evidence": [
+    "2021-04-09",
+    "2022-04-22",
+    "2023-04-14",
+    "2024-04-05",
+    "2025-04-25",
+    "2026-04-10"
+   ]
+  },
+  "observance:easter_monday": {
+   "ref": "Mt 28,8-15",
+   "evidence": [
+    "2021-04-05",
+    "2022-04-18",
+    "2023-04-10",
+    "2024-04-01",
+    "2025-04-21",
+    "2026-04-06"
+   ]
+  },
+  "observance:easter_saturday": {
+   "ref": "Mc 16,9-15",
+   "evidence": [
+    "2021-04-10",
+    "2022-04-23",
+    "2023-04-15",
+    "2024-04-06",
+    "2025-04-26",
+    "2026-04-11"
+   ]
+  },
+  "observance:easter_sunday": {
+   "ref": "Ga 20,1-9",
+   "evidence": [
+    "2021-04-04",
+    "2022-04-17",
+    "2023-04-09",
+    "2024-03-31",
+    "2025-04-20",
+    "2026-04-05"
+   ]
+  },
+  "observance:easter_thursday": {
+   "ref": "Lc 24,35-48",
+   "evidence": [
+    "2021-04-08",
+    "2022-04-21",
+    "2023-04-13",
+    "2024-04-04",
+    "2025-04-24",
+    "2026-04-09"
+   ]
+  },
+  "observance:easter_tuesday": {
+   "ref": "Ga 20,11-18",
+   "evidence": [
+    "2021-04-06",
+    "2022-04-19",
+    "2023-04-11",
+    "2024-04-02",
+    "2025-04-22",
+    "2026-04-07"
+   ]
+  },
+  "observance:easter_wednesday": {
+   "ref": "Lc 24,13-35",
+   "evidence": [
+    "2021-04-07",
+    "2022-04-20",
+    "2023-04-12",
+    "2024-04-03",
+    "2026-04-08"
+   ]
+  },
+  "observance:elizabeth_of_hungary_religious": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-17",
+    "2022-11-17",
+    "2023-11-17",
+    "2025-11-17",
+    "2026-11-17"
+   ]
+  },
+  "observance:epiphany_of_the_lord": {
+   "ref": "Mt 2,1-12",
+   "evidence": [
+    "2022-01-02",
+    "2023-01-08",
+    "2024-01-07",
+    "2025-01-05",
+    "2026-01-04"
+   ]
+  },
+  "observance:exaltation_of_the_holy_cross": {
+   "ref": "Ga 3,13-17",
+   "evidence": [
+    "2021-09-14",
+    "2022-09-14",
+    "2023-09-14",
+    "2024-09-14",
+    "2025-09-14",
+    "2026-09-14"
+   ]
+  },
+  "observance:francis_de_sales_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-01-24",
+    "2025-01-24",
+    "2026-01-24"
+   ]
+  },
+  "observance:francis_of_assisi": {
+   "weekday": true,
+   "evidence": [
+    "2022-10-04",
+    "2023-10-04",
+    "2024-10-04",
+    "2025-10-04"
+   ]
+  },
+  "observance:francis_xavier_priest": {
+   "ref": "Mc 16,15-20",
+   "evidence": [
+    "2021-12-03",
+    "2022-12-03",
+    "2024-12-03",
+    "2025-12-03",
+    "2026-12-03"
+   ]
+  },
+  "observance:gregory_i_the_great_pope": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-03",
+    "2022-09-03",
+    "2024-09-03",
+    "2025-09-03",
+    "2026-09-03"
+   ]
+  },
+  "observance:holy_family_of_jesus_mary_and_joseph:YEAR_A": {
+   "ref": "Mt 2,13-15.19-23",
+   "evidence": [
+    "2022-12-30",
+    "2025-12-28"
+   ]
+  },
+  "observance:holy_family_of_jesus_mary_and_joseph:YEAR_B": {
+   "ref": "Lc 2,22-40",
+   "evidence": [
+    "2023-12-31"
+   ],
+   "single_source": true
+  },
+  "observance:holy_family_of_jesus_mary_and_joseph:YEAR_C": {
+   "ref": "Lc 2,41-52",
+   "evidence": [
+    "2021-12-26",
+    "2024-12-29"
+   ]
+  },
+  "observance:holy_guardian_angels": {
+   "ref": "Mt 18,1-5.10",
+   "evidence": [
+    "2021-10-02",
+    "2023-10-02",
+    "2024-10-02",
+    "2025-10-02",
+    "2026-10-02"
+   ]
+  },
+  "observance:holy_innocents_martyrs": {
+   "ref": "Mt 2,13-18",
+   "evidence": [
+    "2021-12-28",
+    "2022-12-28",
+    "2023-12-28",
+    "2024-12-28"
+   ]
+  },
+  "observance:ignatius_of_antioch_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-10-17",
+    "2023-10-17",
+    "2024-10-17",
+    "2025-10-17"
+   ]
+  },
+  "observance:ignatius_of_loyola_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-07-31",
+    "2024-07-31",
+    "2025-07-31",
+    "2026-07-31"
+   ]
+  },
+  "observance:immaculate_conception_of_the_blessed_virgin_mary": {
+   "ref": "Lc 1,26-38",
+   "evidence": [
+    "2021-12-08",
+    "2022-12-08",
+    "2023-12-08",
+    "2024-12-09",
+    "2025-12-08",
+    "2026-12-08"
+   ]
+  },
+  "observance:immaculate_heart_of_mary": {
+   "ref": "Lc 2,41-51",
+   "evidence": [
+    "2021-06-12",
+    "2022-06-25",
+    "2023-06-17",
+    "2024-06-08",
+    "2025-06-28",
+    "2026-06-13"
+   ]
+  },
+  "observance:irenaeus_of_lyon_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-06-28",
+    "2022-06-28",
+    "2023-06-28",
+    "2024-06-28"
+   ]
+  },
+  "observance:james_apostle": {
+   "ref": "Mt 20,20-28",
+   "evidence": [
+    "2022-07-25",
+    "2023-07-25",
+    "2024-07-25",
+    "2025-07-25",
+    "2026-07-25"
+   ]
+  },
+  "observance:jerome_of_stridon_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-30",
+    "2022-09-30",
+    "2023-09-30",
+    "2024-09-30",
+    "2025-09-30",
+    "2026-09-30"
+   ]
+  },
+  "observance:joachim_and_anne_parents_of_mary": {
+   "weekday": true,
+   "evidence": [
+    "2021-07-26",
+    "2022-07-26",
+    "2023-07-26",
+    "2024-07-26",
+    "2025-07-26"
+   ]
+  },
+  "observance:john_apostle": {
+   "ref": "Ga 20,2-8",
+   "evidence": [
+    "2021-12-27",
+    "2022-12-27",
+    "2023-12-27",
+    "2024-12-27",
+    "2025-12-27"
+   ]
+  },
+  "observance:john_bosco_priest": {
+   "weekday": true,
+   "evidence": [
+    "2022-01-31",
+    "2023-01-31",
+    "2024-01-31",
+    "2026-01-31"
+   ]
+  },
+  "observance:john_chrysostom_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-13",
+    "2022-09-13",
+    "2023-09-13",
+    "2024-09-13",
+    "2025-09-13"
+   ]
+  },
+  "observance:john_mary_vianney_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-04",
+    "2022-08-04",
+    "2023-08-04",
+    "2025-08-04",
+    "2026-08-04"
+   ]
+  },
+  "observance:john_of_the_cross_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-12-14",
+    "2022-12-14",
+    "2023-12-14",
+    "2024-12-14",
+    "2026-12-14"
+   ]
+  },
+  "observance:josaphat_kuntsevych_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-12",
+    "2022-11-12",
+    "2024-11-12",
+    "2025-11-12",
+    "2026-11-12"
+   ]
+  },
+  "observance:joseph_spouse_of_mary": {
+   "ref": "Mt 1,16.18-21.24a",
+   "evidence": [
+    "2021-03-19",
+    "2022-03-19",
+    "2023-03-20",
+    "2024-03-19",
+    "2025-03-19",
+    "2026-03-19"
+   ]
+  },
+  "observance:justin_martyr": {
+   "weekday": true,
+   "evidence": [
+    "2021-06-01",
+    "2022-06-01",
+    "2023-06-01",
+    "2024-06-01"
+   ]
+  },
+  "observance:lawrence_of_rome_deacon": {
+   "ref": "Ga 12,24-26",
+   "evidence": [
+    "2021-08-10",
+    "2022-08-10",
+    "2023-08-10",
+    "2024-08-10",
+    "2026-08-10"
+   ]
+  },
+  "observance:leo_i_the_great_pope": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-10",
+    "2022-11-10",
+    "2023-11-10",
+    "2025-11-10",
+    "2026-11-10"
+   ]
+  },
+  "observance:lucy_of_syracuse_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2021-12-13",
+    "2022-12-13",
+    "2023-12-13",
+    "2024-12-13",
+    "2025-12-13"
+   ]
+  },
+  "observance:luke_evangelist": {
+   "ref": "Lc 10,1-9",
+   "evidence": [
+    "2021-10-18",
+    "2022-10-18",
+    "2023-10-18",
+    "2024-10-18",
+    "2025-10-18"
+   ]
+  },
+  "observance:mark_evangelist": {
+   "ref": "Mc 16,15-20",
+   "evidence": [
+    "2022-04-25",
+    "2023-04-25",
+    "2024-04-25",
+    "2026-04-25"
+   ]
+  },
+  "observance:martha_of_bethany_mary_of_bethany_and_lazarus_of_bethany": {
+   "ref": "Ga 11,19-27",
+   "evidence": [
+    "2021-07-29",
+    "2022-07-29",
+    "2023-07-29",
+    "2024-07-29",
+    "2025-07-29",
+    "2026-07-29"
+   ]
+  },
+  "observance:martin_of_tours_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2021-11-11",
+    "2022-11-11",
+    "2023-11-11",
+    "2024-11-11",
+    "2025-11-11",
+    "2026-11-11"
+   ]
+  },
+  "observance:mary_magdalene": {
+   "ref": "Ga 20,1-2.11-18",
+   "evidence": [
+    "2021-07-22",
+    "2022-07-22",
+    "2023-07-22",
+    "2024-07-22",
+    "2025-07-22",
+    "2026-07-22"
+   ]
+  },
+  "observance:mary_mother_of_god": {
+   "ref": "Lc 2,16-21",
+   "evidence": [
+    "2022-01-01",
+    "2023-01-01",
+    "2024-01-01",
+    "2025-01-01",
+    "2026-01-01"
+   ]
+  },
+  "observance:mary_mother_of_the_church": {
+   "ref": "Ga 19,25-34",
+   "evidence": [],
+   "decision": "Reviewed 2026 date (individual review). Four pages print Ga 19,25-27 and two print the weekday. Open: pages and review differ on the last verse."
+  },
+  "observance:matthew_apostle": {
+   "ref": "Mt 9,9-13",
+   "evidence": [
+    "2021-09-21",
+    "2022-09-21",
+    "2023-09-21",
+    "2024-09-21",
+    "2026-09-21"
+   ]
+  },
+  "observance:matthias_apostle": {
+   "ref": "Ga 15,9-17",
+   "evidence": [
+    "2021-05-14",
+    "2022-05-14",
+    "2024-05-14",
+    "2025-05-14",
+    "2026-05-14"
+   ]
+  },
+  "observance:maximilian_mary_raymund_kolbe_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-14",
+    "2023-08-14",
+    "2024-08-14",
+    "2025-08-14",
+    "2026-08-14"
+   ]
+  },
+  "observance:michael_gabriel_and_raphael_archangels": {
+   "ref": "Ga 1,47-51",
+   "evidence": [
+    "2021-09-29",
+    "2022-09-29",
+    "2023-09-29",
+    "2025-09-29",
+    "2026-09-29"
+   ]
+  },
+  "observance:monica_of_hippo": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-27",
+    "2022-08-27",
+    "2024-08-27",
+    "2025-08-27",
+    "2026-08-27"
+   ]
+  },
+  "observance:most_holy_body_and_blood_of_christ:YEAR_A": {
+   "ref": "Ga 6,51-58",
+   "evidence": [
+    "2023-06-11",
+    "2026-06-07"
+   ]
+  },
+  "observance:most_holy_body_and_blood_of_christ:YEAR_B": {
+   "ref": "Mc 14,12-16.22-26",
+   "evidence": [
+    "2021-06-06",
+    "2024-06-02"
+   ]
+  },
+  "observance:most_holy_body_and_blood_of_christ:YEAR_C": {
+   "ref": "Lc 9,11b-17",
+   "evidence": [
+    "2022-06-19",
+    "2025-06-22"
+   ]
+  },
+  "observance:most_holy_trinity:YEAR_A": {
+   "ref": "Ga 3,16-18",
+   "evidence": [
+    "2023-06-04",
+    "2026-05-31"
+   ]
+  },
+  "observance:most_holy_trinity:YEAR_B": {
+   "ref": "Mt 28,16-20",
+   "evidence": [
+    "2021-05-30",
+    "2024-05-26"
+   ]
+  },
+  "observance:most_holy_trinity:YEAR_C": {
+   "ref": "Ga 16,12-15",
+   "evidence": [
+    "2022-06-12",
+    "2025-06-15"
+   ]
+  },
+  "observance:most_sacred_heart_of_jesus:YEAR_A": {
+   "ref": "Mt 11,25-30",
+   "evidence": [
+    "2023-06-16",
+    "2026-06-12"
+   ]
+  },
+  "observance:most_sacred_heart_of_jesus:YEAR_B": {
+   "ref": "Ga 19,31-37",
+   "evidence": [
+    "2021-06-11",
+    "2024-06-07"
+   ]
+  },
+  "observance:most_sacred_heart_of_jesus:YEAR_C": {
+   "ref": "Lc 15,3-7",
+   "evidence": [
+    "2022-06-24",
+    "2025-06-27"
+   ]
+  },
+  "observance:nativity_of_john_the_baptist": {
+   "ref": "Lc 1,57-66.80",
+   "evidence": [
+    "2021-06-24",
+    "2023-06-24",
+    "2024-06-24",
+    "2025-06-24",
+    "2026-06-24"
+   ]
+  },
+  "observance:nativity_of_the_blessed_virgin_mary": {
+   "ref": "Mt 1,1-16.18-23",
+   "evidence": [
+    "2021-09-08",
+    "2022-09-08",
+    "2023-09-08",
+    "2025-09-08"
+   ],
+   "decision": "First-listed full option (owner policy): four pages print the full form. The 2026 page and reviewed date use the short form Mt 1,18-23. Open for the owner."
+  },
+  "observance:nativity_of_the_lord": {
+   "ref": "Ga 1,1-18",
+   "evidence": [
+    "2023-12-25",
+    "2024-12-25"
+   ],
+   "decision": "Daytime Mass (owner policy). Pages printed the dawn Mass (Lc 2,15-20) in 2021, 2022 and 2025 and the day Mass in 2023 and 2024."
+  },
+  "observance:our_lady_of_sorrows": {
+   "ref": "Ga 19,25-27",
+   "evidence": [
+    "2021-09-15",
+    "2022-09-15",
+    "2023-09-15",
+    "2025-09-15",
+    "2026-09-15"
+   ]
+  },
+  "observance:our_lady_of_the_rosary": {
+   "ref": "Lc 1,26-38",
+   "evidence": [
+    "2022-10-07",
+    "2023-10-07",
+    "2024-10-07",
+    "2025-10-07",
+    "2026-10-07"
+   ],
+   "decision": "Proper Gospel on five of six pages and the reviewed 2026 date; the 2021 page printed the weekday."
+  },
+  "observance:our_lord_jesus_christ_king_of_the_universe:YEAR_A": {
+   "ref": "Mt 25,31-46",
+   "evidence": [
+    "2023-11-26",
+    "2026-11-22"
+   ]
+  },
+  "observance:our_lord_jesus_christ_king_of_the_universe:YEAR_B": {
+   "ref": "Ga 18,33b-37",
+   "evidence": [
+    "2021-11-21",
+    "2024-11-24"
+   ]
+  },
+  "observance:our_lord_jesus_christ_king_of_the_universe:YEAR_C": {
+   "ref": "Lc 23,35-43",
+   "evidence": [
+    "2022-11-20",
+    "2025-11-23"
+   ]
+  },
+  "observance:passion_of_saint_john_the_baptist": {
+   "ref": "Mc 6,17-29",
+   "evidence": [
+    "2022-08-29",
+    "2023-08-29",
+    "2024-08-29",
+    "2025-08-29"
+   ]
+  },
+  "observance:paul_miki_and_companions_martyrs": {
+   "weekday": true,
+   "evidence": [
+    "2024-02-06",
+    "2025-02-06",
+    "2026-02-06"
+   ]
+  },
+  "observance:pentecost_sunday": {
+   "ref": "Ga 20,19-23",
+   "evidence": [
+    "2021-05-23",
+    "2022-06-05",
+    "2023-05-28",
+    "2024-05-19",
+    "2025-06-08",
+    "2026-05-24"
+   ]
+  },
+  "observance:peter_and_paul_apostles": {
+   "ref": "Mt 16,13-19",
+   "evidence": [
+    "2021-06-29",
+    "2022-06-29",
+    "2023-06-29",
+    "2024-06-29",
+    "2025-06-29",
+    "2026-06-29"
+   ]
+  },
+  "observance:philip_and_james_apostles": {
+   "ref": "Ga 14,6-14",
+   "evidence": [
+    "2021-05-03",
+    "2022-05-03",
+    "2023-05-03",
+    "2024-05-03",
+    "2025-05-03"
+   ]
+  },
+  "observance:philip_neri_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-05-26",
+    "2022-05-26",
+    "2023-05-26",
+    "2025-05-26",
+    "2026-05-26"
+   ]
+  },
+  "observance:pius_francesco_forgione_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-23",
+    "2022-09-23",
+    "2023-09-23",
+    "2024-09-23",
+    "2025-09-23",
+    "2026-09-23"
+   ]
+  },
+  "observance:pius_x_pope": {
+   "weekday": true,
+   "evidence": [
+    "2021-08-21",
+    "2023-08-21",
+    "2024-08-21",
+    "2025-08-21",
+    "2026-08-21"
+   ]
+  },
+  "observance:polycarp_of_smyrna_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2022-02-23"
+   ]
+  },
+  "observance:presentation_of_the_blessed_virgin_mary": {
+   "ref": "Mt 12,46-50",
+   "evidence": [
+    "2022-11-21",
+    "2023-11-21",
+    "2024-11-21",
+    "2025-11-21",
+    "2026-11-21"
+   ]
+  },
+  "observance:presentation_of_the_lord": {
+   "ref": "Lc 2,22-40",
+   "evidence": [
+    "2023-02-02",
+    "2024-02-02",
+    "2025-02-02"
+   ],
+   "decision": "First-listed full option (owner policy): three pages print the full form. The 2026 page and reviewed date use the short form Lc 2,22-32. Open for the owner."
+  },
+  "observance:queenship_of_the_blessed_virgin_mary": {
+   "ref": "Lc 1,26-38",
+   "evidence": [
+    "2022-08-22",
+    "2023-08-22",
+    "2024-08-22",
+    "2025-08-22",
+    "2026-08-22"
+   ]
+  },
+  "observance:scholastica_of_nursia_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2022-02-10",
+    "2023-02-10",
+    "2025-02-10",
+    "2026-02-10"
+   ]
+  },
+  "observance:simon_and_jude_apostles": {
+   "ref": "Lc 6,12-19",
+   "evidence": [
+    "2021-10-28",
+    "2022-10-28",
+    "2023-10-28",
+    "2024-10-28",
+    "2025-10-28",
+    "2026-10-28"
+   ]
+  },
+  "observance:stanislaus_of_szczepanow_bishop": {
+   "weekday": true,
+   "evidence": [
+    "2024-04-11"
+   ]
+  },
+  "observance:stephen_the_first_martyr": {
+   "ref": "Mt 10,17-22",
+   "evidence": [
+    "2022-12-26",
+    "2023-12-26",
+    "2024-12-26",
+    "2025-12-26"
+   ]
+  },
+  "observance:teresa_of_jesus_of_avila_virgin": {
+   "weekday": true,
+   "evidence": [
+    "2021-10-15",
+    "2022-10-15",
+    "2024-10-15",
+    "2025-10-15"
+   ]
+  },
+  "observance:therese_of_the_child_jesus_and_the_holy_face_of_lisieux_virgin": {
+   "ref": "Mt 18,1-5",
+   "evidence": [
+    "2021-10-01",
+    "2022-10-01",
+    "2024-10-01",
+    "2025-10-01",
+    "2026-10-01"
+   ]
+  },
+  "observance:thomas_apostle": {
+   "ref": "Ga 20,24-29",
+   "evidence": [
+    "2021-07-03",
+    "2023-07-03",
+    "2024-07-03",
+    "2025-07-03",
+    "2026-07-03"
+   ]
+  },
+  "observance:thomas_aquinas_priest": {
+   "weekday": true,
+   "evidence": [
+    "2022-01-28",
+    "2023-01-28",
+    "2025-01-28"
+   ]
+  },
+  "observance:timothy_of_ephesus_and_titus_of_crete_bishops": {
+   "ref": "Lc 10,1-9",
+   "evidence": [
+    "2024-01-26",
+    "2026-01-26"
+   ],
+   "decision": "Proper Gospel: 2024 and 2026 pages and the reviewed 2026 date (two Vietnamese calendars). 2022 and 2023 pages printed the weekday."
+  },
+  "observance:transfiguration_of_the_lord:YEAR_A": {
+   "ref": "Mt 17,1-9",
+   "evidence": [
+    "2023-08-06",
+    "2026-08-06"
+   ]
+  },
+  "observance:transfiguration_of_the_lord:YEAR_B": {
+   "ref": "Mc 9,2-10",
+   "evidence": [
+    "2021-08-06",
+    "2024-08-06"
+   ]
+  },
+  "observance:transfiguration_of_the_lord:YEAR_C": {
+   "ref": "Lc 9,28b-36",
+   "evidence": [
+    "2022-08-06",
+    "2025-08-06"
+   ]
+  },
+  "observance:vincent_de_paul_priest": {
+   "weekday": true,
+   "evidence": [
+    "2021-09-27",
+    "2022-09-27",
+    "2023-09-27",
+    "2024-09-27",
+    "2025-09-27"
+   ]
+  },
+  "observance:visitation_of_mary": {
+   "ref": "Lc 1,39-56",
+   "evidence": [
+    "2021-05-31",
+    "2022-05-31",
+    "2023-05-31",
+    "2024-05-31",
+    "2025-05-31"
+   ]
+  },
+  "temporal:advent_1_friday": {
+   "ref": "Mt 9,27-31",
+   "evidence": [
+    "2022-12-02",
+    "2024-12-06",
+    "2025-12-05",
+    "2026-12-04"
+   ]
+  },
+  "temporal:advent_1_monday": {
+   "ref": "Mt 8,5-11",
+   "evidence": [
+    "2021-11-29",
+    "2022-11-28",
+    "2023-12-04",
+    "2024-12-02",
+    "2025-12-01"
+   ]
+  },
+  "temporal:advent_1_saturday": {
+   "ref": "Mt 9,35-10,1.6-8",
+   "evidence": [
+    "2021-12-04",
+    "2023-12-09",
+    "2025-12-06",
+    "2026-12-05"
+   ]
+  },
+  "temporal:advent_1_sunday:YEAR_A": {
+   "ref": "Mt 24,37-44",
+   "evidence": [
+    "2022-11-27",
+    "2025-11-30"
+   ]
+  },
+  "temporal:advent_1_sunday:YEAR_B": {
+   "ref": "Mc 13,33-37",
+   "evidence": [
+    "2023-12-03",
+    "2026-11-29"
+   ]
+  },
+  "temporal:advent_1_sunday:YEAR_C": {
+   "ref": "Lc 21,25-28.34-36",
+   "evidence": [
+    "2021-11-28",
+    "2024-12-01"
+   ]
+  },
+  "temporal:advent_1_thursday": {
+   "ref": "Mt 7,21.24-27",
+   "evidence": [
+    "2021-12-02",
+    "2022-12-01",
+    "2024-12-05",
+    "2025-12-04"
+   ]
+  },
+  "temporal:advent_1_tuesday": {
+   "ref": "Lc 10,21-24",
+   "evidence": [
+    "2022-11-29",
+    "2023-12-05",
+    "2025-12-02",
+    "2026-12-01"
+   ]
+  },
+  "temporal:advent_1_wednesday": {
+   "ref": "Mt 15,29-37",
+   "evidence": [
+    "2021-12-01",
+    "2023-12-06",
+    "2024-12-04",
+    "2026-12-02"
+   ]
+  },
+  "temporal:advent_2_friday": {
+   "ref": "Mt 11,16-19",
+   "evidence": [
+    "2021-12-10",
+    "2022-12-09",
+    "2023-12-15",
+    "2025-12-12",
+    "2026-12-11"
+   ]
+  },
+  "temporal:advent_2_monday": {
+   "ref": "Lc 5,17-26",
+   "evidence": [
+    "2021-12-06",
+    "2022-12-05",
+    "2023-12-11"
+   ]
+  },
+  "temporal:advent_2_saturday": {
+   "ref": "Mt 17,10-13",
+   "evidence": [
+    "2021-12-11",
+    "2022-12-10",
+    "2023-12-16",
+    "2026-12-12"
+   ]
+  },
+  "temporal:advent_2_sunday:YEAR_A": {
+   "ref": "Mt 3,1-12",
+   "evidence": [
+    "2022-12-04",
+    "2025-12-07"
+   ]
+  },
+  "temporal:advent_2_sunday:YEAR_B": {
+   "ref": "Mc 1,1-8",
+   "evidence": [
+    "2023-12-10",
+    "2026-12-06"
+   ]
+  },
+  "temporal:advent_2_sunday:YEAR_C": {
+   "ref": "Lc 3,1-6",
+   "evidence": [
+    "2021-12-05",
+    "2024-12-08"
+   ]
+  },
+  "temporal:advent_2_thursday": {
+   "ref": "Mt 11,11-15",
+   "evidence": [
+    "2021-12-09",
+    "2024-12-12",
+    "2025-12-11",
+    "2026-12-10"
+   ]
+  },
+  "temporal:advent_2_tuesday": {
+   "ref": "Mt 18,12-14",
+   "evidence": [
+    "2022-12-06",
+    "2023-12-12",
+    "2024-12-10",
+    "2025-12-09"
+   ]
+  },
+  "temporal:advent_2_wednesday": {
+   "ref": "Mt 11,28-30",
+   "evidence": [
+    "2024-12-11",
+    "2025-12-10",
+    "2026-12-09"
+   ]
+  },
+  "temporal:advent_3_friday": {
+   "ref": "Ga 5,33-36",
+   "evidence": [
+    "2022-12-16"
+   ],
+   "single_source": true
+  },
+  "temporal:advent_3_monday": {
+   "ref": "Mt 21,23-27",
+   "evidence": [
+    "2022-12-12",
+    "2024-12-16",
+    "2025-12-15"
+   ]
+  },
+  "temporal:advent_3_sunday:YEAR_A": {
+   "ref": "Mt 11,2-11",
+   "evidence": [
+    "2022-12-11",
+    "2025-12-14"
+   ]
+  },
+  "temporal:advent_3_sunday:YEAR_B": {
+   "ref": "Ga 1,6-8.19-28",
+   "evidence": [
+    "2023-12-17",
+    "2026-12-13"
+   ]
+  },
+  "temporal:advent_3_sunday:YEAR_C": {
+   "ref": "Lc 3,10-18",
+   "evidence": [
+    "2021-12-12",
+    "2024-12-15"
+   ]
+  },
+  "temporal:advent_3_thursday": {
+   "ref": "Lc 7,24-30",
+   "evidence": [
+    "2021-12-16",
+    "2022-12-15"
+   ]
+  },
+  "temporal:advent_3_tuesday": {
+   "ref": "Mt 21,28-32",
+   "evidence": [
+    "2025-12-16",
+    "2026-12-15"
+   ]
+  },
+  "temporal:advent_3_wednesday": {
+   "ref": "Lc 7,19-23",
+   "evidence": [
+    "2021-12-15"
+   ],
+   "single_source": true
+  },
+  "temporal:advent_4_sunday:YEAR_A": {
+   "ref": "Mt 1,18-24",
+   "evidence": [
+    "2022-12-18",
+    "2025-12-21"
+   ]
+  },
+  "temporal:advent_4_sunday:YEAR_C": {
+   "ref": "Lc 1,39-45",
+   "evidence": [
+    "2021-12-19",
+    "2024-12-22"
+   ]
+  },
+  "temporal:advent_december_17": {
+   "ref": "Mt 1,1-17",
+   "evidence": [
+    "2021-12-17",
+    "2022-12-17",
+    "2024-12-17",
+    "2025-12-17"
+   ]
+  },
+  "temporal:advent_december_18": {
+   "ref": "Mt 1,18-24",
+   "evidence": [
+    "2021-12-18",
+    "2023-12-18",
+    "2024-12-18",
+    "2025-12-18"
+   ]
+  },
+  "temporal:advent_december_19": {
+   "ref": "Lc 1,5-25",
+   "evidence": [
+    "2022-12-19",
+    "2023-12-19",
+    "2024-12-19",
+    "2025-12-19"
+   ]
+  },
+  "temporal:advent_december_20": {
+   "ref": "Lc 1,26-38",
+   "evidence": [
+    "2021-12-20",
+    "2022-12-20",
+    "2023-12-20",
+    "2024-12-20",
+    "2025-12-20"
+   ]
+  },
+  "temporal:advent_december_21": {
+   "ref": "Lc 1,39-45",
+   "evidence": [
+    "2021-12-21",
+    "2022-12-21",
+    "2023-12-21",
+    "2024-12-21"
+   ]
+  },
+  "temporal:advent_december_22": {
+   "ref": "Lc 1,46-56",
+   "evidence": [
+    "2021-12-22",
+    "2022-12-22",
+    "2023-12-22",
+    "2025-12-22"
+   ]
+  },
+  "temporal:advent_december_23": {
+   "ref": "Lc 1,57-66",
+   "evidence": [
+    "2021-12-23",
+    "2022-12-23",
+    "2023-12-23",
+    "2024-12-23",
+    "2025-12-23"
+   ]
+  },
+  "temporal:advent_december_24": {
+   "ref": "Lc 1,67-79",
+   "evidence": [
+    "2021-12-24",
+    "2022-12-24",
+    "2024-12-24",
+    "2025-12-24"
+   ]
+  },
+  "temporal:ash_wednesday": {
+   "ref": "Mt 6,1-6.16-18",
+   "evidence": [
+    "2022-03-02",
+    "2023-02-22",
+    "2024-02-14",
+    "2025-03-05"
+   ]
+  },
+  "temporal:christmas_octave_day_5": {
+   "ref": "Lc 2,22-35",
+   "evidence": [
+    "2021-12-29",
+    "2022-12-29",
+    "2023-12-29",
+    "2025-12-29"
+   ]
+  },
+  "temporal:christmas_octave_day_6": {
+   "ref": "Lc 2,36-40",
+   "evidence": [
+    "2021-12-30",
+    "2023-12-30",
+    "2024-12-30",
+    "2025-12-30"
+   ]
+  },
+  "temporal:christmas_octave_day_7": {
+   "ref": "Ga 1,1-18",
+   "evidence": [
+    "2021-12-31",
+    "2022-12-31",
+    "2024-12-31",
+    "2025-12-31"
+   ]
+  },
+  "temporal:christmas_time_january_2": {
+   "ref": "Ga 1,19-28",
+   "evidence": [
+    "2023-01-02",
+    "2024-01-02",
+    "2025-01-02",
+    "2026-01-02"
+   ],
+   "via": "memorial days that printed the weekday"
+  },
+  "temporal:christmas_time_january_3": {
+   "ref": "Ga 1,29-34",
+   "evidence": [
+    "2023-01-03",
+    "2024-01-03",
+    "2025-01-03",
+    "2026-01-03"
+   ]
+  },
+  "temporal:christmas_time_january_4": {
+   "ref": "Ga 1,35-42",
+   "evidence": [
+    "2023-01-04",
+    "2024-01-04",
+    "2025-01-04"
+   ]
+  },
+  "temporal:christmas_time_january_5": {
+   "ref": "Ga 1,43-51",
+   "evidence": [
+    "2023-01-05",
+    "2024-01-05"
+   ]
+  },
+  "temporal:christmas_time_january_6": {
+   "ref": "Mc 1,7-11",
+   "evidence": [
+    "2023-01-06",
+    "2024-01-06"
+   ]
+  },
+  "temporal:christmas_time_january_7": {
+   "ref": "Ga 2,1-11",
+   "evidence": [
+    "2023-01-07"
+   ],
+   "single_source": true
+  },
+  "temporal:divine_mercy_sunday:YEAR_A": {
+   "ref": "Ga 20,19-31",
+   "evidence": [
+    "2023-04-16",
+    "2026-04-12"
+   ]
+  },
+  "temporal:divine_mercy_sunday:YEAR_B": {
+   "ref": "Ga 20,19-31",
+   "evidence": [
+    "2021-04-11",
+    "2024-04-07"
+   ]
+  },
+  "temporal:divine_mercy_sunday:YEAR_C": {
+   "ref": "Ga 20,19-31",
+   "evidence": [
+    "2022-04-24",
+    "2025-04-27"
+   ]
+  },
+  "temporal:easter_time_2_friday": {
+   "ref": "Ga 6,1-15",
+   "evidence": [
+    "2021-04-16",
+    "2023-04-21",
+    "2024-04-12",
+    "2026-04-17"
+   ]
+  },
+  "temporal:easter_time_2_monday": {
+   "ref": "Ga 3,1-8",
+   "evidence": [
+    "2021-04-12",
+    "2023-04-17",
+    "2025-04-28",
+    "2026-04-13"
+   ]
+  },
+  "temporal:easter_time_2_saturday": {
+   "ref": "Ga 6,16-21",
+   "evidence": [
+    "2021-04-17",
+    "2022-04-30",
+    "2023-04-22",
+    "2026-04-18"
+   ]
+  },
+  "temporal:easter_time_2_thursday": {
+   "ref": "Ga 3,31-36",
+   "evidence": [
+    "2021-04-15",
+    "2022-04-28",
+    "2023-04-20",
+    "2025-05-01",
+    "2026-04-16"
+   ]
+  },
+  "temporal:easter_time_2_tuesday": {
+   "ref": "Ga 3,7b-15",
+   "evidence": [
+    "2021-04-13",
+    "2022-04-26",
+    "2023-04-18",
+    "2024-04-09",
+    "2026-04-14"
+   ]
+  },
+  "temporal:easter_time_2_wednesday": {
+   "ref": "Ga 3,16-21",
+   "evidence": [
+    "2021-04-14",
+    "2022-04-27",
+    "2023-04-19",
+    "2024-04-10",
+    "2025-04-30",
+    "2026-04-15"
+   ]
+  },
+  "temporal:easter_time_3_friday": {
+   "ref": "Ga 6,52-59",
+   "evidence": [
+    "2021-04-23",
+    "2022-05-06",
+    "2023-04-28",
+    "2024-04-19",
+    "2025-05-09",
+    "2026-04-24"
+   ]
+  },
+  "temporal:easter_time_3_monday": {
+   "ref": "Ga 6,22-29",
+   "evidence": [
+    "2021-04-19",
+    "2023-04-24",
+    "2024-04-15",
+    "2025-05-05",
+    "2026-04-20"
+   ]
+  },
+  "temporal:easter_time_3_saturday": {
+   "ref": "Ga 6,51.60-69",
+   "evidence": [
+    "2021-04-24",
+    "2022-05-07",
+    "2024-04-20",
+    "2025-05-10"
+   ]
+  },
+  "temporal:easter_time_3_sunday:YEAR_A": {
+   "ref": "Lc 24,13-35",
+   "evidence": [
+    "2023-04-23",
+    "2026-04-19"
+   ]
+  },
+  "temporal:easter_time_3_sunday:YEAR_B": {
+   "ref": "Lc 24,35-48",
+   "evidence": [
+    "2021-04-18",
+    "2024-04-14"
+   ]
+  },
+  "temporal:easter_time_3_sunday:YEAR_C": {
+   "ref": "Ga 21,1-19",
+   "evidence": [
+    "2022-05-01",
+    "2025-05-04"
+   ]
+  },
+  "temporal:easter_time_3_thursday": {
+   "ref": "Ga 6,44-51",
+   "evidence": [
+    "2021-04-22",
+    "2022-05-05",
+    "2023-04-27",
+    "2024-04-18",
+    "2025-05-08",
+    "2026-04-23"
+   ]
+  },
+  "temporal:easter_time_3_tuesday": {
+   "ref": "Ga 6,30-35",
+   "evidence": [
+    "2021-04-20",
+    "2024-04-16",
+    "2025-05-06",
+    "2026-04-21"
+   ]
+  },
+  "temporal:easter_time_3_wednesday": {
+   "ref": "Ga 6,35-40",
+   "evidence": [
+    "2021-04-21",
+    "2022-05-04",
+    "2023-04-26",
+    "2024-04-17",
+    "2025-05-07",
+    "2026-04-22"
+   ]
+  },
+  "temporal:easter_time_4_friday": {
+   "ref": "Ga 14,1-6",
+   "evidence": [
+    "2021-04-30",
+    "2022-05-13",
+    "2023-05-05",
+    "2024-04-26",
+    "2025-05-16"
+   ]
+  },
+  "temporal:easter_time_4_monday": {
+   "ref": "Ga 10,1-10",
+   "evidence": [
+    "2021-04-26",
+    "2022-05-09",
+    "2024-04-22",
+    "2025-05-12"
+   ],
+   "rule": "Year A reads Ga 10,1-10 on the Sunday before."
+  },
+  "temporal:easter_time_4_monday:YEAR_A": {
+   "ref": "Ga 10,11-18",
+   "evidence": [
+    "2023-05-01",
+    "2026-04-27"
+   ],
+   "rule": "Year A reads Ga 10,1-10 on the Sunday before."
+  },
+  "temporal:easter_time_4_saturday": {
+   "ref": "Ga 14,7-14",
+   "evidence": [
+    "2023-05-06",
+    "2024-04-27",
+    "2025-05-17"
+   ]
+  },
+  "temporal:easter_time_4_sunday:YEAR_A": {
+   "ref": "Ga 10,1-10",
+   "evidence": [
+    "2023-04-30",
+    "2026-04-26"
+   ]
+  },
+  "temporal:easter_time_4_sunday:YEAR_B": {
+   "ref": "Ga 10,11-18",
+   "evidence": [
+    "2021-04-25",
+    "2024-04-21"
+   ]
+  },
+  "temporal:easter_time_4_sunday:YEAR_C": {
+   "ref": "Ga 10,27-30",
+   "evidence": [
+    "2022-05-08",
+    "2025-05-11"
+   ]
+  },
+  "temporal:easter_time_4_thursday": {
+   "ref": "Ga 13,16-20",
+   "evidence": [
+    "2022-05-12",
+    "2023-05-04",
+    "2025-05-15",
+    "2026-04-30"
+   ]
+  },
+  "temporal:easter_time_4_tuesday": {
+   "ref": "Ga 10,22-30",
+   "evidence": [
+    "2021-04-27",
+    "2022-05-10",
+    "2024-04-23",
+    "2025-05-13",
+    "2026-04-28"
+   ]
+  },
+  "temporal:easter_time_4_wednesday": {
+   "ref": "Ga 12,44-50",
+   "evidence": [
+    "2021-04-28",
+    "2022-05-11",
+    "2024-04-24"
+   ]
+  },
+  "temporal:easter_time_5_friday": {
+   "ref": "Ga 15,12-17",
+   "evidence": [
+    "2021-05-07",
+    "2022-05-20",
+    "2023-05-12",
+    "2025-05-23",
+    "2026-05-08"
+   ]
+  },
+  "temporal:easter_time_5_monday": {
+   "ref": "Ga 14,21-26",
+   "evidence": [
+    "2022-05-16",
+    "2023-05-08",
+    "2025-05-19",
+    "2026-05-04"
+   ]
+  },
+  "temporal:easter_time_5_saturday": {
+   "ref": "Ga 15,18-21",
+   "evidence": [
+    "2021-05-08",
+    "2022-05-21",
+    "2023-05-13",
+    "2024-05-04",
+    "2025-05-24",
+    "2026-05-09"
+   ]
+  },
+  "temporal:easter_time_5_sunday:YEAR_A": {
+   "ref": "Ga 14,1-12",
+   "evidence": [
+    "2023-05-07",
+    "2026-05-03"
+   ]
+  },
+  "temporal:easter_time_5_sunday:YEAR_B": {
+   "ref": "Ga 15,1-8",
+   "evidence": [
+    "2021-05-02",
+    "2024-04-28"
+   ]
+  },
+  "temporal:easter_time_5_sunday:YEAR_C": {
+   "ref": "Ga 13,31-33a.34-35",
+   "evidence": [
+    "2022-05-15",
+    "2025-05-18"
+   ]
+  },
+  "temporal:easter_time_5_thursday": {
+   "ref": "Ga 15,9-11",
+   "evidence": [
+    "2021-05-06",
+    "2022-05-19",
+    "2023-05-11",
+    "2025-05-22",
+    "2026-05-07"
+   ]
+  },
+  "temporal:easter_time_5_tuesday": {
+   "ref": "Ga 14,27-31a",
+   "evidence": [
+    "2021-05-04",
+    "2022-05-17",
+    "2023-05-09",
+    "2024-04-30",
+    "2025-05-20",
+    "2026-05-05"
+   ]
+  },
+  "temporal:easter_time_5_wednesday": {
+   "ref": "Ga 15,1-8",
+   "evidence": [
+    "2021-05-05",
+    "2022-05-18",
+    "2023-05-10",
+    "2024-05-01",
+    "2025-05-21",
+    "2026-05-06"
+   ]
+  },
+  "temporal:easter_time_6_friday": {
+   "ref": "Ga 16,20-23a",
+   "evidence": [
+    "2022-05-27",
+    "2023-05-19",
+    "2024-05-10",
+    "2025-05-30",
+    "2026-05-15"
+   ]
+  },
+  "temporal:easter_time_6_monday": {
+   "ref": "Ga 15,26-16,4a",
+   "evidence": [
+    "2022-05-23",
+    "2023-05-15",
+    "2024-05-06",
+    "2026-05-11"
+   ]
+  },
+  "temporal:easter_time_6_saturday": {
+   "ref": "Ga 16,23b-28",
+   "evidence": [
+    "2021-05-15",
+    "2022-05-28",
+    "2023-05-20",
+    "2024-05-11",
+    "2026-05-16"
+   ]
+  },
+  "temporal:easter_time_6_sunday:YEAR_A": {
+   "ref": "Ga 14,15-21",
+   "evidence": [
+    "2023-05-14",
+    "2026-05-10"
+   ]
+  },
+  "temporal:easter_time_6_sunday:YEAR_B": {
+   "ref": "Ga 15,9-17",
+   "evidence": [
+    "2021-05-09",
+    "2024-05-05"
+   ]
+  },
+  "temporal:easter_time_6_sunday:YEAR_C": {
+   "ref": "Ga 14,23-29",
+   "evidence": [
+    "2022-05-22",
+    "2025-05-25"
+   ]
+  },
+  "temporal:easter_time_6_thursday": {
+   "ref": "Ga 16,16-20",
+   "evidence": [
+    "2021-05-13",
+    "2023-05-18",
+    "2024-05-09",
+    "2025-05-29"
+   ]
+  },
+  "temporal:easter_time_6_tuesday": {
+   "ref": "Ga 16,5-11",
+   "evidence": [
+    "2021-05-11",
+    "2022-05-24",
+    "2023-05-16",
+    "2024-05-07",
+    "2025-05-27",
+    "2026-05-12"
+   ]
+  },
+  "temporal:easter_time_6_wednesday": {
+   "ref": "Ga 16,12-15",
+   "evidence": [
+    "2021-05-12",
+    "2022-05-25",
+    "2023-05-17",
+    "2024-05-08",
+    "2025-05-28",
+    "2026-05-13"
+   ]
+  },
+  "temporal:easter_time_7_friday": {
+   "ref": "Ga 21,15-19",
+   "evidence": [
+    "2021-05-21",
+    "2024-05-17",
+    "2025-06-06",
+    "2026-05-22"
+   ]
+  },
+  "temporal:easter_time_7_monday": {
+   "ref": "Ga 16,29-33",
+   "evidence": [
+    "2021-05-17",
+    "2022-05-30",
+    "2023-05-22",
+    "2024-05-13",
+    "2025-06-02",
+    "2026-05-18"
+   ]
+  },
+  "temporal:easter_time_7_saturday": {
+   "ref": "Ga 21,20-25",
+   "evidence": [
+    "2021-05-22",
+    "2022-06-04",
+    "2023-05-27",
+    "2024-05-18",
+    "2025-06-07",
+    "2026-05-23"
+   ]
+  },
+  "temporal:easter_time_7_thursday": {
+   "ref": "Ga 17,20-26",
+   "evidence": [
+    "2021-05-20",
+    "2022-06-02",
+    "2023-05-25",
+    "2024-05-16",
+    "2026-05-21"
+   ]
+  },
+  "temporal:easter_time_7_tuesday": {
+   "ref": "Ga 17,1-11a",
+   "evidence": [
+    "2021-05-18",
+    "2023-05-23",
+    "2026-05-19"
+   ]
+  },
+  "temporal:easter_time_7_wednesday": {
+   "ref": "Ga 17,11b-19",
+   "evidence": [
+    "2021-05-19",
+    "2023-05-24",
+    "2024-05-15",
+    "2025-06-04",
+    "2026-05-20"
+   ]
+  },
+  "temporal:friday_after_ash_wednesday": {
+   "ref": "Mt 9,14-15",
+   "evidence": [
+    "2022-03-04",
+    "2023-02-24",
+    "2024-02-16",
+    "2025-03-07"
+   ]
+  },
+  "temporal:friday_after_epiphany": {
+   "ref": "Lc 5,12-16",
+   "evidence": [
+    "2022-01-07",
+    "2025-01-10",
+    "2026-01-09"
+   ]
+  },
+  "temporal:holy_monday": {
+   "ref": "Ga 12,1-11",
+   "evidence": [
+    "2021-03-29",
+    "2022-04-11",
+    "2023-04-03",
+    "2024-03-25",
+    "2025-04-14",
+    "2026-03-30"
+   ]
+  },
+  "temporal:holy_tuesday": {
+   "ref": "Ga 13,21-33.36-38",
+   "evidence": [
+    "2021-03-30",
+    "2023-04-04",
+    "2024-03-26",
+    "2025-04-15",
+    "2026-03-31"
+   ]
+  },
+  "temporal:holy_wednesday": {
+   "ref": "Mt 26,14-25",
+   "evidence": [
+    "2021-03-31",
+    "2022-04-13",
+    "2023-04-05",
+    "2024-03-27",
+    "2025-04-16",
+    "2026-04-01"
+   ]
+  },
+  "temporal:lent_1_friday": {
+   "ref": "Mt 5,20-26",
+   "evidence": [
+    "2022-03-11",
+    "2023-03-03",
+    "2024-02-23",
+    "2025-03-14",
+    "2026-02-27"
+   ]
+  },
+  "temporal:lent_1_monday": {
+   "ref": "Mt 25,31-46",
+   "evidence": [
+    "2022-03-07",
+    "2023-02-27",
+    "2024-02-19",
+    "2025-03-10",
+    "2026-02-23"
+   ]
+  },
+  "temporal:lent_1_saturday": {
+   "ref": "Mt 5,43-48",
+   "evidence": [
+    "2022-03-12",
+    "2023-03-04",
+    "2024-02-24",
+    "2025-03-15",
+    "2026-02-28"
+   ]
+  },
+  "temporal:lent_1_sunday:YEAR_A": {
+   "ref": "Mt 4,1-11",
+   "evidence": [
+    "2023-02-26",
+    "2026-02-22"
+   ]
+  },
+  "temporal:lent_1_sunday:YEAR_B": {
+   "ref": "Mc 1,12-15",
+   "evidence": [
+    "2024-02-18"
+   ],
+   "single_source": true
+  },
+  "temporal:lent_1_sunday:YEAR_C": {
+   "ref": "Lc 4,1-13",
+   "evidence": [
+    "2022-03-06",
+    "2025-03-09"
+   ]
+  },
+  "temporal:lent_1_thursday": {
+   "ref": "Mt 7,7-12",
+   "evidence": [
+    "2022-03-10",
+    "2023-03-02",
+    "2025-03-13",
+    "2026-02-26"
+   ]
+  },
+  "temporal:lent_1_tuesday": {
+   "ref": "Mt 6,7-15",
+   "evidence": [
+    "2022-03-08",
+    "2023-02-28",
+    "2024-02-20",
+    "2025-03-11",
+    "2026-02-24"
+   ]
+  },
+  "temporal:lent_1_wednesday": {
+   "ref": "Lc 11,29-32",
+   "evidence": [
+    "2022-03-09",
+    "2023-03-01",
+    "2024-02-21",
+    "2025-03-12",
+    "2026-02-25"
+   ]
+  },
+  "temporal:lent_2_friday": {
+   "ref": "Mt 21,33-43.45-46",
+   "evidence": [
+    "2022-03-18",
+    "2023-03-10",
+    "2024-03-01",
+    "2025-03-21",
+    "2026-03-06"
+   ]
+  },
+  "temporal:lent_2_monday": {
+   "ref": "Lc 6,36-38",
+   "evidence": [
+    "2022-03-14",
+    "2023-03-06",
+    "2024-02-26",
+    "2025-03-17",
+    "2026-03-02"
+   ]
+  },
+  "temporal:lent_2_saturday": {
+   "ref": "Lc 15,1-3.11-32",
+   "evidence": [
+    "2023-03-11",
+    "2024-03-02",
+    "2025-03-22",
+    "2026-03-07"
+   ]
+  },
+  "temporal:lent_2_sunday:YEAR_A": {
+   "ref": "Mt 17,1-9",
+   "evidence": [
+    "2023-03-05",
+    "2026-03-01"
+   ]
+  },
+  "temporal:lent_2_sunday:YEAR_B": {
+   "ref": "Mc 9,2-10",
+   "evidence": [
+    "2024-02-25"
+   ],
+   "single_source": true
+  },
+  "temporal:lent_2_sunday:YEAR_C": {
+   "ref": "Lc 9,28b-36",
+   "evidence": [
+    "2022-03-13",
+    "2025-03-16"
+   ]
+  },
+  "temporal:lent_2_thursday": {
+   "ref": "Lc 16,19-31",
+   "evidence": [
+    "2022-03-17",
+    "2023-03-09",
+    "2024-02-29",
+    "2025-03-20",
+    "2026-03-05"
+   ]
+  },
+  "temporal:lent_2_tuesday": {
+   "ref": "Mt 23,1-12",
+   "evidence": [
+    "2022-03-15",
+    "2023-03-07",
+    "2024-02-27",
+    "2025-03-18",
+    "2026-03-03"
+   ]
+  },
+  "temporal:lent_2_wednesday": {
+   "ref": "Mt 20,17-28",
+   "evidence": [
+    "2022-03-16",
+    "2023-03-08",
+    "2024-02-28",
+    "2026-03-04"
+   ]
+  },
+  "temporal:lent_3_friday": {
+   "ref": "Mc 12,28b-34",
+   "evidence": [
+    "2021-03-12",
+    "2023-03-17",
+    "2024-03-08",
+    "2025-03-28",
+    "2026-03-13"
+   ]
+  },
+  "temporal:lent_3_monday": {
+   "ref": "Lc 4,24-30",
+   "evidence": [
+    "2022-03-21",
+    "2023-03-13",
+    "2024-03-04",
+    "2025-03-24",
+    "2026-03-09"
+   ]
+  },
+  "temporal:lent_3_saturday": {
+   "ref": "Lc 18,9-14",
+   "evidence": [
+    "2021-03-13",
+    "2022-03-26",
+    "2023-03-18",
+    "2024-03-09",
+    "2025-03-29",
+    "2026-03-14"
+   ]
+  },
+  "temporal:lent_3_sunday:YEAR_A": {
+   "ref": "Ga 4,5-42",
+   "evidence": [
+    "2023-03-12",
+    "2026-03-08"
+   ]
+  },
+  "temporal:lent_3_sunday:YEAR_B": {
+   "ref": "Ga 2,13-25",
+   "evidence": [
+    "2024-03-03"
+   ],
+   "single_source": true
+  },
+  "temporal:lent_3_sunday:YEAR_C": {
+   "ref": "Lc 13,1-9",
+   "evidence": [
+    "2022-03-20",
+    "2025-03-23"
+   ]
+  },
+  "temporal:lent_3_thursday": {
+   "ref": "Lc 11,14-23",
+   "evidence": [
+    "2021-03-11",
+    "2022-03-24",
+    "2023-03-16",
+    "2024-03-07",
+    "2025-03-27",
+    "2026-03-12"
+   ]
+  },
+  "temporal:lent_3_tuesday": {
+   "ref": "Mt 18,21-35",
+   "evidence": [
+    "2022-03-22",
+    "2023-03-14",
+    "2024-03-05",
+    "2026-03-10"
+   ]
+  },
+  "temporal:lent_3_wednesday": {
+   "ref": "Mt 5,17-19",
+   "evidence": [
+    "2022-03-23",
+    "2023-03-15",
+    "2024-03-06",
+    "2025-03-26",
+    "2026-03-11"
+   ]
+  },
+  "temporal:lent_4_friday": {
+   "ref": "Ga 7,1-2.10.25-30",
+   "evidence": [
+    "2022-04-01",
+    "2023-03-24",
+    "2024-03-15",
+    "2025-04-04",
+    "2026-03-20"
+   ]
+  },
+  "temporal:lent_4_monday": {
+   "ref": "Ga 4,43-54",
+   "evidence": [
+    "2021-03-15",
+    "2022-03-28",
+    "2024-03-11",
+    "2025-03-31",
+    "2026-03-16"
+   ]
+  },
+  "temporal:lent_4_saturday": {
+   "ref": "Ga 7,40-53",
+   "evidence": [
+    "2021-03-20",
+    "2022-04-02",
+    "2024-03-16",
+    "2025-04-05",
+    "2026-03-21"
+   ]
+  },
+  "temporal:lent_4_sunday:YEAR_A": {
+   "ref": "Ga 9,1-41",
+   "evidence": [
+    "2023-03-19",
+    "2026-03-15"
+   ]
+  },
+  "temporal:lent_4_sunday:YEAR_B": {
+   "ref": "Ga 3,14-21",
+   "evidence": [
+    "2021-03-14",
+    "2024-03-10"
+   ]
+  },
+  "temporal:lent_4_sunday:YEAR_C": {
+   "ref": "Lc 15,1-3.11-32",
+   "evidence": [
+    "2022-03-27",
+    "2025-03-30"
+   ]
+  },
+  "temporal:lent_4_thursday": {
+   "ref": "Ga 5,31-47",
+   "evidence": [
+    "2021-03-18",
+    "2022-03-31",
+    "2023-03-23",
+    "2024-03-14",
+    "2025-04-03"
+   ]
+  },
+  "temporal:lent_4_tuesday": {
+   "ref": "Ga 5,1-3a.5-16",
+   "evidence": [
+    "2021-03-16",
+    "2022-03-29",
+    "2023-03-21",
+    "2024-03-12",
+    "2025-04-01",
+    "2026-03-17"
+   ]
+  },
+  "temporal:lent_4_wednesday": {
+   "ref": "Ga 5,17-30",
+   "evidence": [
+    "2021-03-17",
+    "2022-03-30",
+    "2023-03-22",
+    "2024-03-13",
+    "2025-04-02",
+    "2026-03-18"
+   ]
+  },
+  "temporal:lent_5_friday": {
+   "ref": "Ga 10,31-42",
+   "evidence": [
+    "2021-03-26",
+    "2022-04-08",
+    "2023-03-31",
+    "2024-03-22",
+    "2025-04-11",
+    "2026-03-27"
+   ]
+  },
+  "temporal:lent_5_monday": {
+   "ref": "Ga 8,1-11",
+   "evidence": [
+    "2021-03-22",
+    "2023-03-27",
+    "2024-03-18",
+    "2026-03-23"
+   ],
+   "rule": "Year C reads Ga 8,1-11 on the Sunday before."
+  },
+  "temporal:lent_5_monday:YEAR_C": {
+   "ref": "Ga 8,12-20",
+   "evidence": [
+    "2022-04-04",
+    "2025-04-07"
+   ],
+   "rule": "Year C reads Ga 8,1-11 on the Sunday before."
+  },
+  "temporal:lent_5_saturday": {
+   "ref": "Ga 11,45-57",
+   "evidence": [
+    "2021-03-27",
+    "2022-04-09",
+    "2023-04-01",
+    "2024-03-23",
+    "2025-04-12",
+    "2026-03-28"
+   ]
+  },
+  "temporal:lent_5_sunday:YEAR_A": {
+   "ref": "Ga 11,1-45",
+   "evidence": [
+    "2023-03-26",
+    "2026-03-22"
+   ]
+  },
+  "temporal:lent_5_sunday:YEAR_B": {
+   "ref": "Ga 12,20-33",
+   "evidence": [
+    "2021-03-21",
+    "2024-03-17"
+   ]
+  },
+  "temporal:lent_5_sunday:YEAR_C": {
+   "ref": "Ga 8,1-11",
+   "evidence": [
+    "2022-04-03",
+    "2025-04-06"
+   ]
+  },
+  "temporal:lent_5_thursday": {
+   "ref": "Ga 8,51-59",
+   "evidence": [
+    "2022-04-07",
+    "2023-03-30",
+    "2024-03-21",
+    "2025-04-10",
+    "2026-03-26"
+   ]
+  },
+  "temporal:lent_5_tuesday": {
+   "ref": "Ga 8,21-30",
+   "evidence": [
+    "2021-03-23",
+    "2022-04-05",
+    "2023-03-28",
+    "2025-04-08",
+    "2026-03-24"
+   ]
+  },
+  "temporal:lent_5_wednesday": {
+   "ref": "Ga 8,31-42",
+   "evidence": [
+    "2021-03-24",
+    "2022-04-06",
+    "2023-03-29",
+    "2024-03-20",
+    "2025-04-09"
+   ]
+  },
+  "temporal:monday_after_epiphany": {
+   "ref": "Mt 4,12-17.23-25",
+   "evidence": [
+    "2022-01-03",
+    "2025-01-06",
+    "2026-01-05"
+   ]
+  },
+  "temporal:ordinary_time_10_friday": {
+   "ref": "Mt 5,27-32",
+   "evidence": [
+    "2022-06-10",
+    "2024-06-14"
+   ]
+  },
+  "temporal:ordinary_time_10_monday": {
+   "ref": "Mt 5,1-12",
+   "evidence": [
+    "2021-06-07",
+    "2023-06-12",
+    "2024-06-10",
+    "2026-06-08"
+   ]
+  },
+  "temporal:ordinary_time_10_saturday": {
+   "ref": "Mt 5,33-37",
+   "evidence": [
+    "2024-06-15",
+    "2025-06-14"
+   ]
+  },
+  "temporal:ordinary_time_10_sunday:YEAR_B": {
+   "ref": "Mc 3,20-35",
+   "evidence": [
+    "2024-06-09"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_10_thursday": {
+   "ref": "Mt 5,20-26",
+   "evidence": [
+    "2021-06-10",
+    "2022-06-09",
+    "2023-06-15",
+    "2025-06-12"
+   ]
+  },
+  "temporal:ordinary_time_10_tuesday": {
+   "ref": "Mt 5,13-16",
+   "evidence": [
+    "2021-06-08",
+    "2022-06-07",
+    "2025-06-10",
+    "2026-06-09"
+   ]
+  },
+  "temporal:ordinary_time_10_wednesday": {
+   "ref": "Mt 5,17-19",
+   "evidence": [
+    "2021-06-09",
+    "2022-06-08",
+    "2023-06-14",
+    "2024-06-12",
+    "2026-06-10"
+   ]
+  },
+  "temporal:ordinary_time_11_friday": {
+   "ref": "Mt 6,19-23",
+   "evidence": [
+    "2021-06-18",
+    "2022-06-17",
+    "2023-06-23",
+    "2025-06-20",
+    "2026-06-19"
+   ]
+  },
+  "temporal:ordinary_time_11_monday": {
+   "ref": "Mt 5,38-42",
+   "evidence": [
+    "2021-06-14",
+    "2023-06-19",
+    "2024-06-17",
+    "2025-06-16",
+    "2026-06-15"
+   ]
+  },
+  "temporal:ordinary_time_11_saturday": {
+   "ref": "Mt 6,24-34",
+   "evidence": [
+    "2021-06-19",
+    "2022-06-18",
+    "2024-06-22",
+    "2026-06-20"
+   ]
+  },
+  "temporal:ordinary_time_11_sunday:YEAR_A": {
+   "ref": "Mt 9,36-10,8",
+   "evidence": [
+    "2023-06-18",
+    "2026-06-14"
+   ]
+  },
+  "temporal:ordinary_time_11_sunday:YEAR_B": {
+   "ref": "Mc 4,26-34",
+   "evidence": [
+    "2021-06-13",
+    "2024-06-16"
+   ]
+  },
+  "temporal:ordinary_time_11_thursday": {
+   "ref": "Mt 6,7-15",
+   "evidence": [
+    "2021-06-17",
+    "2022-06-16",
+    "2023-06-22",
+    "2024-06-20",
+    "2025-06-19",
+    "2026-06-18"
+   ]
+  },
+  "temporal:ordinary_time_11_tuesday": {
+   "ref": "Mt 5,43-48",
+   "evidence": [
+    "2021-06-15",
+    "2022-06-14",
+    "2023-06-20",
+    "2024-06-18",
+    "2025-06-17",
+    "2026-06-16"
+   ]
+  },
+  "temporal:ordinary_time_11_wednesday": {
+   "ref": "Mt 6,1-6.16-18",
+   "evidence": [
+    "2021-06-16",
+    "2022-06-15",
+    "2024-06-19",
+    "2025-06-18",
+    "2026-06-17"
+   ]
+  },
+  "temporal:ordinary_time_12_friday": {
+   "ref": "Mt 8,1-4",
+   "evidence": [
+    "2021-06-25",
+    "2023-06-30",
+    "2026-06-26"
+   ]
+  },
+  "temporal:ordinary_time_12_monday": {
+   "ref": "Mt 7,1-5",
+   "evidence": [
+    "2022-06-20",
+    "2023-06-26",
+    "2025-06-23",
+    "2026-06-22"
+   ]
+  },
+  "temporal:ordinary_time_12_saturday": {
+   "ref": "Mt 8,5-17",
+   "evidence": [
+    "2021-06-26",
+    "2023-07-01",
+    "2026-06-27"
+   ]
+  },
+  "temporal:ordinary_time_12_sunday:YEAR_A": {
+   "ref": "Mt 10,26-33",
+   "evidence": [
+    "2023-06-25",
+    "2026-06-21"
+   ]
+  },
+  "temporal:ordinary_time_12_sunday:YEAR_B": {
+   "ref": "Mc 4,35-41",
+   "evidence": [
+    "2021-06-20",
+    "2024-06-23"
+   ]
+  },
+  "temporal:ordinary_time_12_thursday": {
+   "ref": "Mt 7,21-29",
+   "evidence": [
+    "2024-06-27",
+    "2025-06-26",
+    "2026-06-25"
+   ]
+  },
+  "temporal:ordinary_time_12_tuesday": {
+   "ref": "Mt 7,6.12-14",
+   "evidence": [
+    "2021-06-22",
+    "2023-06-27",
+    "2024-06-25",
+    "2026-06-23"
+   ]
+  },
+  "temporal:ordinary_time_12_wednesday": {
+   "ref": "Mt 7,15-20",
+   "evidence": [
+    "2021-06-23",
+    "2022-06-22",
+    "2024-06-26",
+    "2025-06-25"
+   ]
+  },
+  "temporal:ordinary_time_13_friday": {
+   "ref": "Mt 9,9-13",
+   "evidence": [
+    "2021-07-02",
+    "2022-07-01",
+    "2023-07-07",
+    "2024-07-05",
+    "2025-07-04"
+   ]
+  },
+  "temporal:ordinary_time_13_monday": {
+   "ref": "Mt 8,18-22",
+   "evidence": [
+    "2022-06-27",
+    "2024-07-01",
+    "2025-06-30"
+   ]
+  },
+  "temporal:ordinary_time_13_saturday": {
+   "ref": "Mt 9,14-17",
+   "evidence": [
+    "2022-07-02",
+    "2023-07-08",
+    "2024-07-06",
+    "2025-07-05",
+    "2026-07-04"
+   ]
+  },
+  "temporal:ordinary_time_13_sunday:YEAR_A": {
+   "ref": "Mt 10,37-42",
+   "evidence": [
+    "2023-07-02",
+    "2026-06-28"
+   ]
+  },
+  "temporal:ordinary_time_13_sunday:YEAR_B": {
+   "ref": "Mc 5,21-43",
+   "evidence": [
+    "2021-06-27",
+    "2024-06-30"
+   ]
+  },
+  "temporal:ordinary_time_13_sunday:YEAR_C": {
+   "ref": "Lc 9,51-62",
+   "evidence": [
+    "2022-06-26"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_13_thursday": {
+   "ref": "Mt 9,1-8",
+   "evidence": [
+    "2021-07-01",
+    "2022-06-30",
+    "2023-07-06",
+    "2024-07-04",
+    "2026-07-02"
+   ]
+  },
+  "temporal:ordinary_time_13_tuesday": {
+   "ref": "Mt 8,23-27",
+   "evidence": [
+    "2023-07-04",
+    "2024-07-02",
+    "2025-07-01",
+    "2026-06-30"
+   ]
+  },
+  "temporal:ordinary_time_13_wednesday": {
+   "ref": "Mt 8,28-34",
+   "evidence": [
+    "2021-06-30",
+    "2023-07-05",
+    "2025-07-02",
+    "2026-07-01"
+   ]
+  },
+  "temporal:ordinary_time_14_friday": {
+   "ref": "Mt 10,16-23",
+   "evidence": [
+    "2021-07-09",
+    "2022-07-08",
+    "2023-07-14",
+    "2024-07-12",
+    "2026-07-10"
+   ]
+  },
+  "temporal:ordinary_time_14_monday": {
+   "ref": "Mt 9,18-26",
+   "evidence": [
+    "2021-07-05",
+    "2022-07-04",
+    "2023-07-10",
+    "2024-07-08",
+    "2025-07-07",
+    "2026-07-06"
+   ]
+  },
+  "temporal:ordinary_time_14_saturday": {
+   "ref": "Mt 10,24-33",
+   "evidence": [
+    "2021-07-10",
+    "2022-07-09",
+    "2024-07-13",
+    "2025-07-12"
+   ]
+  },
+  "temporal:ordinary_time_14_sunday:YEAR_A": {
+   "ref": "Mt 11,25-30",
+   "evidence": [
+    "2023-07-09",
+    "2026-07-05"
+   ]
+  },
+  "temporal:ordinary_time_14_sunday:YEAR_B": {
+   "ref": "Mc 6,1-6",
+   "evidence": [
+    "2021-07-04",
+    "2024-07-07"
+   ]
+  },
+  "temporal:ordinary_time_14_sunday:YEAR_C": {
+   "ref": "Lc 10,1-12.17-20",
+   "evidence": [
+    "2022-07-03",
+    "2025-07-06"
+   ]
+  },
+  "temporal:ordinary_time_14_thursday": {
+   "ref": "Mt 10,7-15",
+   "evidence": [
+    "2021-07-08",
+    "2022-07-07",
+    "2023-07-13",
+    "2025-07-10",
+    "2026-07-09"
+   ]
+  },
+  "temporal:ordinary_time_14_tuesday": {
+   "ref": "Mt 9,32-38",
+   "evidence": [
+    "2021-07-06",
+    "2022-07-05",
+    "2024-07-09",
+    "2025-07-08",
+    "2026-07-07"
+   ]
+  },
+  "temporal:ordinary_time_14_wednesday": {
+   "ref": "Mt 10,1-7",
+   "evidence": [
+    "2021-07-07",
+    "2022-07-06",
+    "2023-07-12",
+    "2024-07-10",
+    "2025-07-09",
+    "2026-07-08"
+   ]
+  },
+  "temporal:ordinary_time_15_friday": {
+   "ref": "Mt 12,1-8",
+   "evidence": [
+    "2021-07-16",
+    "2023-07-21",
+    "2024-07-19",
+    "2025-07-18",
+    "2026-07-17"
+   ]
+  },
+  "temporal:ordinary_time_15_monday": {
+   "ref": "Mt 10,34-11,1",
+   "evidence": [
+    "2021-07-12",
+    "2023-07-17",
+    "2025-07-14",
+    "2026-07-13"
+   ]
+  },
+  "temporal:ordinary_time_15_saturday": {
+   "ref": "Mt 12,14-21",
+   "evidence": [
+    "2021-07-17",
+    "2022-07-16",
+    "2024-07-20",
+    "2025-07-19",
+    "2026-07-18"
+   ]
+  },
+  "temporal:ordinary_time_15_sunday:YEAR_A": {
+   "ref": "Mt 13,1-23",
+   "evidence": [
+    "2023-07-16",
+    "2026-07-12"
+   ]
+  },
+  "temporal:ordinary_time_15_sunday:YEAR_B": {
+   "ref": "Mc 6,7-13",
+   "evidence": [
+    "2021-07-11",
+    "2024-07-14"
+   ]
+  },
+  "temporal:ordinary_time_15_sunday:YEAR_C": {
+   "ref": "Lc 10,25-37",
+   "evidence": [
+    "2022-07-10",
+    "2025-07-13"
+   ]
+  },
+  "temporal:ordinary_time_15_thursday": {
+   "ref": "Mt 11,28-30",
+   "evidence": [
+    "2022-07-14",
+    "2023-07-20",
+    "2024-07-18",
+    "2025-07-17",
+    "2026-07-16"
+   ]
+  },
+  "temporal:ordinary_time_15_tuesday": {
+   "ref": "Mt 11,20-24",
+   "evidence": [
+    "2021-07-13",
+    "2022-07-12",
+    "2023-07-18",
+    "2024-07-16",
+    "2026-07-14"
+   ]
+  },
+  "temporal:ordinary_time_15_wednesday": {
+   "ref": "Mt 11,25-27",
+   "evidence": [
+    "2021-07-14",
+    "2022-07-13",
+    "2023-07-19",
+    "2024-07-17"
+   ]
+  },
+  "temporal:ordinary_time_16_friday": {
+   "ref": "Mt 13,18-23",
+   "evidence": [
+    "2021-07-23",
+    "2023-07-28",
+    "2026-07-24"
+   ]
+  },
+  "temporal:ordinary_time_16_monday": {
+   "ref": "Mt 12,38-42",
+   "evidence": [
+    "2021-07-19",
+    "2022-07-18",
+    "2023-07-24",
+    "2025-07-21",
+    "2026-07-20"
+   ]
+  },
+  "temporal:ordinary_time_16_saturday": {
+   "ref": "Mt 13,24-30",
+   "evidence": [
+    "2021-07-24",
+    "2022-07-23",
+    "2024-07-27"
+   ]
+  },
+  "temporal:ordinary_time_16_sunday:YEAR_A": {
+   "ref": "Mt 13,24-43",
+   "evidence": [
+    "2023-07-23",
+    "2026-07-19"
+   ]
+  },
+  "temporal:ordinary_time_16_sunday:YEAR_B": {
+   "ref": "Mc 6,30-34",
+   "evidence": [
+    "2021-07-18",
+    "2024-07-21"
+   ]
+  },
+  "temporal:ordinary_time_16_sunday:YEAR_C": {
+   "ref": "Lc 10,38-42",
+   "evidence": [
+    "2022-07-17",
+    "2025-07-20"
+   ]
+  },
+  "temporal:ordinary_time_16_thursday": {
+   "ref": "Mt 13,10-17",
+   "evidence": [
+    "2022-07-21",
+    "2023-07-27",
+    "2025-07-24",
+    "2026-07-23"
+   ]
+  },
+  "temporal:ordinary_time_16_tuesday": {
+   "ref": "Mt 12,46-50",
+   "evidence": [
+    "2021-07-20",
+    "2022-07-19",
+    "2024-07-23",
+    "2026-07-21"
+   ]
+  },
+  "temporal:ordinary_time_16_wednesday": {
+   "ref": "Mt 13,1-9",
+   "evidence": [
+    "2021-07-21",
+    "2022-07-20",
+    "2024-07-24",
+    "2025-07-23"
+   ]
+  },
+  "temporal:ordinary_time_17_friday": {
+   "ref": "Mt 13,54-58",
+   "evidence": [
+    "2021-07-30",
+    "2024-08-02"
+   ]
+  },
+  "temporal:ordinary_time_17_monday": {
+   "ref": "Mt 13,31-35",
+   "evidence": [
+    "2025-07-28",
+    "2026-07-27"
+   ]
+  },
+  "temporal:ordinary_time_17_saturday": {
+   "ref": "Mt 14,1-12",
+   "evidence": [
+    "2022-07-30",
+    "2023-08-05",
+    "2024-08-03",
+    "2025-08-02"
+   ]
+  },
+  "temporal:ordinary_time_17_sunday:YEAR_A": {
+   "ref": "Mt 13,44-52",
+   "evidence": [
+    "2023-07-30",
+    "2026-07-26"
+   ]
+  },
+  "temporal:ordinary_time_17_sunday:YEAR_B": {
+   "ref": "Ga 6,1-15",
+   "evidence": [
+    "2021-07-25",
+    "2024-07-28"
+   ]
+  },
+  "temporal:ordinary_time_17_sunday:YEAR_C": {
+   "ref": "Lc 11,1-13",
+   "evidence": [
+    "2022-07-24",
+    "2025-07-27"
+   ]
+  },
+  "temporal:ordinary_time_17_thursday": {
+   "ref": "Mt 13,47-53",
+   "evidence": [
+    "2022-07-28",
+    "2023-08-03",
+    "2026-07-30"
+   ]
+  },
+  "temporal:ordinary_time_17_tuesday": {
+   "ref": "Mt 13,36-43",
+   "evidence": [
+    "2021-07-27",
+    "2024-07-30",
+    "2026-07-28"
+   ]
+  },
+  "temporal:ordinary_time_17_wednesday": {
+   "ref": "Mt 13,44-46",
+   "evidence": [
+    "2021-07-28",
+    "2022-07-27",
+    "2023-08-02",
+    "2025-07-30"
+   ]
+  },
+  "temporal:ordinary_time_18_friday": {
+   "ref": "Mt 16,24-28",
+   "evidence": [
+    "2022-08-05",
+    "2024-08-09",
+    "2026-08-07"
+   ]
+  },
+  "temporal:ordinary_time_18_monday": {
+   "ref": "Mt 14,13-21",
+   "evidence": [
+    "2021-08-02",
+    "2024-08-05"
+   ],
+   "rule": "Year A reads Mt 14,13-21 on the Sunday before. Applies only when Sunday XVIII is actually celebrated (not in 2023, when August 6 was that Sunday)."
+  },
+  "temporal:ordinary_time_18_monday:YEAR_A": {
+   "ref": "Mt 14,22-36",
+   "evidence": [
+    "2026-08-03"
+   ],
+   "rule": "Year A reads Mt 14,13-21 on the Sunday before. Applies only when Sunday XVIII is actually celebrated (not in 2023, when August 6 was that Sunday)."
+  },
+  "temporal:ordinary_time_18_saturday": {
+   "ref": "Mt 17,14-20",
+   "evidence": [
+    "2021-08-07",
+    "2023-08-12",
+    "2025-08-09"
+   ]
+  },
+  "temporal:ordinary_time_18_sunday:YEAR_A": {
+   "ref": "Mt 14,13-21",
+   "evidence": [],
+   "decision": "Reviewed 2026 date (two calendars); the 2026 page prints no reference and 2023 was displaced by the Transfiguration."
+  },
+  "temporal:ordinary_time_18_sunday:YEAR_B": {
+   "ref": "Ga 6,24-35",
+   "evidence": [
+    "2021-08-01",
+    "2024-08-04"
+   ]
+  },
+  "temporal:ordinary_time_18_sunday:YEAR_C": {
+   "ref": "Lc 12,13-21",
+   "evidence": [
+    "2022-07-31",
+    "2025-08-03"
+   ]
+  },
+  "temporal:ordinary_time_18_thursday": {
+   "ref": "Mt 16,13-23",
+   "evidence": [
+    "2021-08-05",
+    "2025-08-07"
+   ]
+  },
+  "temporal:ordinary_time_18_tuesday": {
+   "ref": "Mt 14,22-36",
+   "evidence": [
+    "2021-08-03",
+    "2022-08-02",
+    "2025-08-05"
+   ],
+   "rule": "Follows the Monday rule in Year A."
+  },
+  "temporal:ordinary_time_18_tuesday:YEAR_A": {
+   "ref": "Mt 15,1-2.10-14",
+   "evidence": [],
+   "rule": "Follows the Monday rule in Year A."
+  },
+  "temporal:ordinary_time_18_wednesday": {
+   "ref": "Mt 15,21-28",
+   "evidence": [
+    "2022-08-03",
+    "2023-08-09",
+    "2024-08-07",
+    "2026-08-05"
+   ]
+  },
+  "temporal:ordinary_time_19_friday": {
+   "ref": "Mt 19,3-12",
+   "evidence": [
+    "2021-08-13",
+    "2022-08-12",
+    "2023-08-18",
+    "2024-08-16"
+   ]
+  },
+  "temporal:ordinary_time_19_monday": {
+   "ref": "Mt 17,22-27",
+   "evidence": [
+    "2021-08-09",
+    "2024-08-12"
+   ]
+  },
+  "temporal:ordinary_time_19_saturday": {
+   "ref": "Mt 19,13-15",
+   "evidence": [
+    "2022-08-13",
+    "2023-08-19",
+    "2024-08-17",
+    "2025-08-16"
+   ]
+  },
+  "temporal:ordinary_time_19_sunday:YEAR_A": {
+   "ref": "Mt 14,22-33",
+   "evidence": [
+    "2023-08-13",
+    "2026-08-09"
+   ]
+  },
+  "temporal:ordinary_time_19_sunday:YEAR_B": {
+   "ref": "Ga 6,41-51",
+   "evidence": [
+    "2021-08-08",
+    "2024-08-11"
+   ]
+  },
+  "temporal:ordinary_time_19_sunday:YEAR_C": {
+   "ref": "Lc 12,32-48",
+   "evidence": [
+    "2022-08-07",
+    "2025-08-10"
+   ]
+  },
+  "temporal:ordinary_time_19_thursday": {
+   "ref": "Mt 18,21-19,1",
+   "evidence": [
+    "2021-08-12",
+    "2023-08-17",
+    "2026-08-13"
+   ]
+  },
+  "temporal:ordinary_time_19_tuesday": {
+   "ref": "Mt 18,1-5.10.12-14",
+   "evidence": [
+    "2022-08-09",
+    "2024-08-13",
+    "2025-08-12"
+   ]
+  },
+  "temporal:ordinary_time_19_wednesday": {
+   "ref": "Mt 18,15-20",
+   "evidence": [
+    "2023-08-16",
+    "2025-08-13",
+    "2026-08-12"
+   ]
+  },
+  "temporal:ordinary_time_1_friday": {
+   "ref": "Mc 2,1-12",
+   "evidence": [
+    "2022-01-14",
+    "2023-01-13",
+    "2024-01-12",
+    "2026-01-16"
+   ]
+  },
+  "temporal:ordinary_time_1_monday": {
+   "ref": "Mc 1,14-20",
+   "evidence": [
+    "2022-01-10",
+    "2025-01-13",
+    "2026-01-12"
+   ]
+  },
+  "temporal:ordinary_time_1_saturday": {
+   "ref": "Mc 2,13-17",
+   "evidence": [
+    "2022-01-15",
+    "2023-01-14",
+    "2024-01-13",
+    "2025-01-18"
+   ]
+  },
+  "temporal:ordinary_time_1_thursday": {
+   "ref": "Mc 1,40-45",
+   "evidence": [
+    "2022-01-13",
+    "2023-01-12",
+    "2024-01-11",
+    "2025-01-16",
+    "2026-01-15"
+   ]
+  },
+  "temporal:ordinary_time_1_tuesday": {
+   "ref": "Mc 1,21-28",
+   "evidence": [
+    "2022-01-11",
+    "2023-01-10",
+    "2024-01-09",
+    "2025-01-14",
+    "2026-01-13"
+   ]
+  },
+  "temporal:ordinary_time_1_wednesday": {
+   "ref": "Mc 1,29-39",
+   "evidence": [
+    "2022-01-12",
+    "2023-01-11",
+    "2024-01-10",
+    "2025-01-15",
+    "2026-01-14"
+   ]
+  },
+  "temporal:ordinary_time_20_friday": {
+   "ref": "Mt 22,34-40",
+   "evidence": [
+    "2022-08-19",
+    "2023-08-25",
+    "2024-08-23"
+   ]
+  },
+  "temporal:ordinary_time_20_monday": {
+   "ref": "Mt 19,16-22",
+   "evidence": [
+    "2021-08-16",
+    "2024-08-19",
+    "2025-08-18",
+    "2026-08-17"
+   ]
+  },
+  "temporal:ordinary_time_20_saturday": {
+   "ref": "Mt 23,1-12",
+   "evidence": [
+    "2023-08-26",
+    "2025-08-23"
+   ]
+  },
+  "temporal:ordinary_time_20_sunday:YEAR_A": {
+   "ref": "Mt 15,21-28",
+   "evidence": [
+    "2023-08-20",
+    "2026-08-16"
+   ]
+  },
+  "temporal:ordinary_time_20_sunday:YEAR_B": {
+   "ref": "Ga 6,51-58",
+   "evidence": [
+    "2024-08-18"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_20_sunday:YEAR_C": {
+   "ref": "Lc 12,49-53",
+   "evidence": [
+    "2022-08-14",
+    "2025-08-17"
+   ]
+  },
+  "temporal:ordinary_time_20_thursday": {
+   "ref": "Mt 22,1-14",
+   "evidence": [
+    "2021-08-19",
+    "2022-08-18"
+   ]
+  },
+  "temporal:ordinary_time_20_tuesday": {
+   "ref": "Mt 19,23-30",
+   "evidence": [
+    "2021-08-17",
+    "2022-08-16",
+    "2025-08-19",
+    "2026-08-18"
+   ]
+  },
+  "temporal:ordinary_time_20_wednesday": {
+   "ref": "Mt 20,1-16a",
+   "evidence": [
+    "2021-08-18",
+    "2022-08-17",
+    "2023-08-23",
+    "2026-08-19"
+   ]
+  },
+  "temporal:ordinary_time_21_friday": {
+   "ref": "Mt 25,1-13",
+   "evidence": [
+    "2022-08-26",
+    "2023-09-01",
+    "2024-08-30"
+   ]
+  },
+  "temporal:ordinary_time_21_monday": {
+   "ref": "Mt 23,13.15-22",
+   "evidence": [
+    "2021-08-23",
+    "2024-08-26",
+    "2025-08-25"
+   ]
+  },
+  "temporal:ordinary_time_21_saturday": {
+   "ref": "Mt 25,14-30",
+   "evidence": [
+    "2023-09-02",
+    "2024-08-31",
+    "2025-08-30"
+   ]
+  },
+  "temporal:ordinary_time_21_sunday:YEAR_A": {
+   "ref": "Mt 16,13-20",
+   "evidence": [
+    "2023-08-27",
+    "2026-08-23"
+   ]
+  },
+  "temporal:ordinary_time_21_sunday:YEAR_B": {
+   "ref": "Ga 6,54a.60-69",
+   "evidence": [
+    "2021-08-22",
+    "2024-08-25"
+   ]
+  },
+  "temporal:ordinary_time_21_sunday:YEAR_C": {
+   "ref": "Lc 13,22-30",
+   "evidence": [
+    "2022-08-21",
+    "2025-08-24"
+   ]
+  },
+  "temporal:ordinary_time_21_thursday": {
+   "ref": "Mt 24,42-51",
+   "evidence": [
+    "2021-08-26",
+    "2022-08-25",
+    "2023-08-31"
+   ]
+  },
+  "temporal:ordinary_time_21_tuesday": {
+   "ref": "Mt 23,23-26",
+   "evidence": [
+    "2022-08-23",
+    "2025-08-26",
+    "2026-08-25"
+   ]
+  },
+  "temporal:ordinary_time_21_wednesday": {
+   "ref": "Mt 23,27-32",
+   "evidence": [
+    "2021-08-25",
+    "2023-08-30",
+    "2026-08-26"
+   ]
+  },
+  "temporal:ordinary_time_22_friday": {
+   "ref": "Lc 5,33-39",
+   "evidence": [
+    "2022-09-02",
+    "2024-09-06",
+    "2025-09-05",
+    "2026-09-04"
+   ]
+  },
+  "temporal:ordinary_time_22_monday": {
+   "ref": "Lc 4,16-30",
+   "evidence": [
+    "2021-08-30",
+    "2023-09-04",
+    "2024-09-02",
+    "2025-09-01",
+    "2026-08-31"
+   ]
+  },
+  "temporal:ordinary_time_22_saturday": {
+   "ref": "Lc 6,1-5",
+   "evidence": [
+    "2021-09-04",
+    "2023-09-09",
+    "2024-09-07",
+    "2025-09-06",
+    "2026-09-05"
+   ]
+  },
+  "temporal:ordinary_time_22_sunday:YEAR_A": {
+   "ref": "Mt 16,21-27",
+   "evidence": [
+    "2023-09-03",
+    "2026-08-30"
+   ]
+  },
+  "temporal:ordinary_time_22_sunday:YEAR_B": {
+   "ref": "Mc 7,1-8a.14-15.21-23",
+   "evidence": [
+    "2021-08-29",
+    "2024-09-01"
+   ]
+  },
+  "temporal:ordinary_time_22_sunday:YEAR_C": {
+   "ref": "Lc 14,1.7-14",
+   "evidence": [
+    "2022-08-28",
+    "2025-08-31"
+   ]
+  },
+  "temporal:ordinary_time_22_thursday": {
+   "ref": "Lc 5,1-11",
+   "evidence": [
+    "2021-09-02",
+    "2022-09-01",
+    "2023-09-07",
+    "2024-09-05",
+    "2025-09-04"
+   ]
+  },
+  "temporal:ordinary_time_22_tuesday": {
+   "ref": "Lc 4,31-37",
+   "evidence": [
+    "2021-08-31",
+    "2022-08-30",
+    "2023-09-05",
+    "2025-09-02",
+    "2026-09-01"
+   ]
+  },
+  "temporal:ordinary_time_22_wednesday": {
+   "ref": "Lc 4,38-44",
+   "evidence": [
+    "2021-09-01",
+    "2022-08-31",
+    "2023-09-06",
+    "2024-09-04",
+    "2026-09-02"
+   ]
+  },
+  "temporal:ordinary_time_23_friday": {
+   "ref": "Lc 6,39-42",
+   "evidence": [
+    "2021-09-10",
+    "2022-09-09",
+    "2025-09-12",
+    "2026-09-11"
+   ]
+  },
+  "temporal:ordinary_time_23_monday": {
+   "ref": "Lc 6,6-11",
+   "evidence": [
+    "2021-09-06",
+    "2022-09-05",
+    "2023-09-11",
+    "2024-09-09",
+    "2026-09-07"
+   ]
+  },
+  "temporal:ordinary_time_23_saturday": {
+   "ref": "Lc 6,43-49",
+   "evidence": [
+    "2021-09-11",
+    "2022-09-10",
+    "2026-09-12"
+   ]
+  },
+  "temporal:ordinary_time_23_sunday:YEAR_A": {
+   "ref": "Mt 18,15-20",
+   "evidence": [
+    "2023-09-10",
+    "2026-09-06"
+   ]
+  },
+  "temporal:ordinary_time_23_sunday:YEAR_B": {
+   "ref": "Mc 7,31-37",
+   "evidence": [
+    "2021-09-05",
+    "2024-09-08"
+   ]
+  },
+  "temporal:ordinary_time_23_sunday:YEAR_C": {
+   "ref": "Lc 14,25-33",
+   "evidence": [
+    "2022-09-04",
+    "2025-09-07"
+   ]
+  },
+  "temporal:ordinary_time_23_thursday": {
+   "ref": "Lc 6,27-38",
+   "evidence": [
+    "2021-09-09",
+    "2024-09-12",
+    "2025-09-11",
+    "2026-09-10"
+   ]
+  },
+  "temporal:ordinary_time_23_tuesday": {
+   "ref": "Lc 6,12-19",
+   "evidence": [
+    "2021-09-07",
+    "2022-09-06",
+    "2023-09-12",
+    "2024-09-10",
+    "2025-09-09"
+   ]
+  },
+  "temporal:ordinary_time_23_wednesday": {
+   "ref": "Lc 6,20-26",
+   "evidence": [
+    "2022-09-07",
+    "2024-09-11",
+    "2025-09-10",
+    "2026-09-09"
+   ]
+  },
+  "temporal:ordinary_time_24_friday": {
+   "ref": "Lc 8,1-3",
+   "evidence": [
+    "2021-09-17",
+    "2023-09-22",
+    "2025-09-19",
+    "2026-09-18"
+   ]
+  },
+  "temporal:ordinary_time_24_monday": {
+   "ref": "Lc 7,1-10",
+   "evidence": [
+    "2022-09-12",
+    "2023-09-18"
+   ]
+  },
+  "temporal:ordinary_time_24_saturday": {
+   "ref": "Lc 8,4-15",
+   "evidence": [
+    "2021-09-18",
+    "2022-09-17",
+    "2026-09-19"
+   ]
+  },
+  "temporal:ordinary_time_24_sunday:YEAR_A": {
+   "ref": "Mt 18,21-35",
+   "evidence": [
+    "2023-09-17",
+    "2026-09-13"
+   ]
+  },
+  "temporal:ordinary_time_24_sunday:YEAR_B": {
+   "ref": "Mc 8,27-35",
+   "evidence": [
+    "2021-09-12",
+    "2024-09-15"
+   ]
+  },
+  "temporal:ordinary_time_24_sunday:YEAR_C": {
+   "ref": "Lc 15,1-32",
+   "evidence": [
+    "2022-09-11"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_24_thursday": {
+   "ref": "Lc 7,36-50",
+   "evidence": [
+    "2024-09-19",
+    "2025-09-18",
+    "2026-09-17"
+   ]
+  },
+  "temporal:ordinary_time_24_tuesday": {
+   "ref": "Lc 7,11-17",
+   "evidence": [
+    "2023-09-19",
+    "2024-09-17"
+   ]
+  },
+  "temporal:ordinary_time_24_wednesday": {
+   "ref": "Lc 7,31-35",
+   "evidence": [
+    "2024-09-18",
+    "2025-09-17"
+   ]
+  },
+  "temporal:ordinary_time_25_friday": {
+   "ref": "Lc 9,18-22",
+   "evidence": [
+    "2021-09-24",
+    "2025-09-26"
+   ]
+  },
+  "temporal:ordinary_time_25_monday": {
+   "ref": "Lc 8,16-18",
+   "evidence": [
+    "2022-09-19",
+    "2023-09-25",
+    "2025-09-22"
+   ]
+  },
+  "temporal:ordinary_time_25_saturday": {
+   "ref": "Lc 9,43b-45",
+   "evidence": [
+    "2021-09-25",
+    "2022-09-24",
+    "2026-09-26"
+   ]
+  },
+  "temporal:ordinary_time_25_sunday:YEAR_A": {
+   "ref": "Mt 20,1-16a",
+   "evidence": [
+    "2023-09-24",
+    "2026-09-20"
+   ]
+  },
+  "temporal:ordinary_time_25_sunday:YEAR_B": {
+   "ref": "Mc 9,30-37",
+   "evidence": [
+    "2021-09-19",
+    "2024-09-22"
+   ]
+  },
+  "temporal:ordinary_time_25_sunday:YEAR_C": {
+   "ref": "Lc 16,1-13",
+   "evidence": [
+    "2022-09-18",
+    "2025-09-21"
+   ]
+  },
+  "temporal:ordinary_time_25_thursday": {
+   "ref": "Lc 9,7-9",
+   "evidence": [
+    "2022-09-22",
+    "2023-09-28",
+    "2024-09-26",
+    "2025-09-25",
+    "2026-09-24"
+   ]
+  },
+  "temporal:ordinary_time_25_tuesday": {
+   "ref": "Lc 8,19-21",
+   "evidence": [
+    "2023-09-26",
+    "2024-09-24",
+    "2026-09-22"
+   ]
+  },
+  "temporal:ordinary_time_25_wednesday": {
+   "ref": "Lc 9,1-6",
+   "evidence": [
+    "2021-09-22",
+    "2024-09-25",
+    "2025-09-24"
+   ]
+  },
+  "temporal:ordinary_time_26_friday": {
+   "ref": "Lc 10,13-16",
+   "evidence": [
+    "2023-10-06",
+    "2025-10-03"
+   ]
+  },
+  "temporal:ordinary_time_26_monday": {
+   "ref": "Lc 9,46-50",
+   "evidence": [
+    "2022-09-26",
+    "2026-09-28"
+   ]
+  },
+  "temporal:ordinary_time_26_saturday": {
+   "ref": "Lc 10,17-24",
+   "evidence": [
+    "2024-10-05",
+    "2026-10-03"
+   ]
+  },
+  "temporal:ordinary_time_26_sunday:YEAR_A": {
+   "ref": "Mt 21,28-32",
+   "evidence": [
+    "2023-10-01",
+    "2026-09-27"
+   ]
+  },
+  "temporal:ordinary_time_26_sunday:YEAR_B": {
+   "ref": "Mc 9,38-43.45.47-48",
+   "evidence": [
+    "2021-09-26",
+    "2024-09-29"
+   ]
+  },
+  "temporal:ordinary_time_26_sunday:YEAR_C": {
+   "ref": "Lc 16,19-31",
+   "evidence": [
+    "2022-09-25",
+    "2025-09-28"
+   ]
+  },
+  "temporal:ordinary_time_26_thursday": {
+   "ref": "Lc 10,1-12",
+   "evidence": [
+    "2023-10-05",
+    "2024-10-03"
+   ]
+  },
+  "temporal:ordinary_time_26_tuesday": {
+   "ref": "Lc 9,51-56",
+   "evidence": [
+    "2021-09-28",
+    "2023-10-03"
+   ]
+  },
+  "temporal:ordinary_time_26_wednesday": {
+   "ref": "Lc 9,57-62",
+   "evidence": [
+    "2022-09-28"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_27_friday": {
+   "ref": "Lc 11,15-26",
+   "evidence": [
+    "2021-10-08",
+    "2023-10-13",
+    "2024-10-11",
+    "2025-10-10",
+    "2026-10-09"
+   ]
+  },
+  "temporal:ordinary_time_27_monday": {
+   "ref": "Lc 10,25-37",
+   "evidence": [
+    "2022-10-03",
+    "2023-10-09",
+    "2025-10-06",
+    "2026-10-05"
+   ]
+  },
+  "temporal:ordinary_time_27_saturday": {
+   "ref": "Lc 11,27-28",
+   "evidence": [
+    "2021-10-09",
+    "2022-10-08",
+    "2023-10-14",
+    "2024-10-12",
+    "2025-10-11",
+    "2026-10-10"
+   ]
+  },
+  "temporal:ordinary_time_27_sunday:YEAR_A": {
+   "ref": "Mt 21,33-43",
+   "evidence": [
+    "2023-10-08",
+    "2026-10-04"
+   ]
+  },
+  "temporal:ordinary_time_27_sunday:YEAR_B": {
+   "ref": "Mc 10,2-16",
+   "evidence": [
+    "2021-10-03",
+    "2024-10-06"
+   ]
+  },
+  "temporal:ordinary_time_27_sunday:YEAR_C": {
+   "ref": "Lc 17,5-10",
+   "evidence": [
+    "2022-10-02"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_27_thursday": {
+   "ref": "Lc 11,5-13",
+   "evidence": [
+    "2022-10-06",
+    "2023-10-12",
+    "2024-10-10",
+    "2025-10-09",
+    "2026-10-08"
+   ]
+  },
+  "temporal:ordinary_time_27_tuesday": {
+   "ref": "Lc 10,38-42",
+   "evidence": [
+    "2021-10-05",
+    "2023-10-10",
+    "2024-10-08",
+    "2026-10-06"
+   ]
+  },
+  "temporal:ordinary_time_27_wednesday": {
+   "ref": "Lc 11,1-4",
+   "evidence": [
+    "2021-10-06",
+    "2022-10-05",
+    "2023-10-11",
+    "2024-10-09",
+    "2025-10-08"
+   ]
+  },
+  "temporal:ordinary_time_28_friday": {
+   "ref": "Lc 12,1-7",
+   "evidence": [
+    "2022-10-14",
+    "2023-10-20",
+    "2026-10-16"
+   ]
+  },
+  "temporal:ordinary_time_28_monday": {
+   "ref": "Lc 11,29-32",
+   "evidence": [
+    "2021-10-11",
+    "2022-10-10",
+    "2023-10-16",
+    "2024-10-14",
+    "2025-10-13",
+    "2026-10-12"
+   ]
+  },
+  "temporal:ordinary_time_28_saturday": {
+   "ref": "Lc 12,8-12",
+   "evidence": [
+    "2021-10-16",
+    "2023-10-21",
+    "2024-10-19"
+   ]
+  },
+  "temporal:ordinary_time_28_sunday:YEAR_A": {
+   "ref": "Mt 22,1-14",
+   "evidence": [
+    "2023-10-15"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_28_sunday:YEAR_B": {
+   "ref": "Mc 10,17-30",
+   "evidence": [
+    "2021-10-10",
+    "2024-10-13"
+   ]
+  },
+  "temporal:ordinary_time_28_sunday:YEAR_C": {
+   "ref": "Lc 17,11-19",
+   "evidence": [
+    "2022-10-09",
+    "2025-10-12"
+   ]
+  },
+  "temporal:ordinary_time_28_thursday": {
+   "ref": "Lc 11,47-54",
+   "evidence": [
+    "2021-10-14",
+    "2022-10-13",
+    "2023-10-19"
+   ]
+  },
+  "temporal:ordinary_time_28_tuesday": {
+   "ref": "Lc 11,37-41",
+   "evidence": [
+    "2021-10-12",
+    "2022-10-11",
+    "2025-10-14",
+    "2026-10-13"
+   ]
+  },
+  "temporal:ordinary_time_28_wednesday": {
+   "ref": "Lc 11,42-46",
+   "evidence": [
+    "2021-10-13",
+    "2022-10-12",
+    "2024-10-16",
+    "2026-10-14"
+   ]
+  },
+  "temporal:ordinary_time_29_friday": {
+   "ref": "Lc 12,54-59",
+   "evidence": [
+    "2021-10-22",
+    "2022-10-21",
+    "2023-10-27",
+    "2024-10-25",
+    "2025-10-24",
+    "2026-10-23"
+   ]
+  },
+  "temporal:ordinary_time_29_monday": {
+   "ref": "Lc 12,13-21",
+   "evidence": [
+    "2023-10-23",
+    "2024-10-21",
+    "2025-10-20",
+    "2026-10-19"
+   ]
+  },
+  "temporal:ordinary_time_29_saturday": {
+   "ref": "Lc 13,1-9",
+   "evidence": [
+    "2021-10-23",
+    "2022-10-22",
+    "2024-10-26",
+    "2025-10-25",
+    "2026-10-24"
+   ]
+  },
+  "temporal:ordinary_time_29_sunday:YEAR_A": {
+   "ref": "Mt 22,15-21",
+   "evidence": [
+    "2023-10-22",
+    "2026-10-18"
+   ]
+  },
+  "temporal:ordinary_time_29_sunday:YEAR_B": {
+   "ref": "Mc 10,35-45",
+   "evidence": [
+    "2021-10-17",
+    "2024-10-20"
+   ]
+  },
+  "temporal:ordinary_time_29_sunday:YEAR_C": {
+   "ref": "Lc 18,1-8",
+   "evidence": [
+    "2022-10-16",
+    "2025-10-19"
+   ]
+  },
+  "temporal:ordinary_time_29_thursday": {
+   "ref": "Lc 12,49-53",
+   "evidence": [
+    "2021-10-21",
+    "2022-10-20",
+    "2023-10-26",
+    "2024-10-24",
+    "2025-10-23",
+    "2026-10-22"
+   ]
+  },
+  "temporal:ordinary_time_29_tuesday": {
+   "ref": "Lc 12,35-38",
+   "evidence": [
+    "2021-10-19",
+    "2023-10-24",
+    "2024-10-22",
+    "2025-10-21",
+    "2026-10-20"
+   ]
+  },
+  "temporal:ordinary_time_29_wednesday": {
+   "ref": "Lc 12,39-48",
+   "evidence": [
+    "2021-10-20",
+    "2022-10-19",
+    "2023-10-25",
+    "2024-10-23",
+    "2025-10-22",
+    "2026-10-21"
+   ]
+  },
+  "temporal:ordinary_time_2_friday": {
+   "ref": "Mc 3,13-19",
+   "evidence": [
+    "2023-01-20",
+    "2024-01-19",
+    "2026-01-23"
+   ]
+  },
+  "temporal:ordinary_time_2_monday": {
+   "ref": "Mc 2,18-22",
+   "evidence": [
+    "2023-01-16",
+    "2024-01-15",
+    "2025-01-20",
+    "2026-01-19"
+   ]
+  },
+  "temporal:ordinary_time_2_saturday": {
+   "ref": "Mc 3,20-21",
+   "evidence": [
+    "2022-01-22",
+    "2024-01-20"
+   ]
+  },
+  "temporal:ordinary_time_2_sunday:YEAR_A": {
+   "ref": "Ga 1,29-34",
+   "evidence": [
+    "2023-01-15",
+    "2026-01-18"
+   ]
+  },
+  "temporal:ordinary_time_2_sunday:YEAR_B": {
+   "ref": "Ga 1,35-42",
+   "evidence": [
+    "2024-01-14"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_2_sunday:YEAR_C": {
+   "ref": "Ga 2,1-11",
+   "evidence": [
+    "2022-01-16",
+    "2025-01-19"
+   ]
+  },
+  "temporal:ordinary_time_2_thursday": {
+   "ref": "Mc 3,7-12",
+   "evidence": [
+    "2022-01-20",
+    "2023-01-19",
+    "2024-01-18",
+    "2025-01-23",
+    "2026-01-22"
+   ]
+  },
+  "temporal:ordinary_time_2_tuesday": {
+   "ref": "Mc 2,23-28",
+   "evidence": [
+    "2022-01-18",
+    "2024-01-16",
+    "2026-01-20"
+   ]
+  },
+  "temporal:ordinary_time_2_wednesday": {
+   "ref": "Mc 3,1-6",
+   "evidence": [
+    "2022-01-19",
+    "2023-01-18",
+    "2025-01-22"
+   ]
+  },
+  "temporal:ordinary_time_30_friday": {
+   "ref": "Lc 14,1-6",
+   "evidence": [
+    "2021-10-29",
+    "2023-11-03",
+    "2025-10-31",
+    "2026-10-30"
+   ]
+  },
+  "temporal:ordinary_time_30_monday": {
+   "ref": "Lc 13,10-17",
+   "evidence": [
+    "2021-10-25",
+    "2022-10-24",
+    "2023-10-30",
+    "2025-10-27",
+    "2026-10-26"
+   ]
+  },
+  "temporal:ordinary_time_30_saturday": {
+   "ref": "Lc 14,1.7-11",
+   "evidence": [
+    "2021-10-30",
+    "2022-10-29",
+    "2026-10-31"
+   ]
+  },
+  "temporal:ordinary_time_30_sunday:YEAR_A": {
+   "ref": "Mt 22,34-40",
+   "evidence": [
+    "2023-10-29",
+    "2026-10-25"
+   ]
+  },
+  "temporal:ordinary_time_30_sunday:YEAR_B": {
+   "ref": "Mc 10,46-52",
+   "evidence": [
+    "2021-10-24",
+    "2024-10-27"
+   ]
+  },
+  "temporal:ordinary_time_30_sunday:YEAR_C": {
+   "ref": "Lc 18,9-14",
+   "evidence": [
+    "2022-10-23",
+    "2025-10-26"
+   ]
+  },
+  "temporal:ordinary_time_30_thursday": {
+   "ref": "Lc 13,31-35",
+   "evidence": [
+    "2022-10-27",
+    "2024-10-31",
+    "2025-10-30",
+    "2026-10-29"
+   ]
+  },
+  "temporal:ordinary_time_30_tuesday": {
+   "ref": "Lc 13,18-21",
+   "evidence": [
+    "2021-10-26",
+    "2022-10-25",
+    "2023-10-31",
+    "2024-10-29",
+    "2026-10-27"
+   ]
+  },
+  "temporal:ordinary_time_30_wednesday": {
+   "ref": "Lc 13,22-30",
+   "evidence": [
+    "2021-10-27",
+    "2022-10-26",
+    "2024-10-30",
+    "2025-10-29"
+   ]
+  },
+  "temporal:ordinary_time_31_friday": {
+   "ref": "Lc 16,1-8",
+   "evidence": [
+    "2021-11-05",
+    "2024-11-08",
+    "2025-11-07",
+    "2026-11-06"
+   ]
+  },
+  "temporal:ordinary_time_31_monday": {
+   "ref": "Lc 14,12-14",
+   "evidence": [
+    "2022-10-31",
+    "2023-11-06",
+    "2025-11-03"
+   ]
+  },
+  "temporal:ordinary_time_31_saturday": {
+   "ref": "Lc 16,9-15",
+   "evidence": [
+    "2021-11-06",
+    "2022-11-05",
+    "2025-11-08",
+    "2026-11-07"
+   ]
+  },
+  "temporal:ordinary_time_31_sunday:YEAR_A": {
+   "ref": "Mt 23,1-12",
+   "evidence": [
+    "2023-11-05"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_31_sunday:YEAR_B": {
+   "ref": "Mc 12,28b-34",
+   "evidence": [
+    "2021-10-31",
+    "2024-11-03"
+   ]
+  },
+  "temporal:ordinary_time_31_sunday:YEAR_C": {
+   "ref": "Lc 19,1-10",
+   "evidence": [
+    "2022-10-30"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_31_thursday": {
+   "ref": "Lc 15,1-10",
+   "evidence": [
+    "2022-11-03",
+    "2024-11-07",
+    "2025-11-06",
+    "2026-11-05"
+   ]
+  },
+  "temporal:ordinary_time_31_tuesday": {
+   "ref": "Lc 14,15-24",
+   "evidence": [
+    "2023-11-07",
+    "2024-11-05",
+    "2026-11-03"
+   ]
+  },
+  "temporal:ordinary_time_31_wednesday": {
+   "ref": "Lc 14,25-33",
+   "evidence": [
+    "2021-11-03",
+    "2023-11-08",
+    "2024-11-06",
+    "2025-11-05"
+   ]
+  },
+  "temporal:ordinary_time_32_friday": {
+   "ref": "Lc 17,26-37",
+   "evidence": [
+    "2024-11-15",
+    "2025-11-14",
+    "2026-11-13"
+   ]
+  },
+  "temporal:ordinary_time_32_monday": {
+   "ref": "Lc 17,1-6",
+   "evidence": [
+    "2021-11-08",
+    "2022-11-07",
+    "2023-11-13"
+   ]
+  },
+  "temporal:ordinary_time_32_saturday": {
+   "ref": "Lc 18,1-8",
+   "evidence": [
+    "2021-11-13",
+    "2023-11-18",
+    "2024-11-16",
+    "2025-11-15",
+    "2026-11-14"
+   ]
+  },
+  "temporal:ordinary_time_32_sunday:YEAR_A": {
+   "ref": "Mt 25,1-13",
+   "evidence": [
+    "2023-11-12",
+    "2026-11-08"
+   ]
+  },
+  "temporal:ordinary_time_32_sunday:YEAR_B": {
+   "ref": "Mc 12,38-44",
+   "evidence": [
+    "2021-11-07",
+    "2024-11-10"
+   ]
+  },
+  "temporal:ordinary_time_32_sunday:YEAR_C": {
+   "ref": "Lc 20,27-38",
+   "evidence": [
+    "2022-11-06"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_32_thursday": {
+   "ref": "Lc 17,20-25",
+   "evidence": [
+    "2023-11-16",
+    "2024-11-14",
+    "2025-11-13"
+   ]
+  },
+  "temporal:ordinary_time_32_tuesday": {
+   "ref": "Lc 17,7-10",
+   "evidence": [
+    "2022-11-08",
+    "2023-11-14"
+   ]
+  },
+  "temporal:ordinary_time_32_wednesday": {
+   "ref": "Lc 17,11-19",
+   "evidence": [
+    "2023-11-15",
+    "2024-11-13"
+   ]
+  },
+  "temporal:ordinary_time_33_friday": {
+   "ref": "Lc 19,45-48",
+   "evidence": [
+    "2021-11-19",
+    "2022-11-18",
+    "2026-11-20"
+   ]
+  },
+  "temporal:ordinary_time_33_monday": {
+   "ref": "Lc 18,35-43",
+   "evidence": [
+    "2021-11-15",
+    "2022-11-14",
+    "2023-11-20",
+    "2024-11-18",
+    "2026-11-16"
+   ]
+  },
+  "temporal:ordinary_time_33_saturday": {
+   "ref": "Lc 20,27-40",
+   "evidence": [
+    "2021-11-20",
+    "2022-11-19",
+    "2023-11-25",
+    "2024-11-23"
+   ]
+  },
+  "temporal:ordinary_time_33_sunday:YEAR_A": {
+   "ref": "Mt 25,14-30",
+   "evidence": [
+    "2026-11-15"
+   ]
+  },
+  "temporal:ordinary_time_33_sunday:YEAR_B": {
+   "ref": "Mc 13,24-32",
+   "evidence": [
+    "2021-11-14"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_33_sunday:YEAR_C": {
+   "ref": "Lc 21,5-19",
+   "evidence": [
+    "2025-11-16"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_33_thursday": {
+   "ref": "Lc 19,41-44",
+   "evidence": [
+    "2021-11-18",
+    "2023-11-23",
+    "2025-11-20",
+    "2026-11-19"
+   ]
+  },
+  "temporal:ordinary_time_33_tuesday": {
+   "ref": "Lc 19,1-10",
+   "evidence": [
+    "2021-11-16",
+    "2022-11-15",
+    "2024-11-19",
+    "2025-11-18"
+   ]
+  },
+  "temporal:ordinary_time_33_wednesday": {
+   "ref": "Lc 19,11-28",
+   "evidence": [
+    "2022-11-16",
+    "2024-11-20",
+    "2025-11-19"
+   ]
+  },
+  "temporal:ordinary_time_34_friday": {
+   "ref": "Lc 21,29-33",
+   "evidence": [
+    "2021-11-26",
+    "2022-11-25",
+    "2023-12-01",
+    "2024-11-29",
+    "2025-11-28",
+    "2026-11-27"
+   ]
+  },
+  "temporal:ordinary_time_34_monday": {
+   "ref": "Lc 21,1-4",
+   "evidence": [
+    "2023-11-27",
+    "2026-11-23"
+   ]
+  },
+  "temporal:ordinary_time_34_saturday": {
+   "ref": "Lc 21,34-36",
+   "evidence": [
+    "2021-11-27",
+    "2022-11-26",
+    "2023-12-02",
+    "2025-11-29",
+    "2026-11-28"
+   ]
+  },
+  "temporal:ordinary_time_34_thursday": {
+   "ref": "Lc 21,20-28",
+   "evidence": [
+    "2021-11-25",
+    "2024-11-28",
+    "2025-11-27",
+    "2026-11-26"
+   ]
+  },
+  "temporal:ordinary_time_34_tuesday": {
+   "ref": "Lc 21,5-11",
+   "evidence": [
+    "2021-11-23",
+    "2023-11-28",
+    "2024-11-26",
+    "2025-11-25"
+   ]
+  },
+  "temporal:ordinary_time_34_wednesday": {
+   "ref": "Lc 21,12-19",
+   "evidence": [
+    "2023-11-29",
+    "2024-11-27",
+    "2025-11-26",
+    "2026-11-25"
+   ]
+  },
+  "temporal:ordinary_time_3_friday": {
+   "ref": "Mc 4,26-34",
+   "evidence": [
+    "2023-01-27",
+    "2026-01-30"
+   ]
+  },
+  "temporal:ordinary_time_3_monday": {
+   "ref": "Mc 3,22-30",
+   "evidence": [
+    "2024-01-22",
+    "2025-01-27"
+   ]
+  },
+  "temporal:ordinary_time_3_saturday": {
+   "ref": "Mc 4,35-41",
+   "evidence": [
+    "2022-01-29",
+    "2024-01-27",
+    "2025-02-01"
+   ]
+  },
+  "temporal:ordinary_time_3_thursday": {
+   "ref": "Mc 4,21-25",
+   "evidence": [
+    "2022-01-27",
+    "2026-01-29"
+   ]
+  },
+  "temporal:ordinary_time_3_tuesday": {
+   "ref": "Mc 3,31-35",
+   "evidence": [
+    "2024-01-23",
+    "2026-01-27"
+   ]
+  },
+  "temporal:ordinary_time_3_wednesday": {
+   "ref": "Mc 4,1-20",
+   "evidence": [
+    "2024-01-24",
+    "2026-01-28"
+   ],
+   "via": "memorial days that printed the weekday"
+  },
+  "temporal:ordinary_time_4_friday": {
+   "ref": "Mc 6,14-29",
+   "evidence": [
+    "2022-02-04",
+    "2023-02-03",
+    "2025-02-07"
+   ]
+  },
+  "temporal:ordinary_time_4_monday": {
+   "ref": "Mc 5,1-20",
+   "evidence": [
+    "2023-01-30",
+    "2024-01-29",
+    "2025-02-03"
+   ]
+  },
+  "temporal:ordinary_time_4_saturday": {
+   "ref": "Mc 6,30-34",
+   "evidence": [
+    "2023-02-04",
+    "2024-02-03",
+    "2025-02-08",
+    "2026-02-07"
+   ]
+  },
+  "temporal:ordinary_time_4_sunday:YEAR_A": {
+   "ref": "Mt 5,1-12a",
+   "evidence": [
+    "2023-01-29",
+    "2026-02-01"
+   ]
+  },
+  "temporal:ordinary_time_4_sunday:YEAR_B": {
+   "ref": "Mc 1,21-28",
+   "evidence": [
+    "2024-01-28"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_4_sunday:YEAR_C": {
+   "ref": "Lc 4,21-30",
+   "evidence": [
+    "2022-01-30"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_4_thursday": {
+   "ref": "Mc 6,7-13",
+   "evidence": [
+    "2024-02-01"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_4_tuesday": {
+   "ref": "Mc 5,21-43",
+   "evidence": [
+    "2024-01-30",
+    "2025-02-04",
+    "2026-02-03"
+   ]
+  },
+  "temporal:ordinary_time_4_wednesday": {
+   "ref": "Mc 6,1-6",
+   "evidence": [
+    "2023-02-01",
+    "2026-02-04"
+   ]
+  },
+  "temporal:ordinary_time_5_friday": {
+   "ref": "Mc 7,31-37",
+   "evidence": [
+    "2022-02-11",
+    "2026-02-13"
+   ]
+  },
+  "temporal:ordinary_time_5_monday": {
+   "ref": "Mc 6,53-56",
+   "evidence": [
+    "2022-02-07",
+    "2026-02-09"
+   ]
+  },
+  "temporal:ordinary_time_5_saturday": {
+   "ref": "Mc 8,1-10",
+   "evidence": [
+    "2022-02-12",
+    "2023-02-11",
+    "2025-02-15"
+   ]
+  },
+  "temporal:ordinary_time_5_sunday:YEAR_A": {
+   "ref": "Mt 5,13-16",
+   "evidence": [
+    "2023-02-05",
+    "2026-02-08"
+   ]
+  },
+  "temporal:ordinary_time_5_sunday:YEAR_B": {
+   "ref": "Mc 1,29-39",
+   "evidence": [
+    "2024-02-04"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_5_sunday:YEAR_C": {
+   "ref": "Lc 5,1-11",
+   "evidence": [
+    "2022-02-06",
+    "2025-02-09"
+   ]
+  },
+  "temporal:ordinary_time_5_thursday": {
+   "ref": "Mc 7,24-30",
+   "evidence": [
+    "2023-02-09",
+    "2024-02-08",
+    "2025-02-13",
+    "2026-02-12"
+   ]
+  },
+  "temporal:ordinary_time_5_tuesday": {
+   "ref": "Mc 7,1-13",
+   "evidence": [
+    "2022-02-08",
+    "2023-02-07",
+    "2025-02-11"
+   ]
+  },
+  "temporal:ordinary_time_5_wednesday": {
+   "ref": "Mc 7,14-23",
+   "evidence": [
+    "2022-02-09",
+    "2023-02-08",
+    "2024-02-07",
+    "2025-02-12"
+   ]
+  },
+  "temporal:ordinary_time_6_friday": {
+   "ref": "Mc 8,34-9,1",
+   "evidence": [
+    "2022-02-18",
+    "2023-02-17",
+    "2025-02-21"
+   ]
+  },
+  "temporal:ordinary_time_6_monday": {
+   "ref": "Mc 8,11-13",
+   "evidence": [
+    "2023-02-13",
+    "2025-02-17",
+    "2026-02-16"
+   ]
+  },
+  "temporal:ordinary_time_6_saturday": {
+   "ref": "Mc 9,2-13",
+   "evidence": [
+    "2022-02-19",
+    "2023-02-18"
+   ]
+  },
+  "temporal:ordinary_time_6_sunday:YEAR_A": {
+   "ref": "Mt 5,17-37",
+   "evidence": [
+    "2023-02-12"
+   ],
+   "decision": "Full form: 2023 page and reviewed 2026 date; the 2026 page prints the short form."
+  },
+  "temporal:ordinary_time_6_sunday:YEAR_C": {
+   "ref": "Lc 6,17.20-26",
+   "evidence": [
+    "2022-02-13",
+    "2025-02-16"
+   ]
+  },
+  "temporal:ordinary_time_6_thursday": {
+   "ref": "Mc 8,27-33",
+   "evidence": [
+    "2022-02-17",
+    "2023-02-16",
+    "2025-02-20"
+   ]
+  },
+  "temporal:ordinary_time_6_tuesday": {
+   "ref": "Mc 8,14-21",
+   "evidence": [
+    "2022-02-15",
+    "2024-02-13",
+    "2025-02-18"
+   ]
+  },
+  "temporal:ordinary_time_6_wednesday": {
+   "ref": "Mc 8,22-26",
+   "evidence": [
+    "2022-02-16",
+    "2023-02-15",
+    "2025-02-19"
+   ]
+  },
+  "temporal:ordinary_time_7_friday": {
+   "ref": "Mc 10,1-12",
+   "evidence": [
+    "2022-02-25",
+    "2024-05-24",
+    "2025-02-28"
+   ]
+  },
+  "temporal:ordinary_time_7_monday": {
+   "ref": "Mc 9,14-29",
+   "evidence": [
+    "2022-02-21",
+    "2023-02-20",
+    "2025-02-24"
+   ]
+  },
+  "temporal:ordinary_time_7_saturday": {
+   "ref": "Mc 10,13-16",
+   "evidence": [
+    "2022-02-26",
+    "2024-05-25",
+    "2025-03-01"
+   ]
+  },
+  "temporal:ordinary_time_7_sunday:YEAR_A": {
+   "ref": "Mt 5,38-48",
+   "evidence": [
+    "2023-02-19"
+   ],
+   "single_source": true
+  },
+  "temporal:ordinary_time_7_sunday:YEAR_C": {
+   "ref": "Lc 6,27-38",
+   "evidence": [
+    "2022-02-20",
+    "2025-02-23"
+   ]
+  },
+  "temporal:ordinary_time_7_thursday": {
+   "ref": "Mc 9,41-50",
+   "evidence": [
+    "2022-02-24",
+    "2024-05-23",
+    "2025-02-27"
+   ]
+  },
+  "temporal:ordinary_time_7_tuesday": {
+   "ref": "Mc 9,30-37",
+   "evidence": [
+    "2023-02-21",
+    "2024-05-21",
+    "2025-02-25"
+   ]
+  },
+  "temporal:ordinary_time_7_wednesday": {
+   "ref": "Mc 9,38-40",
+   "evidence": [
+    "2024-05-22",
+    "2025-02-26"
+   ]
+  },
+  "temporal:ordinary_time_8_friday": {
+   "ref": "Mc 11,11-26",
+   "evidence": [
+    "2021-05-28",
+    "2023-06-02",
+    "2026-05-29"
+   ]
+  },
+  "temporal:ordinary_time_8_monday": {
+   "ref": "Mc 10,17-27",
+   "evidence": [
+    "2022-02-28",
+    "2024-05-27",
+    "2025-03-03"
+   ]
+  },
+  "temporal:ordinary_time_8_saturday": {
+   "ref": "Mc 11,27-33",
+   "evidence": [
+    "2021-05-29",
+    "2026-05-30"
+   ]
+  },
+  "temporal:ordinary_time_8_sunday:YEAR_C": {
+   "ref": "Lc 6,39-45",
+   "evidence": [
+    "2022-02-27",
+    "2025-03-02"
+   ]
+  },
+  "temporal:ordinary_time_8_thursday": {
+   "ref": "Mc 10,46-52",
+   "evidence": [
+    "2021-05-27",
+    "2024-05-30",
+    "2026-05-28"
+   ]
+  },
+  "temporal:ordinary_time_8_tuesday": {
+   "ref": "Mc 10,28-31",
+   "evidence": [
+    "2021-05-25",
+    "2022-03-01",
+    "2023-05-30",
+    "2024-05-28",
+    "2025-03-04"
+   ]
+  },
+  "temporal:ordinary_time_8_wednesday": {
+   "ref": "Mc 10,32-45",
+   "evidence": [
+    "2024-05-29",
+    "2026-05-27"
+   ]
+  },
+  "temporal:ordinary_time_9_friday": {
+   "ref": "Mc 12,35-37",
+   "evidence": [
+    "2021-06-04",
+    "2023-06-09"
+   ]
+  },
+  "temporal:ordinary_time_9_monday": {
+   "ref": "Mc 12,1-12",
+   "evidence": [
+    "2023-06-05",
+    "2024-06-03",
+    "2026-06-01"
+   ],
+   "via": "memorial days that printed the weekday"
+  },
+  "temporal:ordinary_time_9_saturday": {
+   "ref": "Mc 12,38-44",
+   "evidence": [
+    "2023-06-10",
+    "2026-06-06"
+   ]
+  },
+  "temporal:ordinary_time_9_thursday": {
+   "ref": "Mc 12,28b-34",
+   "evidence": [
+    "2023-06-08",
+    "2024-06-06",
+    "2026-06-04"
+   ]
+  },
+  "temporal:ordinary_time_9_tuesday": {
+   "ref": "Mc 12,13-17",
+   "evidence": [
+    "2023-06-06",
+    "2024-06-04",
+    "2026-06-02"
+   ]
+  },
+  "temporal:ordinary_time_9_wednesday": {
+   "ref": "Mc 12,18-27",
+   "evidence": [
+    "2021-06-02",
+    "2023-06-07"
+   ]
+  },
+  "temporal:saturday_after_ash_wednesday": {
+   "ref": "Lc 5,27-32",
+   "evidence": [
+    "2022-03-05",
+    "2023-02-25",
+    "2024-02-17",
+    "2025-03-08",
+    "2026-02-21"
+   ]
+  },
+  "temporal:saturday_after_epiphany": {
+   "ref": "Ga 3,22-30",
+   "evidence": [
+    "2022-01-08",
+    "2025-01-11",
+    "2026-01-10"
+   ]
+  },
+  "temporal:sunday_of_the_word_of_god:YEAR_A": {
+   "ref": "Mt 4,12-23",
+   "evidence": [
+    "2026-01-25"
+   ]
+  },
+  "temporal:sunday_of_the_word_of_god:YEAR_B": {
+   "ref": "Mc 1,14-20",
+   "evidence": [
+    "2024-01-21"
+   ],
+   "single_source": true
+  },
+  "temporal:sunday_of_the_word_of_god:YEAR_C": {
+   "ref": "Lc 1,1-4",
+   "evidence": [
+    "2022-01-23",
+    "2025-01-26"
+   ]
+  },
+  "temporal:thursday_after_ash_wednesday": {
+   "ref": "Lc 9,22-25",
+   "evidence": [
+    "2022-03-03",
+    "2023-02-23",
+    "2024-02-15",
+    "2025-03-06"
+   ]
+  },
+  "temporal:thursday_after_epiphany": {
+   "ref": "Lc 4,14-22a",
+   "evidence": [
+    "2025-01-09",
+    "2026-01-08"
+   ]
+  },
+  "temporal:tuesday_after_epiphany": {
+   "ref": "Mc 6,34-44",
+   "evidence": [
+    "2022-01-04",
+    "2025-01-07",
+    "2026-01-06"
+   ]
+  },
+  "temporal:wednesday_after_epiphany": {
+   "ref": "Mc 6,45-52",
+   "evidence": [
+    "2022-01-05",
+    "2025-01-08",
+    "2026-01-07"
+   ]
+  }
+ }
+}

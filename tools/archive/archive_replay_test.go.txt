@@ -1,0 +1,64 @@
+package main
+
+// Temporary offline replay of captured archive pages; not a fresh crawl. Never commit.
+import (
+	"context"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+	"testing"
+)
+
+const archivePrefix = "https://www.vaticannews.va/vi/loi-chua-hang-ngay/"
+
+type archiveTransport struct{ dir string }
+
+func (a archiveTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	date := strings.TrimSuffix(strings.TrimPrefix(req.URL.String(), archivePrefix), ".html")
+	body, err := os.ReadFile(filepath.Join(a.dir, strings.ReplaceAll(date, "/", "-")+".html"))
+	if err != nil {
+		return nil, err
+	}
+	return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(string(body))), Header: make(http.Header), Request: req}, nil
+}
+
+func TestArchiveReplay(t *testing.T) {
+	dir, out := os.Getenv("ARCHIVE_DIR"), os.Getenv("ARCHIVE_OUT")
+	if dir == "" || out == "" {
+		t.Skip("explicit captured archive paths required")
+	}
+	files, err := filepath.Glob(filepath.Join(dir, "*.html"))
+	if err != nil || len(files) == 0 {
+		t.Fatal("no captured pages")
+	}
+	sort.Strings(files)
+	jobs := make(chan string, len(files))
+	for _, f := range files {
+		jobs <- archivePrefix + strings.ReplaceAll(strings.TrimSuffix(filepath.Base(f), ".html"), "-", "/") + ".html"
+	}
+	close(jobs)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	var payload, failed, missing strings.Builder
+	worker(workerConfig{client: &http.Client{Transport: archiveTransport{dir}}, jobs: jobs, ctx: context.Background(), persist: func(r crawlResult) error {
+		if r.failed {
+			failed.WriteString(r.url + "\n")
+			return nil
+		}
+		if r.missing {
+			missing.WriteString(r.url + "\n")
+		}
+		payload.WriteString(r.payload)
+		return nil
+	}, wg: &wg, total: len(files), sleepDuration: 0, counters: &crawlCounters{}})
+	wg.Wait()
+	for name, data := range map[string]string{"gospels.txt": payload.String(), "failed.txt": failed.String(), "missing_verse_number.txt": missing.String()} {
+		if err := os.WriteFile(filepath.Join(out, name), []byte(data), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+}

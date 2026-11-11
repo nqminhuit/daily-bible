@@ -125,13 +125,16 @@ func extractGospelRef(doc *html.Node) (string, error) {
 	return "", fmt.Errorf("no Bible reference found in text: %q", text)
 }
 
+var verseNumberRe = regexp.MustCompile(`^\d+[a-z]?$`)
+
+// IsVerseParagraph accepts a <sup> marker at any depth, or the 2021 markup's bare <span>14</span>.
 func IsVerseParagraph(p *html.Node) bool {
-	for c := p.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode && c.Data == "sup" {
-			return true
+	return FindNode(p, func(n *html.Node) bool {
+		if n.Type != html.ElementNode {
+			return false
 		}
-	}
-	return false
+		return n.Data == "sup" || (n.Data == "span" && verseNumberRe.MatchString(strings.TrimSpace(NormalizeSpaces(GetText(n)))))
+	}) != nil
 }
 
 // continuesVerse reports an unnumbered paragraph (verse continuation, e.g. quoted
@@ -244,6 +247,7 @@ func IsGospelHeaderText(text string) bool {
 	return strings.HasPrefix(txt, "✠") ||
 		strings.HasPrefix(txt, "Tin Mừng") ||
 		strings.HasPrefix(txt, "Khởi đầu Tin Mừng") ||
+		strings.HasPrefix(txt, "Kết thúc Tin Mừng") ||
 		strings.HasPrefix(txt, "Bài trích Tin Mừng")
 }
 
@@ -258,9 +262,8 @@ func extract(htmlStr string) (main, ref string, err error) {
 		return "", "", fmt.Errorf("failed to extract gospel reference: %w", err)
 	}
 
-	if div := FindLastNode(doc, func(n *html.Node) bool {
-		return n.Type == html.ElementNode && n.Data == "div" && HasClass(n, "section__content")
-	}); div != nil {
+	// Same section as the reference: 2021 pages end with a third, non-Gospel section.
+	if div := FindSectionContent(doc); div != nil {
 		main = ExtractGospelSection(div)
 		return
 	}

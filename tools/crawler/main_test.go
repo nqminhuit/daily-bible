@@ -743,3 +743,10 @@ func TestCleanTextKeepsSuffixVersesChaptersAndContinuations(t *testing.T) {
 		t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
 }
+
+func TestWrapVerseHTMLAcceptsLegacySpanMarkers(t *testing.T) {
+	got := wrapVerseHTML(`<p><span>14</span> a <span><sup>15</sup></span> b <sup><span>16</span> </sup>c <span>chữ</span></p>`)
+	if want := `<p>{{14}} a <span>{{15}}</span> b {{16}}c <span>chữ</span></p>`; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}

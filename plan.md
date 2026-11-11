@@ -4,7 +4,7 @@
 
 **This section is the active plan. Everything below it is history of how we got here.**
 
-Decided by the owner on 2026-11-11: the site should work for all future dates without yearly review, and **Tết Masses are out of scope**. Not started; the owner will say when to begin.
+Decided by the owner on 2026-11-11: the site should work for all future dates without yearly review, and **Tết Masses are out of scope**. Started the same day; see Progress below.
 
 ### Why this works
 
@@ -21,6 +21,26 @@ Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension an
 5. **Check against independent evidence.** The 328 reviewed 2026 dates in `data/vietnam-baseline-reviews.json` (checked against the Hà Nội and Vĩnh Long calendars) are the test set. Any table entry that contradicts them is investigated, not overridden.
 6. **Generate the calendar far ahead** (through 2050) with the Sunday transfers and the November 24 rule, lifting the 2026-only guard. Remove the Tết and Ash-transfer definitions and the now-unused formulary identities.
 7. **Ship.** Build matching backend and frontend snapshots from the table, calendar and rebuilt verse store; diff against the current shipped database; keep rollback snapshots; switch `READING_CALENDAR` in both repositories; update the frontend docs. Push and deploy only on the owner's explicit go-ahead.
+
+### Progress — 2026-11-11 (steps 1, 2 and 4 done on disk; nothing shipped)
+
+- **Step 1 done.** The archive starts on 2021-03-11, not 2021-01-01, and the sitemap ends on 2026-12-15. All 2,106 listed pages were captured (97 reused); 2026-12-16..30 returned 404. Every page's title date equals its URL date. Pages: `build/vatican-archive/pages/` (ignored). Fingerprints: `data/vatican-archive-captures.json`.
+- **Importer fixed again** for 2021 markup: the Gospel section is no longer taken from the last section on the page, bare `<span>14</span>` verse markers are read, and "Kết thúc Tin Mừng" headers are accepted. Replay: 2,079 of 2,106 pages parse; 27 fail (12 Passion narratives, 3 pages with no Gospel section, the rest have no printed reference or a header typo) and 20 have plain-text verse numbers and give no verse rows.
+- **Step 2 done (comparison only).** The rebuild has 2,963 verse rows against 2,917 shipped, and no shipped row is absent from it. 7 shipped rows hold another verse's text or are cut short (`Ga 15,1-3`, `Mt 10,1`, `Mt 18,1`, `Mt 11,17`, `Lc 7,32`), 10 carry a fused part or a stray digit (including `Mc 8,38`), 46 rows are missing from the store, and 61 hold a wording printed by a minority of pages. Nothing was applied. Details: `data/verse-rebuild-diff.json`.
+- **Step 4 done as a candidate table:** `data/lectionary-table.json`, 580 entries (527 with a Gospel, 53 memorials that read the weekday). 44 pages are excluded as evidence, each with a reason, in `data/lectionary-exceptions.json` (Tết and year-end Masses, the Martyrs external solemnity, optional memorials, typos).
+- **Step 5 done.** Against the 328 reviewed 2026 dates: 322 agree, none uncovered, 6 differ. Three are the Tết days and one is Mid-Autumn (out of scope by decision); two are short forms where the table keeps the full form (Presentation `Lc 2,22-40`, Nativity of Mary `Mt 1,1-16.18-23`).
+- **Coverage through 2050** (8,766 days): everything resolves except Palm Sunday, Holy Thursday, Good Friday and Holy Saturday every year, and 11 Sunday entries (44 dates, the first on 2028-06-25) that the archive never printed. They are listed in the table file under `uncovered_2027_2050`.
+- Four weekday entries depend on the Sunday cycle (Lent V Monday, Easter IV Monday, Ordinary XVIII Monday and Tuesday); the last two apply only when Sunday XVIII is actually celebrated.
+- Scripts: `tools/archive/` (`crawl.py`, `replay.sh`, `analyze.py`, `versediff.py`).
+
+**Open for the owner before steps 3, 6 and 7:**
+
+1. Presentation and Nativity of Mary: full form (table, owner policy) or the short form the two Vietnamese calendars print for 2026?
+2. Mary, Mother of the Church: the reviewed date says `Ga 19,25-34`; four pages print `Ga 19,25-27`. The table keeps the reviewed value.
+3. 27 entries rest on a single page and no reviewed date (mostly Year B and C Sundays). The plan says to list them as uncovered; shipping them marked single-source would avoid blank Sundays.
+4. Holy Week: Palm Sunday and Good Friday need a reference that crosses chapters (`Mc 14,1-15,47`), which the reference parser does not accept; Holy Thursday and Holy Saturday have no daytime Mass.
+5. The 11 uncovered Sundays need a source other than Vatican News.
+6. Steps 3, 6 and 7 are code changes that go through a pushed branch and draft PR. Nothing may be pushed without the owner's go-ahead, and the base branch needs confirming.
 
 ### Known limits to state plainly at release
 

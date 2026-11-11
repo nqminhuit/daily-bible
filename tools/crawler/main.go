@@ -49,8 +49,11 @@ type workerConfig struct {
 
 const defaultWorkerSleep = 300 * time.Millisecond
 
+// 2021 pages mark verses with a bare <span>14</span>.
+var verseSpanHTML = regexp.MustCompile(`<span[^>]*>\s*(\d+[a-z]?)\s*</span>`)
+
 func wrapVerseHTML(s string) string {
-	return verseHTML.ReplaceAllString(s, "{{$1}}")
+	return verseSpanHTML.ReplaceAllString(verseHTML.ReplaceAllString(s, "{{$1}}"), "{{$1}}")
 }
 
 func loadLinks(filename string) ([]string, error) {

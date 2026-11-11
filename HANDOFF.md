@@ -5,11 +5,12 @@ Updated **2026-11-11**, Asia/Ho_Chi_Minh. This is the current handoff, not a res
 ## Direction change — 2026-11-11 (read this before anything else)
 
 - **The owner changed the goal: a solution for all future dates, with Tết out of scope.** The active plan is the first section of `plan.md`: crawl the Vatican News archive once (2021-2026, about 2,200 pages; **approved**), rebuild verse text with the fixed importer, make lectionary entries year-independent, fill one complete entry-to-Gospel table from six years of agreeing evidence, generate the calendar through 2050, then ship.
-- **Not started. The owner said they will do it later; wait for their go before crawling.**
+- **Started 2026-11-11 on the owner's go.** Steps 1, 2, 4 and 5 are done on disk: the crawl (2,106 pages, `build/vatican-archive/`), the verse comparison (`data/verse-rebuild-diff.json`, nothing applied), and a candidate table (`data/lectionary-table.json`, 580 entries; 322 of 328 reviewed 2026 dates agree and the six differences are explained). Read the Progress block in `plan.md` first; it lists six open questions for the owner. Steps 3 (schema 4), 6 (calendar through 2050) and 7 (ship) are not started.
+- Uncommitted after this session: the importer fix for 2021 markup (`internal/parser/parser.go`, `tools/crawler/main.go`, tests), the four new `data/` files, `tools/archive/`, `plan.md`, `HANDOFF.md`. Go tests, vet and Staticcheck pass. Both shipped databases are unchanged (`e4cbcfe5…`). Nothing pushed.
+- `build/**/*_test.go` files break `go vet ./...`; replay harnesses are kept as `.go.txt` and copied into `tools/crawler/` only while `tools/archive/replay.sh` runs.
 - Do not spend more effort on 2026-only work: no December 2026 review, no Tết/Ash-transfer research, no hunt for the Martyrs decree or lectionary pages. The 2026 pilot below is now the **test set** for the general table, not the product.
 - Still valid owner decisions: General Roman baseline; Epiphany, Ascension and Corpus Christi on Sunday; Martyrs solemnity November 24; Sunday XXXIII on November 15; ordinary day over optional celebrations; first-listed full option; daytime Mass; no diocesan overlay; script-applied reviews accepted; importer-damaged verse rows may be replaced.
 - **Deadline:** the shipped date table ends 2026-12-31. The frontend monitor starts warning around 2026-11-16, and 2027-01-01 has no reading until the plan ships or the old table is extended as a stopgap.
-- Uncommitted when this was written: `HANDOFF.md`, `plan.md`, `data/vietnam-content-audit.md` (scan notes). No code changed since commit `a136771`.
 
 ## 2026 pilot state — 2026-11-11 (the test set; wins over older statements below)
 

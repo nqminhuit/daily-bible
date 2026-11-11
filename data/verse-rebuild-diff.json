@@ -1,0 +1,424 @@
+{
+ "purpose": "verse-store-rebuild-comparison-not-an-import-source",
+ "store": "resources/bible.db",
+ "store_sha256": "e4cbcfe55f603c4e7cdb7c36bf8a3075469d72500fe490fab122c330b36ad1c7",
+ "counts": {
+  "store_rows": 2917,
+  "rebuilt_rows": 2963,
+  "identical": 2819,
+  "punctuation_only": 20,
+  "store_holds_minority_wording": 61,
+  "damaged": 7,
+  "wording": 10,
+  "missing_in_store": 46,
+  "store_only": 0
+ },
+ "damaged": [
+  {
+   "ref": "Ga 15,1",
+   "store": "“Thầy đã nói với anh em các điều ấy, để anh em khỏi bị vấp ngã.",
+   "crawl": "Khi ấy, Đức Giê-su nói với các môn đệ rằng : “Thầy là cây nho thật, và Cha Thầy là người trồng nho.",
+   "pages": 9,
+   "of": 9
+  },
+  {
+   "ref": "Ga 15,2",
+   "store": "Họ sẽ khai trừ anh em khỏi hội đường. Hơn nữa, sẽ đến giờ kẻ nào giết anh em cũng tưởng mình phụng thờ Thiên Chúa.",
+   "crawl": "Cành nào gắn liền với Thầy mà không sinh hoa trái, thì Người chặt đi ; còn cành nào sinh hoa trái, thì Người cắt tỉa cho nó sinh nhiều hoa trái hơn.",
+   "pages": 9,
+   "of": 9
+  },
+  {
+   "ref": "Ga 15,3",
+   "store": "Họ sẽ làm như thế, bởi vì họ không biết Chúa Cha cũng chẳng biết Thầy. 4a Nhưng Thầy đã nói với anh em những điều ấy, để khi đến giờ họ hành động, anh em nhớ lại là Thầy đã nói với anh em rồi.”",
+   "crawl": "Anh em được thanh sạch rồi nhờ lời Thầy đã nói với anh em.",
+   "pages": 9,
+   "of": 9
+  },
+  {
+   "ref": "Mt 10,1",
+   "store": "Khi Đức Giê-su ra chỉ thị cho mười hai môn đệ xong, Người rời chỗ đó, đi dạy dỗ và rao giảng trong các thành thị trong miền.",
+   "crawl": "Khi ấy, Đức Giê-su gọi mười hai môn đệ lại, để ban cho các ông quyền trên các thần ô uế, để các ông trừ chúng và chữa hết các bệnh hoạn tật nguyền.",
+   "pages": 6,
+   "of": 13
+  },
+  {
+   "ref": "Mt 18,1",
+   "store": "Khi Đức Giê-su giảng dạy những điều ấy xong, Người rời khỏi miền Ga-li-lê và đi đến miền Giu-đê, bên kia sông Gio-đan.",
+   "crawl": "Khi ấy, các môn đệ lại gần hỏi Đức Giê-su rằng : “Thưa Thầy, ai là người lớn nhất trong Nước Trời ?”",
+   "pages": 13,
+   "of": 13
+  },
+  {
+   "ref": "Mt 11,17",
+   "store": "và nói :",
+   "crawl": "và nói : ‘Tụi tôi thổi sáo cho các anh, mà các anh không nhảy múa ; tụi tôi hát bài đưa đám, mà các anh không đấm ngực khóc than.’",
+   "pages": 6,
+   "of": 6
+  },
+  {
+   "ref": "Lc 7,32",
+   "store": "Họ giống như lũ trẻ ngồi ngoài chợ gọi nhau mà nói :",
+   "crawl": "Họ giống như lũ trẻ ngồi ngoài chợ gọi nhau mà nói : ‘Tụi tôi thổi sáo cho các anh, mà các anh không nhảy múa ; tụi tôi hát bài đưa đám, mà các anh không khóc than.’",
+   "pages": 4,
+   "of": 4
+  }
+ ],
+ "wording": [
+  {
+   "ref": "Ga 5,2",
+   "store": "Tại Giê-ru-sa-lem, gần Cửa Chiên, có một hồ nước, tiếng Híp-ri gọi là Bết-da-tha. Hồ này có năm hành lang. 3a Nhiều người đau ốm, đui mù, què quặt, bất toại nằm la liệt.",
+   "crawl": "Tại Giê-ru-sa-lem, gần Cửa Chiên, có một hồ nước, tiếng Híp-ri gọi là Bết-da-tha. Hồ này có năm hành lang.",
+   "pages": 6,
+   "of": 6
+  },
+  {
+   "ref": "Ga 8,41",
+   "store": "Còn các ông, các ông làm những việc cha các ông làm.”Họ mới nói : “Chúng tôi đâu phải là con hoang. Chúng tôi chỉ có một Cha : đó là Thiên Chúa !”",
+   "crawl": "Còn các ông, các ông làm những việc cha các ông làm.” Họ mới nói : “Chúng tôi đâu phải là con hoang. Chúng tôi chỉ có một Cha : đó là Thiên Chúa !”",
+   "pages": 5,
+   "of": 5
+  },
+  {
+   "ref": "Ga 14,30",
+   "store": "“Thầy sẽ không còn nói nhiều với anh em nữa, bởi vì Thủ lãnh thế gian đang đến. Đã hẳn, nó không làm gì được Thầy. 31a Nhưng chuyện đó xảy ra là để cho thế gian biết rằng Thầy yêu mến Chúa Cha và làm đúng như Chúa Cha đã truyền cho Thầy.”",
+   "crawl": "“Thầy sẽ không còn nói nhiều với anh em nữa, bởi vì Thủ lãnh thế gian đang đến. Đã hẳn, nó không làm gì được Thầy.",
+   "pages": 5,
+   "of": 5
+  },
+  {
+   "ref": "Ga 15,27",
+   "store": "Cả anh em nữa, anh em cũng làm chứng, vì anh em ở với Thầy ngay từ đầu.16",
+   "crawl": "Cả anh em nữa, anh em cũng làm chứng, vì anh em ở với Thầy ngay từ đầu.",
+   "pages": 6,
+   "of": 6
+  },
+  {
+   "ref": "Ga 17,10",
+   "store": "Tất cả những gì con có đều là của Cha, tất cả những gì Cha có đều là của con ; và con được tôn vinh nơi họ. 11a Con không còn ở trong thế gian nữa, nhưng họ, họ ở trong thế gian ; phần con, con đến cùng Cha.”",
+   "crawl": "Tất cả những gì con có đều là của Cha, tất cả những gì Cha có đều là của con ; và con được tôn vinh nơi họ.",
+   "pages": 4,
+   "of": 4
+  },
+  {
+   "ref": "Mt 10,42",
+   "store": "“Và ai cho một trong những kẻ bé nhỏ này uống, dù chỉ một chén nước lã thôi, vì kẻ ấy là môn đệ của Thầy, thì Thầy bảo thật anh em, người đó sẽ không mất phần thưởng đâu.”11",
+   "crawl": "“Và ai cho một trong những kẻ bé nhỏ này uống, dù chỉ một chén nước lã thôi, vì kẻ ấy là môn đệ của Thầy, thì Thầy bảo thật anh em, người đó sẽ không mất phần thưởng đâu.”",
+   "pages": 8,
+   "of": 8
+  },
+  {
+   "ref": "Mt 20,15",
+   "store": "Chẳng lẽ tôi lại không có quyền tuỳ ý định đoạt về những gì là của tôi sao ? Hay vì thấy tôi tốt bụng, mà bạn đâm ra ghen tức ?’ 16a Thế là những kẻ đứng chót sẽ được lên hàng đầu, còn những kẻ đứng đầu sẽ phải xuống hàng chót.”",
+   "crawl": "Chẳng lẽ tôi lại không có quyền tuỳ ý định đoạt về những gì là của tôi sao ? Hay vì thấy tôi tốt bụng, mà bạn đâm ra ghen tức ?’",
+   "pages": 8,
+   "of": 8
+  },
+  {
+   "ref": "Lc 6,25",
+   "store": "“Khốn cho các ngươi, hỡi những kẻ bây giờ đang được no nê, vì các ngươi sẽ phải đói.",
+   "crawl": "“Khốn cho các ngươi, hỡi những kẻ bây giờ đang được no nê, vì các ngươi sẽ phải đói. “Khốn cho các ngươi, hỡi những kẻ bây giờ đang được vui cười, vì các ngươi sẽ phải sầu khổ khóc than.",
+   "pages": 5,
+   "of": 7
+  },
+  {
+   "ref": "Mc 8,38",
+   "store": "Giữa thế hệ ngoại tình và tội lỗi này, ai hổ thẹn vì tôi và những lời tôi dạy, thì Con Người cũng sẽ hổ thẹn vì kẻ ấy, khi Người ngự đến cùng với các thánh thiên thần, trong vinh quang của Cha Người.”9",
+   "crawl": "Giữa thế hệ ngoại tình và tội lỗi này, ai hổ thẹn vì tôi và những lời tôi dạy, thì Con Người cũng sẽ hổ thẹn vì kẻ ấy, khi Người ngự đến cùng với các thánh thiên thần, trong vinh quang của Cha Người.”",
+   "pages": 3,
+   "of": 3
+  },
+  {
+   "ref": "Ga 16,22",
+   "store": "Anh em cũng vậy, bây giờ anh em lo buồn, nhưng Thầy sẽ gặp lại anh em, lòng anh em sẽ vui mừng ; và niềm vui của anh em, không ai lấy mất được. 23a Ngày ấy, anh em không còn phải hỏi Thầy gì nữa.”",
+   "crawl": "Anh em cũng vậy, bây giờ anh em lo buồn, nhưng Thầy sẽ gặp lại anh em, lòng anh em sẽ vui mừng ; và niềm vui của anh em, không ai lấy mất được.",
+   "pages": 5,
+   "of": 5
+  }
+ ],
+ "missing_in_store": [
+  {
+   "ref": "Ga 5,3a",
+   "text": "Nhiều người đau ốm, đui mù, què quặt, bất toại nằm la liệt.",
+   "pages": 6
+  },
+  {
+   "ref": "Mt 1,24a",
+   "text": "Khi tỉnh giấc, ông Giu-se làm như sứ thần Chúa dạy.",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 3,7b",
+   "text": "Khi ấy, Đức Giê-su nói với ông Ni-cô-đê-mô rằng : “Các ông cần phải được sinh ra một lần nữa bởi ơn trên.",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 14,31a",
+   "text": "Nhưng chuyện đó xảy ra là để cho thế gian biết rằng Thầy yêu mến Chúa Cha và làm đúng như Chúa Cha đã truyền cho Thầy.”",
+   "pages": 5
+  },
+  {
+   "ref": "Ga 16,1",
+   "text": "“Thầy đã nói với anh em các điều ấy, để anh em khỏi bị vấp ngã.",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 16,2",
+   "text": "Họ sẽ khai trừ anh em khỏi hội đường. Hơn nữa, sẽ đến giờ kẻ nào giết anh em cũng tưởng mình phụng thờ Thiên Chúa.",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 16,3",
+   "text": "Họ sẽ làm như thế, bởi vì họ không biết Chúa Cha cũng chẳng biết Thầy.",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 16,4a",
+   "text": "Nhưng Thầy đã nói với anh em những điều ấy, để khi đến giờ họ hành động, anh em nhớ lại là Thầy đã nói với anh em rồi.”",
+   "pages": 6
+  },
+  {
+   "ref": "Ga 16,23b",
+   "text": "Khi ấy, Đức Giê-su nói với các môn đệ rằng : “Thật, Thầy bảo thật anh em : anh em mà xin Chúa Cha điều gì, thì Người sẽ ban cho anh em nhân danh Thầy.",
+   "pages": 5
+  },
+  {
+   "ref": "Ga 17,11a",
+   "text": "Con không còn ở trong thế gian nữa, nhưng họ, họ ở trong thế gian ; phần con, con đến cùng Cha.”",
+   "pages": 4
+  },
+  {
+   "ref": "Ga 17,11b",
+   "text": "Khi ấy, Đức Giê-su ngước mắt lên trời và cầu nguyện rằng : “Lạy Cha chí thánh, xin gìn giữ các môn đệ trong danh Cha mà Cha đã ban cho con, để họ nên một như chúng ta.",
+   "pages": 6
+  },
+  {
+   "ref": "Mc 12,28b",
+   "text": "Khi ấy, có một người trong các kinh sư đến gần Đức Giê-su và hỏi rằng : “Thưa Thầy, trong mọi điều răn, điều răn nào đứng hàng đầu ?”",
+   "pages": 10
+  },
+  {
+   "ref": "Mt 11,1",
+   "text": "Khi Đức Giê-su ra chỉ thị cho mười hai môn đệ xong, Người rời chỗ đó, đi dạy dỗ và rao giảng trong các thành thị trong miền.",
+   "pages": 6
+  },
+  {
+   "ref": "Mt 19,1",
+   "text": "Khi Đức Giê-su giảng dạy những điều ấy xong, Người rời khỏi miền Ga-li-lê và đi đến miền Giu-đê, bên kia sông Gio-đan.",
+   "pages": 5
+  },
+  {
+   "ref": "Mt 20,16a",
+   "text": "Thế là những kẻ đứng chót sẽ được lên hàng đầu, còn những kẻ đứng đầu sẽ phải xuống hàng chót.”",
+   "pages": 8
+  },
+  {
+   "ref": "Ga 6,54a",
+   "text": "Tại hội đường Ca-phác-na-um, Đức Giê-su đã tuyên bố : “Ai ăn thịt và uống máu tôi, thì được sống muôn đời.”",
+   "pages": 2
+  },
+  {
+   "ref": "Mc 7,8a",
+   "text": "Các ông gạt bỏ điều răn của Thiên Chúa, mà duy trì truyền thống của người phàm.”",
+   "pages": 2
+  },
+  {
+   "ref": "Lc 9,43b",
+   "text": "Khi ấy, đang lúc mọi người còn bỡ ngỡ về tất cả các việc Đức Giê-su làm, thì Người nói với các môn đệ rằng :",
+   "pages": 5
+  },
+  {
+   "ref": "Mt 5,12a",
+   "text": "Anh em hãy vui mừng hớn hở, vì phần thưởng dành cho anh em ở trên trời thật lớn lao.”",
+   "pages": 7
+  },
+  {
+   "ref": "Mc 13,24",
+   "text": "Khi ấy, Đức Giê-su nói với các môn đệ về ngày quang lâm của Người rằng : “Trong những ngày ấy, sau cơn gian nan lớn lao, thì mặt trời sẽ ra tối tăm, mặt trăng không còn chiếu sáng,",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,25",
+   "text": "các ngôi sao từ trời sa xuống, và các quyền lực trên trời bị lay chuyển.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,26",
+   "text": "Bấy giờ thiên hạ sẽ thấy Con Người đầy quyền năng và vinh quang ngự trong đám mây mà đến.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,27",
+   "text": "Lúc đó, Người sẽ sai các thiên sứ đi, và Người sẽ tập họp những kẻ được Người tuyển chọn từ bốn phương về, từ đầu mặt đất cho đến cuối chân trời.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,28",
+   "text": "“Anh em cứ lấy thí dụ cây vả mà học hỏi. Khi cành nó xanh tươi và đâm chồi nảy lộc, thì anh em biết là mùa hè đã đến gần.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,29",
+   "text": "Cũng vậy, khi thấy những điều đó xảy ra, anh em hãy biết là Con Người đã đến gần, ở ngay ngoài cửa rồi.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,30",
+   "text": "Thầy bảo thật anh em : thế hệ này sẽ chẳng qua đi, trước khi mọi điều ấy xảy ra.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,31",
+   "text": "Trời đất sẽ qua đi, nhưng những lời Thầy nói sẽ chẳng qua đâu.",
+   "pages": 1
+  },
+  {
+   "ref": "Mc 13,32",
+   "text": "“Còn về ngày hay giờ đó thì không ai biết được, ngay cả các thiên sứ trên trời hay người Con cũng không, chỉ có Chúa Cha biết mà thôi.”",
+   "pages": 1
+  },
+  {
+   "ref": "Ga 18,33b",
+   "text": "Khi ấy, quan Phi-la-tô nói với Đức Giê-su rằng : “Ông có phải là vua dân Do-thái không ?”",
+   "pages": 2
+  },
+  {
+   "ref": "Mt 11,18",
+   "text": "Thật vậy, ông Gio-an đến, không ăn không uống, thì thiên hạ bảo : ‘Ông ta bị quỷ ám.’",
+   "pages": 6
+  },
+  {
+   "ref": "Mt 11,19",
+   "text": "Con Người đến, cũng ăn cũng uống như ai, thì thiên hạ lại bảo : ‘Đây là tay ăn nhậu, bạn bè với quân thu thuế và phường tội lỗi.’ Nhưng đức Khôn Ngoan được chứng minh bằng hành động.”",
+   "pages": 6
+  },
+  {
+   "ref": "Lc 4,22a",
+   "text": "Mọi người đều tán thành và thán phục những lời ân sủng từ miệng Người nói ra.",
+   "pages": 3
+  },
+  {
+   "ref": "Lc 6,26",
+   "text": "“Khốn cho các ngươi khi được mọi người ca tụng, vì các ngôn sứ giả cũng đã từng được cha ông họ đối xử như thế.”",
+   "pages": 7
+  },
+  {
+   "ref": "Mc 9,1",
+   "text": "Đức Giê-su còn nói với họ : “Tôi bảo thật các người : trong số những người có mặt ở đây, có những kẻ sẽ không phải nếm sự chết, trước khi thấy Triều Đại Thiên Chúa đến, đầy uy lực.”",
+   "pages": 3
+  },
+  {
+   "ref": "Lc 9,28b",
+   "text": "Khi ấy, Đức Giê-su lên núi cầu nguyện đem theo các ông Phê-rô, Gio-an và Gia-cô-bê.",
+   "pages": 4
+  },
+  {
+   "ref": "Ga 13,33a",
+   "text": "“Hỡi anh em là những người con bé nhỏ của Thầy, Thầy còn ở với anh em một ít lâu nữa thôi.",
+   "pages": 2
+  },
+  {
+   "ref": "Ga 16,23a",
+   "text": "Ngày ấy, anh em không còn phải hỏi Thầy gì nữa.”",
+   "pages": 5
+  },
+  {
+   "ref": "Lc 9,11b",
+   "text": "Khi ấy, Đức Giê-su nói với đám đông về Nước Thiên Chúa và chữa lành những ai cần được chữa.",
+   "pages": 2
+  },
+  {
+   "ref": "Lc 7,33",
+   "text": "“Thật vậy, ông Gio-an Tẩy Giả đến, không ăn bánh, không uống rượu, thì các ông bảo : ‘Ông ta bị quỷ ám.’",
+   "pages": 4
+  },
+  {
+   "ref": "Lc 7,34",
+   "text": "Con Người đến, cũng ăn cũng uống như ai, thì các ông lại bảo : ‘Đây là tay ăn nhậu, bạn bè với quân thu thuế và phường tội lỗi.’",
+   "pages": 4
+  },
+  {
+   "ref": "Lc 7,35",
+   "text": "Nhưng Đức Khôn Ngoan đã được tất cả con cái mình biện minh cho.”",
+   "pages": 4
+  },
+  {
+   "ref": "Mc 13,33",
+   "text": "Khi ấy, Đức Giê-su nói với các môn đệ rằng : “Anh em phải coi chừng, phải tỉnh thức, vì anh em không biết khi nào thời ấy đến.",
+   "pages": 2
+  },
+  {
+   "ref": "Mc 13,34",
+   "text": "Cũng như người kia trẩy phương xa, để nhà lại, trao quyền cho các đầy tớ của mình, chỉ định cho mỗi người một việc, và ra lệnh cho người giữ cửa phải canh thức.",
+   "pages": 2
+  },
+  {
+   "ref": "Mc 13,35",
+   "text": "Vậy anh em phải canh thức, vì anh em không biết khi nào chủ nhà đến : lúc chập tối hay nửa đêm, lúc gà gáy hay tảng sáng.",
+   "pages": 2
+  },
+  {
+   "ref": "Mc 13,36",
+   "text": "Anh em phải canh thức, kẻo lỡ ra ông chủ đến bất thần, bắt gặp anh em đang ngủ.",
+   "pages": 2
+  },
+  {
+   "ref": "Mc 13,37",
+   "text": "Điều Thầy nói với anh em đây, Thầy cũng nói với hết thảy mọi người là : phải canh thức !”",
+   "pages": 2
+  }
+ ],
+ "pages_not_replayed": {
+  "failed": [
+   "2021-03-28",
+   "2021-04-02",
+   "2022-02-12",
+   "2022-04-10",
+   "2022-04-15",
+   "2022-11-23",
+   "2022-11-24",
+   "2023-04-02",
+   "2023-04-07",
+   "2024-03-24",
+   "2024-03-29",
+   "2024-04-13",
+   "2024-09-12",
+   "2024-09-28",
+   "2024-12-11",
+   "2024-12-25",
+   "2025-02-15",
+   "2025-04-13",
+   "2025-04-18",
+   "2025-04-23",
+   "2025-07-16",
+   "2025-10-16",
+   "2026-03-29",
+   "2026-04-03",
+   "2026-08-01",
+   "2026-08-02",
+   "2026-10-11"
+  ],
+  "no_verse_markers": [
+   "2021-03-12",
+   "2021-11-19",
+   "2022-02-14",
+   "2022-10-11",
+   "2023-02-09",
+   "2023-05-06",
+   "2023-05-07",
+   "2023-05-09",
+   "2024-10-07",
+   "2025-10-01",
+   "2026-02-01",
+   "2026-02-04",
+   "2026-02-05",
+   "2026-02-06",
+   "2026-02-07",
+   "2026-02-08",
+   "2026-02-09",
+   "2026-02-10",
+   "2026-02-11",
+   "2026-02-15"
+  ]
+ }
+}
