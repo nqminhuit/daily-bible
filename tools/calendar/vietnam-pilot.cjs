@@ -71,7 +71,10 @@ async function generatePilot(years) {
       if (decision) throw new Error('date is both decided and unsupported: ' + day.date);
       return { ...day, unsupported_reason: rules.unsupported[day.date] };
     }
-    if (!decision) return { ...day, source_url: rules.baseline.source_url, review_note: `${rules.scope_note} ${rules.baseline.note}` };
+    if (!decision) {
+      const note = [rules.scope_note, rules.baseline.note, rules.baseline_notes[day.date]].filter(Boolean).join(' ');
+      return { ...day, source_url: rules.baseline.source_url, review_note: note };
+    }
     const { selected, sources } = decide(day, decision);
     proof.push(...sources);
     decided++;

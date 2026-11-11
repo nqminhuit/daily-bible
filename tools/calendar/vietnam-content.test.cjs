@@ -86,7 +86,8 @@ test('rule findings are captured evidence and the later owner decisions are expl
   for (const date of ['2026-01-04', '2026-05-17', '2026-11-15', '2026-11-24']) {
     assert.equal(rules.decisions.find(d => d.date === date).evidence, 'diocesan');
   }
-  assert.ok(rules.unsupported['2026-02-17']);
+  assert.deepEqual(rules.unsupported, {});
+  assert.ok(rules.baseline_notes['2026-02-17']);
   assert.deepEqual(f.martyrs_proper_gospels.refs_in_listed_order, ['Lc 9,23-26', 'Ga 17,11b-19']);
   for (const finding of Object.values(f).filter(v => v.sources)) {
     for (const id of finding.sources) assert.ok(captures[id], id);
@@ -113,7 +114,7 @@ test('baseline review ledger is a record of explicit temporary-copy reviews, not
     assert.ok(['calendar_resolved', 'calendar_resolved_legacy_difference', 'missing_text'].includes(status));
     assert.ok(!rules.unsupported[date]);
   }
-  assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 14);
+  assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 18);
   for (const date of baseline.not_reviewed.unreviewed_dates) assert.ok(!dates.has(date));
   assert.equal(dates.size + baseline.not_reviewed.unreviewed_dates.length + baseline.not_reviewed.unsupported_dates.length, 365);
 });

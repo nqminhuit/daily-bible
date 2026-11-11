@@ -196,5 +196,11 @@
     "requested_at": "2026-11-11T03:31:36Z",
     "sha256": "87a8ac62a862b46227d37a9a12e51bb4804f7088c2d8b7fb08297954f12a7f91",
     "text_sha256": "28884d47daf95b26c4e8afbdeaa069ea123541ae4dac91deab900bad9b40e7b9"
+  },
+  "vatican-2026-06-11": {
+    "url": "https://www.vaticannews.va/vi/loi-chua-hang-ngay/2026/06/11.html",
+    "requested_at": "2026-11-11T04:04:59Z",
+    "sha256": "6f0cee8c354b5d36b878c44eb7399be79ace9809a46f3109ff71c433d6eb9a8f",
+    "text_sha256": "c034ea97f098f780bc3f7190c5520183930c51a6a01596ba36f4d57954209236"
   }
 }

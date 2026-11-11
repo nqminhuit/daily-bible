@@ -13,8 +13,8 @@ test('national pilot covers the year with sourced decisions over the owner-appro
   assert.match(m.rules_version, /^vietnam-national-pilot-2026-/);
   assert.equal(m.days.length, 365);
   assert.equal(rules.decisions.length, 13);
-  assert.equal(m.days.filter(day => day.unsupported_reason).length, 3);
-  assert.equal(m.days.filter(day => day.source_url === BASELINE_URL).length, 365 - 13 - 3);
+  assert.equal(m.days.filter(day => day.unsupported_reason).length, 0);
+  assert.equal(m.days.filter(day => day.source_url === BASELINE_URL).length, 365 - 13);
   for (const day of m.days) {
     assert.equal(day.gospel_ref, undefined);
     if (day.unsupported_reason) continue;
@@ -62,11 +62,16 @@ test('owner and diocesan decisions are explicit and keep their real sources', as
   assert.equal(days.get('2026-11-01').observance, 'all_saints');
 });
 
-test('known unresolved Vietnamese cases stay unsupported, not baseline', async () => {
+test('optional Vietnamese celebrations are not selected: the owner kept the ordinary day', async () => {
   const days = new Map((await pilot).days.map(day => [day.date, day]));
-  assert.match(days.get('2026-02-17').unsupported_reason, /Tết day 1/);
-  assert.match(days.get('2026-10-04').unsupported_reason, /Rosary/);
-  assert.match(days.get('2026-10-18').unsupported_reason, /Mission/);
+  for (const [date, observance] of [['2026-02-17', 'ordinary_time_6_tuesday'], ['2026-10-04', 'ordinary_time_27_sunday'], ['2026-10-18', 'ordinary_time_29_sunday']]) {
+    const day = days.get(date);
+    assert.equal(day.observance, observance);
+    assert.equal(day.unsupported_reason, undefined);
+    assert.equal(day.mass, undefined);
+    assert.equal(day.source_url, BASELINE_URL);
+    assert.match(day.review_note, /Owner chose the ordinary (weekday|Sunday) on 2026-11-11/);
+  }
 });
 
 test('national pilot is deterministic and rejects extrapolation to unreviewed years', async () => {

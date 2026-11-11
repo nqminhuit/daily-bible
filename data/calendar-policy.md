@@ -41,7 +41,9 @@ responses, not review times or immutable dated Gospel pages. See the
 
 On 2026-11-11 the owner further approved: the **General Roman calendar as baseline** for dates with no known Vietnamese rule, **Ascension on Sunday**, **Sunday XXXIII on November 15** (the Martyrs celebration that day is optional), and **agreeing official calendars of two dioceses as evidence** where no HĐGMVN directive is captured. These are editorial choices; baseline days are labelled as such, never as national directives.
 
-The [content continuation](vietnam-content-audit.md) has 233 renderable pilot dates, 13 with missing text, 114 unreviewed and 5 unsupported definitions on a temporary copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
+The owner also keeps the ordinary day on February 17, October 4 and October 18, 2026 rather than the optional Tết, Rosary and Mission Masses.
+
+The [content continuation](vietnam-content-audit.md) has 237 renderable pilot dates, 13 with missing text, 113 unreviewed and 2 unsupported definitions on a temporary copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
 keeps the found Vĩnh Long Ordo diocesan and a publisher's 2017 lectionary catalogue
 separate from approval, authorized option ordering and national-calendar scope.
 Neither document is an importable manifest or automatic approval source.

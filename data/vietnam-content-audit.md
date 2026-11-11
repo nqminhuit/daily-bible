@@ -241,3 +241,18 @@ The reviews also expose the legacy store: on 34 reviewed dates the old stored re
 Go tests, race suite and Staticcheck pass; 22 calendar tests and 24 frontend tests pass. CLI and frontend resolver agree with the ledger on all 367 checked dates (the year plus one day either side). Reapplying all 246 reviews added no history and the repeat audit is byte-identical. Integrity and foreign-key checks pass; 2,191 legacy date rows, 2,922 verse rows and 15 observations are unchanged. Lint, the production build and page-level smoke tests were not rerun; no frontend or Go runtime code changed.
 
 Artifacts: `build/vietnam-baseline-2026-11-11/` (ignored): `audit.db` (SHA-256 `7834c4d5b0886f64a94fc8e3336f90b8ae439a01dd7ac5d3d9ae51f82bb92175`), manifest, reports, review plan and log, captures and the matching scripts. 27 captured requests this day, no daily crawl.
+
+## Ordinary-day decision — 2026-11-11 (final state of the day)
+
+The owner then chose the **ordinary day** for February 17, October 4 and October 18; the Tết, Rosary and Mission Masses stay recorded alternatives. Those three dates moved from unsupported to baseline, which changed the rules version to `vietnam-national-pilot-2026-803f03d3d1f36e12fe27` and required every entry to be reviewed again. The section above is the state before this.
+
+| Status | Dates |
+| --- | ---: |
+| Renderable | **237** |
+| Reviewed, verse text missing | 13 |
+| Supported definition, Gospel unreviewed | 113 |
+| Unsupported (Holy Thursday, Holy Saturday) | 2 |
+
+250 explicit reviews: 232 by the two-calendar rule and 18 individual. The four new individual ones are `Mc 8,14-21` (February 17, Vĩnh Long), `Mt 21,33-43` (October 4) and `Mt 22,15-21` (October 18), both listed by Hà Nội and Vĩnh Long for the Sunday, and `Mt 10,7-13` for Saint Barnabas on June 11 from the dated Vatican News page; the two calendars' `Mt 10,6-13` stays recorded as a discrepancy.
+
+The same validation was repeated and passes: Go tests, race suite, Staticcheck, 22 calendar tests, CLI/frontend parity on 367 dates, idempotent re-review, integrity checks, unchanged shipped hashes. The missing-text list and the July/December gap are unchanged. Artifacts: `build/vietnam-baseline-2026-11-11b/` (ignored), `audit.db` SHA-256 `0a1cfd281009004aada178582230998971845bb099134d5c61c624d22e76a204`.
