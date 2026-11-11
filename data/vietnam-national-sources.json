@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "purpose": "national-calendar-source-dossier",
-  "status": "partial-primary-rule-facts-not-an-executable-calendar",
+  "status": "partial-primary-rule-facts-plus-owner-approved-baseline-and-diocesan-evidence",
   "target_policy": {
     "calendar_id": "vietnam",
     "scope_approved_on": "2026-11-10",
@@ -9,7 +9,10 @@
     "mass_option": "day",
     "gospel_choice": "assigned-reference-then-first-listed-full-authorized-option",
     "diocesan_overlay": null,
-    "activation": "blocked-pending-reviewed-rules-readings-and-coverage"
+    "activation": "blocked-pending-reviewed-rules-readings-and-coverage",
+    "baseline": "general-roman-for-dates-without-a-known-vietnamese-rule-owner-approved-2026-11-11",
+    "ascension": "sunday-owner-decision-2026-11-11",
+    "diocesan_evidence": "two-agreeing-official-diocesan-calendars-accepted-owner-decision-2026-11-11"
   },
   "sources": [
     {
@@ -84,42 +87,185 @@
     }
   ],
   "mass_assignments": [
-    { "date": "2022-01-02", "formulary": "epiphany_of_the_lord", "source_id": "christmas-2021-2022", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2024-02-10", "formulary": "tet_day_1_new_year", "source_id": "tet-2024", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2024-02-11", "formulary": "tet_day_2_ancestors", "source_id": "tet-2024", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2026-02-18", "formulary": "tet_day_2_ancestors", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2026-02-19", "formulary": "tet_day_3_labor", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2026-02-20", "formulary": "ash_wednesday", "source_id": "ash-2026", "scope": "vietnam", "mass_option": "day" },
-    { "date": "2026-11-01", "formulary": "all_saints", "source_id": "all-saints-2026", "scope": "vietnam", "mass_option": "day" }
+    {
+      "date": "2022-01-02",
+      "formulary": "epiphany_of_the_lord",
+      "source_id": "christmas-2021-2022",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2024-02-10",
+      "formulary": "tet_day_1_new_year",
+      "source_id": "tet-2024",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2024-02-11",
+      "formulary": "tet_day_2_ancestors",
+      "source_id": "tet-2024",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2026-02-18",
+      "formulary": "tet_day_2_ancestors",
+      "source_id": "ash-2026",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2026-02-19",
+      "formulary": "tet_day_3_labor",
+      "source_id": "ash-2026",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2026-02-20",
+      "formulary": "ash_wednesday",
+      "source_id": "ash-2026",
+      "scope": "vietnam",
+      "mass_option": "day"
+    },
+    {
+      "date": "2026-11-01",
+      "formulary": "all_saints",
+      "source_id": "all-saints-2026",
+      "scope": "vietnam",
+      "mass_option": "day"
+    }
   ],
   "season_and_hours": {
     "year": 2026,
     "lent_starts_on": "2026-02-18",
     "ash_wednesday_hours_on": "2026-02-18",
     "ash_wednesday_mass_on": "2026-02-20",
-    "source_ids": ["ash-2026", "proclamation-2026"]
+    "source_ids": [
+      "ash-2026",
+      "proclamation-2026"
+    ]
   },
   "proclaimed_dates": [
-    { "date": "2026-04-05", "observance": "easter_sunday", "source_id": "proclamation-2026" },
-    { "date": "2026-05-24", "observance": "pentecost_sunday", "source_id": "proclamation-2026" },
-    { "date": "2026-06-07", "observance": "most_holy_body_and_blood_of_christ", "source_id": "proclamation-2026" },
-    { "date": "2026-11-22", "observance": "our_lord_jesus_christ_king_of_the_universe", "source_id": "proclamation-2026" },
-    { "date": "2026-11-29", "observance": "advent_1_sunday", "source_id": "proclamation-2026" }
+    {
+      "date": "2026-04-05",
+      "observance": "easter_sunday",
+      "source_id": "proclamation-2026"
+    },
+    {
+      "date": "2026-05-24",
+      "observance": "pentecost_sunday",
+      "source_id": "proclamation-2026"
+    },
+    {
+      "date": "2026-06-07",
+      "observance": "most_holy_body_and_blood_of_christ",
+      "source_id": "proclamation-2026"
+    },
+    {
+      "date": "2026-11-22",
+      "observance": "our_lord_jesus_christ_king_of_the_universe",
+      "source_id": "proclamation-2026"
+    },
+    {
+      "date": "2026-11-29",
+      "observance": "advent_1_sunday",
+      "source_id": "proclamation-2026"
+    }
   ],
   "conditional_dates": [
     {
       "observance": "ascension_of_the_lord",
-      "dates": ["2026-05-14", "2026-05-17"],
+      "dates": [
+        "2026-05-14",
+        "2026-05-17"
+      ],
       "source_id": "proclamation-2026",
-      "status": "template-mentions-both-schedules-territorial-applicability-and-default-not-established"
+      "status": "template-mentions-both-schedules-owner-chose-sunday-2026-11-11-no-national-default-exists"
     }
   ],
   "unresolved": [
-    "Complete approved national calendar and lectionary editions, historical applicability and source contract",
-    "Territorial/default applicability of the Ascension schedules, without assuming a diocesan overlay",
-    "National authority and default formulary for the Vietnamese Martyrs external solemnity on 2026-11-15",
-    "Permitted Gospel sets and first full options from the approved lectionary, separately from calendar facts",
-    "Other national propers, lunar-calendar computations, precedence and year-specific directives",
-    "Complete national resolution beyond the explicit 2026 pilot subset; its Mass/season separation is implemented, but it is not a full national or Hours calendar"
+    "Approved national lectionary editions and option pages; historical applicability beyond 2026",
+    "Primary decree texts for the Vietnamese Martyrs solemnity (CD 878/90) and the HĐGMVN 4-1991 external-solemnity permission",
+    "Tết day 1 2026, Rosary and Mission Sunday defaults",
+    "Other national propers and universal-calendar updates missing from the pinned beta provider",
+    "Hours are not implemented"
+  ],
+  "diocesan_sources": [
+    {
+      "id": "hanoi-jan-2026",
+      "kind": "official-diocesan-publication-not-a-national-directive",
+      "diocese": "ha-noi",
+      "authority": "Tổng Giáo phận Hà Nội",
+      "title": "Lịch phụng vụ tháng Giêng 2026",
+      "url": "https://www.tonggiaophanhanoi.org/thang-gieng-2026/",
+      "requested_at": "2026-11-11T03:12:13Z",
+      "sha256": "3a128fc6486fd5eb8575aab28f07240066e08aea1dabdede2e91b8a23e46c59a"
+    },
+    {
+      "id": "hanoi-nov-2026",
+      "kind": "official-diocesan-publication-not-a-national-directive",
+      "diocese": "ha-noi",
+      "authority": "Tổng Giáo phận Hà Nội",
+      "title": "Lịch phụng vụ tháng Mười Một 2026",
+      "url": "https://www.tonggiaophanhanoi.org/thang-muoi-mot-2026/",
+      "requested_at": "2026-11-11T03:10:54Z",
+      "sha256": "fbeb3853eb66db66d5f92703c0b3f2375dbf912f5cd4983a74e2f30573d8e631"
+    },
+    {
+      "id": "vinh-long-pdf",
+      "kind": "official-diocesan-publication-not-a-national-directive",
+      "diocese": "vinh-long",
+      "authority": "Tòa Giám mục Vĩnh Long",
+      "title": "Lịch Công Giáo Năm Phụng Vụ 2025-2026, Năm A",
+      "url": "https://giaophanvinhlong.net/wp-content/uploads/2025/12/38e8267e-b839-4990-9ec9-005af8333e3f.pdf",
+      "requested_at": "2026-11-10T09:27:45.927515+00:00",
+      "sha256": "5edb7a2b8d9c4758464dc0530ca77b01310fd8a3d10fb4868dc878eacbde68b8"
+    },
+    {
+      "id": "hdgm-phanthiet-may-2026",
+      "kind": "official-diocesan-publication-not-a-national-directive",
+      "diocese": "phan-thiet",
+      "authority": "Giáo phận Phan Thiết (đăng trên hdgmvietnam.com)",
+      "title": "Thư Mục vụ tháng 5/2026",
+      "url": "https://hdgmvietnam.com/chi-tiet/giao-phan-phan-thiet-thu-muc-vu-thang-52026",
+      "requested_at": "2026-11-11T03:10:15Z",
+      "sha256": "14c78227a6416513be11b8e149e83ea038bc7faf39449a597c3bc03b7c602ada"
+    }
+  ],
+  "diocesan_facts": [
+    {
+      "date": "2026-01-04",
+      "identity": "epiphany_of_the_lord",
+      "source_ids": [
+        "hanoi-jan-2026",
+        "vinh-long-pdf"
+      ]
+    },
+    {
+      "date": "2026-05-17",
+      "identity": "ascension_of_the_lord",
+      "source_ids": [
+        "vinh-long-pdf",
+        "hdgm-phanthiet-may-2026"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "identity": "ordinary_time_33_sunday",
+      "source_ids": [
+        "hanoi-nov-2026",
+        "vinh-long-pdf"
+      ]
+    },
+    {
+      "date": "2026-11-24",
+      "identity": "andrew_dung_lac_priest_and_companions_martyrs",
+      "source_ids": [
+        "hanoi-nov-2026",
+        "vinh-long-pdf"
+      ]
+    }
   ]
 }

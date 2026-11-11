@@ -6,6 +6,7 @@
   "calendar_id": "vietnam",
   "mass_option": "day",
   "rules_version": "vietnam-national-pilot-2026-0db4f1f3fdf6cd9a137a",
+  "rules_version_note": "The version these seven reviews were first made under. It is superseded; every entry was explicitly re-reviewed under the version recorded in vietnam-baseline-reviews.json, with new actual review times. Nothing here was relabeled.",
   "captures_file": "vietnam-content-captures.json",
   "earlier_reviews_file": "vietnam-pilot-reading-evidence.json",
   "review_timestamp_meaning": "Actual temporary-database review times, not evidence dates or request/crawl times. Reapplication does not refresh them.",
@@ -165,7 +166,8 @@
     }
   ],
   "rule_findings": {
-    "status": "evidence-only-no-definition-or-rules-version-change",
+    "status": "evidence-recorded-2026-11-11-then-acted-on-by-owner-decisions-the-same-day",
+    "owner_decisions_2026_11_11": "Sunday XXXIII on November 15; Ascension on Sunday; agreeing official diocesan calendars accepted as evidence; General Roman baseline for dates without a known Vietnamese rule. Definitions are in vietnam-pilot-2026.json, reviews in vietnam-baseline-reviews.json.",
     "note": "Findings from 17 captured requests on 2026-11-11 (all HTTP 200; 15 fingerprinted in the captures file, the gcatholic aggregator and one unrelated HĐGMVN page were not used) plus four uncaptured tool fetches. Diocesan publications are evidence about national law they cite, not national directives; the pilot exporter still accepts only hdgmvietnam.com directive facts, so no date below became a supported definition. A separate Đà Lạt page on the canonization legal texts returned 403 and was not bypassed; one Qui Nhơn PDF URL now serves an unrelated HTML page.",
     "martyrs_2026_11_15": {
       "sources": [
@@ -177,7 +179,7 @@
         "hdgm-sunday33-2023"
       ],
       "finding": "The Hà Nội archdiocesan calendar keeps Sunday XXXIII in Ordinary Time (Mt 25,14-30) as the day's Mass and adds that the Vietnamese Martyrs may be solemnly celebrated 'tùy theo nhu cầu mục vụ', citing HĐGMVN 4-1991. Vĩnh Long lists both. HĐGMVN's own site published the Martyrs Mass for Sunday 33 in 2018, 2021 and 2025 and the Sunday Mass in 2023.",
-      "status": "external-solemnity-is-permitted-not-prescribed-per-cited-HĐGMVN-4-1991-act-itself-not-obtained-site-default-needs-owner-decision"
+      "status": "external-solemnity-is-permitted-not-prescribed-per-cited-HĐGMVN-4-1991-act-itself-not-obtained-owner-chose-the-sunday-2026-11-11"
     },
     "martyrs_2026_11_24": {
       "sources": [
@@ -186,7 +188,7 @@
         "vinh-long-pdf"
       ],
       "finding": "Hà Nội prints rank 'Trọng' for Thánh An-rê Dũng Lạc và các bạn tử đạo on November 24; Vĩnh Long prints 'Lễ trọng' citing CD 878/90. Uncaptured secondary summaries only: a 2009 Sài Gòn article reportedly dates a Congregation decree to 14-02-1990 with rank 'Lễ Kính' and no protocol number, and a search summary reports HĐGMVN obtaining solemnity rank in 1991. Neither is fingerprinted evidence, and the decree text itself was not obtained.",
-      "status": "solemnity-rank-consistently-published-by-two-official-diocesan-calendars-primary-decree-not-obtained-not-a-supported-definition"
+      "status": "solemnity-rank-consistently-published-by-two-official-diocesan-calendars-primary-decree-not-obtained-supported-under-the-owner-diocesan-evidence-rule"
     },
     "martyrs_proper_gospels": {
       "sources": [
@@ -200,7 +202,7 @@
         "Ga 17,11b-19"
       ],
       "finding": "Four listings give the same proper set and order; Hải Phòng credits Nhóm Phiên Dịch CGKPV. The Vĩnh Long statement that readings come from the Commons is a different description of the same formulary and is not reconciled here.",
-      "status": "first-listed-option-consistent-no-entry-approved-because-no-definition-is-supported"
+      "status": "first-listed-option-consistent-Lc-9,23-26-reviewed-for-november-24"
     },
     "ascension_2026": {
       "sources": [
@@ -211,7 +213,7 @@
         "hdgm-ascension-2026"
       ],
       "finding": "Hà Nội keeps Thursday May 14 as an obligatory solemnity and May 17 as Easter Sunday VII. Vĩnh Long and Phan Thiết keep Ascension on Sunday May 17. Bắc Ninh's notes state such solemnities may be kept on the day or moved to Sunday.",
-      "status": "confirmed-diocesan-variation-no-national-default-exists-to-find-site-default-needs-owner-decision"
+      "status": "confirmed-diocesan-variation-no-national-default-exists-owner-chose-sunday-2026-11-11"
     },
     "epiphany_2026": {
       "sources": [
@@ -219,7 +221,7 @@
         "vinh-long-pdf"
       ],
       "finding": "Both located 2026 calendars keep Epiphany on Sunday January 4. No national 2026 directive naming the date was located.",
-      "status": "consistent-diocesan-practice-no-primary-national-fact-captured-still-unsupported"
+      "status": "consistent-diocesan-practice-no-primary-national-fact-captured-supported-under-the-owner-diocesan-evidence-rule"
     }
   },
   "text_repair": {

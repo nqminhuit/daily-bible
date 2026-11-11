@@ -21,7 +21,7 @@ Calendar namespaces and maintenance availability:
 | Namespace | Definitions | Status |
 | --- | --- | --- |
 | `roman-general` | Romcal General Roman; Epiphany January 6, Ascension/Corpus Christi Thursday | Candidate evaluation, not production approval |
-| `vietnam` | Reviewed national definitions with their own version; explicit partial 2026 pilot available | Automatic Romcal export/derived cache **blocked**; pilot is evaluation-only |
+| `vietnam` | 2026 pilot: sourced decisions over the owner-approved General Roman baseline, own version | Automatic Romcal export/derived cache **blocked**; pilot is evaluation-only |
 
 The pinned Vietnam plugin places the Vietnamese Martyrs on November 13 and
 leaves November 24 as a weekday. `vietnam` manifests/reusable reviews and derived
@@ -39,9 +39,9 @@ complete national calendar or production-ready archive. Its request timestamps/c
 responses, not review times or immutable dated Gospel pages. See the
 [research continuation](calendar-research.md#confirmed-target-and-primary-national-guidance--2026-11-10).
 
-The [content continuation](vietnam-content-audit.md) has nine renderable pilot
-dates, no pending review and 356 unsupported definitions on a temporary
-copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
+On 2026-11-11 the owner further approved: the **General Roman calendar as baseline** for dates with no known Vietnamese rule, **Ascension on Sunday**, **Sunday XXXIII on November 15** (the Martyrs celebration that day is optional), and **agreeing official calendars of two dioceses as evidence** where no HĐGMVN directive is captured. These are editorial choices; baseline days are labelled as such, never as national directives.
+
+The [content continuation](vietnam-content-audit.md) has 233 renderable pilot dates, 13 with missing text, 114 unreviewed and 5 unsupported definitions on a temporary copy. Its [source contract/review ledger](vietnam-content-review.json) explicitly
 keeps the found Vĩnh Long Ordo diocesan and a publisher's 2017 lectionary catalogue
 separate from approval, authorized option ordering and national-calendar scope.
 Neither document is an importable manifest or automatic approval source.

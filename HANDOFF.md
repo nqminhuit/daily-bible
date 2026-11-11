@@ -2,18 +2,20 @@
 
 Updated **2026-11-11**, Asia/Ho_Chi_Minh. This is the current handoff, not a restoration of the obsolete review documents.
 
-## 2026-11-11 update (wins over any older statement below)
+## Current state — 2026-11-11 (wins over any older statement below)
 
-- **Pilot is now 9 renderable / 0 unreviewed / 356 unsupported.** Mồng Ba Tết was explicitly reviewed as `Mt 25,14-30` at `2026-11-11T03:13:10Z`: first-listed on the dated HĐGMVN page, listed alone by Hà Nội, Vĩnh Long and a CGKPV-credited Hải Phòng reproduction. `Ga 5,16-20` stays a recorded alternative. The lectionary's own pages were still not inspected; use `-replace-entry` if the book disagrees.
-- Definitions and rules version are unchanged. Current temporary DB: `build/vietnam-rules-2026-11-11/audit.db` (ignored; SHA-256 `7da1e3dedcfd6bc2dbd43d60d447dc72e11ba8ae42ad43a30faf6f93ea65c613`), ten review records, nine active mappings, 2,922 verse rows. Captures and request log sit beside it.
-- **Two blockers are owner decisions, not missing documents.** Do not keep searching for a national default that does not exist:
-  1. **November 15**: Hà Nội's official calendar keeps Sunday XXXIII (`Mt 25,14-30`) and says the Martyrs *may* be solemnly celebrated "tùy theo nhu cầu mục vụ (HĐGMVN, 4-1991)". HĐGMVN's site published the Martyrs Mass on Sunday 33 in 2018/2021/2025 and the Sunday Mass in 2023. The owner must choose the site default; the written policy ("no optional celebration") points to the Sunday.
-  2. **Ascension**: Hà Nội keeps Thursday May 14 (obligatory); Vĩnh Long and Phan Thiết keep Sunday May 17; Bắc Ninh says either. The owner must choose Thursday or Sunday for a no-diocese site.
-- **November 24** is printed as a solemnity by Hà Nội and Vĩnh Long (CD 878/90) with `Lc 9,23-26` first, `Ga 17,11b-19` second (also Hải Phòng, Huế). It stays unsupported because `vietnam-pilot.cjs` accepts only hdgmvietnam.com directive facts and the decree was not obtained. Accepting official diocesan calendars as evidence of cited national law is a third owner decision and would change the rules version (all nine entries then need explicit re-review).
-- Epiphany January 4 (Sunday) agrees in Hà Nội and Vĩnh Long, with no primary national 2026 fact. Unsupported.
-- **The backend branch is on origin**: `origin/fix/date-verified-mass-readings` equalled local `5483740` after a fresh fetch on November 11. The older "nothing pushed" statements below are wrong for the backend. The frontend worktree has no upstream. Nothing was deployed; this session pushed nothing.
-- This session: 17 captured requests (all 200) plus four tool fetches; Đà Lạt returned 403 and was not bypassed. 19 calendar tests pass. Frontend repo docs still describe the Tết default as pending.
-- Details: `data/vietnam-content-audit.md` (last section) and `rule_findings` in `data/vietnam-content-review.json`.
+- **Owner decisions made on 2026-11-11. Do not ask again:** Sunday XXXIII on November 15; Ascension on Sunday; agreeing official calendars of two dioceses count as evidence; the General Roman calendar is the baseline for dates with no known Vietnamese rule.
+- **Pilot on the temporary copy: 233 renderable / 13 missing text / 114 unreviewed / 5 unsupported**, rules version `vietnam-national-pilot-2026-65af9d5b44eebbca1149`, 2026 only. Not activated; both shipped databases unchanged (`e4cbcfe5…`); nothing deployed.
+- Current DB: `build/vietnam-baseline-2026-11-11/audit.db` (ignored; SHA-256 `7834c4d5b0886f64a94fc8e3336f90b8ae439a01dd7ac5d3d9ae51f82bb92175`). Manifest, reports, review plan, captures and matching scripts sit beside it. `build/vietnam-rules-2026-11-11/` is the earlier nine-date copy.
+- 246 explicit entry reviews: 14 individual, 232 by the two-calendar rule (Hà Nội Gospel found inside Vĩnh Long's entry for the same date). Ledger: `data/vietnam-baseline-reviews.json`. Mồng Ba Tết is `Mt 25,14-30`.
+- **Next work, in order:**
+  1. Repair the 13 missing-text passages through the verse crawler/TSV pipeline (list in the last section of `data/vietnam-content-audit.md`).
+  2. Review the 114 unreviewed dates: retry the Hà Nội July page (HTTP 520 three times on November 11), wait for its December page, and hand-check the 52 other dates where the two calendars differ or the parser missed.
+  3. Owner calls still open: February 17 (Tết day 1: Hà Nội assigns it, Vĩnh Long only permits it), October 4 (Rosary), October 18 (Mission Sunday), June 11 (both calendars print `Mt 10,6-13`, the lectionary table says `Mt 10,7-13`).
+  4. Then other years, snapshots, rollback and activation. Each year needs its own definitions; the exporter rejects anything but 2026.
+- Not obtained: the Martyrs decree (CD 878/90), the HĐGMVN 4-1991 act, the approved lectionary's pages. Đà Lạt returned 403; not bypassed.
+- **Git:** the backend branch is on origin at `5483740`; later commits are local only. The frontend worktree has no upstream and its docs still describe the old nine-date pilot. This session pushed nothing.
+- Validation this session: Go tests, race, Staticcheck, 22 calendar tests, 24 frontend tests, CLI/frontend parity on 367 dates, idempotent re-review. Lint, production build and page smoke tests were not rerun. Go tests fail if `DB_PATH`/`READING_CALENDAR` are exported in the shell; unset them first.
 
 ## Read this first
 

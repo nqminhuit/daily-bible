@@ -18,7 +18,7 @@ function assertDate(value) {
 test('national source dossier retains evidence without becoming a calendar or Gospel approval', () => {
   assert.equal(dossier.schema_version, 1);
   assert.equal(dossier.purpose, 'national-calendar-source-dossier');
-  assert.equal(dossier.status, 'partial-primary-rule-facts-not-an-executable-calendar');
+  assert.equal(dossier.status, 'partial-primary-rule-facts-plus-owner-approved-baseline-and-diocesan-evidence');
   assert.equal(dossier.gospel_entry_schema, undefined);
   assert.equal(dossier.days, undefined);
   const sources = new Map(dossier.sources.map(source => [source.id, source]));
@@ -88,12 +88,29 @@ test('2026 Ash Mass transfer does not transfer Lent, the Hours or Easter', async
   assert.equal(roman.days.find(day => day.date === easter.date).observance, 'easter_sunday');
 });
 
-test('conditional Ascension template does not select an unsupported national default', () => {
+test('Ascension on Sunday is an owner choice with diocesan evidence, never a national directive', () => {
   const fact = dossier.conditional_dates.find(day => day.observance === 'ascension_of_the_lord');
   assert.deepEqual(fact.dates, ['2026-05-14', '2026-05-17']);
-  assert.equal(fact.status,
-    'template-mentions-both-schedules-territorial-applicability-and-default-not-established');
+  assert.match(fact.status, /owner-chose-sunday-2026-11-11-no-national-default-exists/);
+  assert.equal(dossier.target_policy.ascension, 'sunday-owner-decision-2026-11-11');
   assert.equal(dossier.mass_assignments.some(day => fact.dates.includes(day.date)), false);
+  assert.equal(dossier.proclaimed_dates.some(day => fact.dates.includes(day.date)), false);
+});
+
+test('diocesan sources stay separate from national directives and need two dioceses per fact', () => {
+  const national = new Set(dossier.sources.map(source => source.id));
+  const diocesan = new Map(dossier.diocesan_sources.map(source => [source.id, source]));
+  for (const source of diocesan.values()) {
+    assert.ok(!national.has(source.id));
+    assert.equal(source.kind, 'official-diocesan-publication-not-a-national-directive');
+    assert.equal(new URL(source.url).protocol, 'https:');
+    assert.match(source.sha256, /^[a-f0-9]{64}$/);
+  }
+  for (const fact of dossier.diocesan_facts) {
+    assertDate(fact.date);
+    assert.equal(fact.gospel_ref, undefined);
+    assert.ok(new Set(fact.source_ids.map(id => diocesan.get(id).diocese)).size >= 2);
+  }
 });
 
 test('owner-approved target does not authorize Vietnam provider activation', async () => {

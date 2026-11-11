@@ -198,3 +198,46 @@ The pilot exporter accepts only HĐGMVN directive facts, and none of the followi
 | Epiphany | Hà Nội and Vĩnh Long: Sunday January 4. | No primary national 2026 fact captured. Unsupported. |
 
 Seventeen captured requests all returned 200. A Đà Lạt page on the canonization legal texts returned **403** and was not bypassed; a Qui Nhơn Ordo PDF URL now serves an unrelated page. Artifacts: `build/vietnam-rules-2026-11-11/` (ignored): captures, request log, `audit.db`, before/after/repeat reports and review logs.
+
+## Baseline continuation — 2026-11-11 (later the same day)
+
+The owner then decided four things: **Sunday XXXIII on November 15**, **Ascension on Sunday**, **agreeing official diocesan calendars count as evidence**, and **the General Roman calendar is the baseline for dates with no known Vietnamese rule**. These are site editorial choices, not ecclesiastical acts. The section above describes the state before them.
+
+Result on a new temporary copy, rules version `vietnam-national-pilot-2026-65af9d5b44eebbca1149`:
+
+| Status | Dates |
+| --- | ---: |
+| Renderable | **233** |
+| Reviewed, verse text missing | 13 |
+| Supported definition, Gospel unreviewed | 114 |
+| Unsupported definition | 5 |
+
+Still 2026 only, still a temporary copy. Both shipped databases are unchanged and nothing is activated.
+
+### Definitions
+
+`vietnam-pilot.cjs` now builds on the pinned provider with Epiphany, Ascension and Corpus Christi on Sunday. Thirteen dates carry explicit decisions: the nine earlier national ones plus Epiphany January 4, Ascension May 17, Sunday XXXIII November 15 and the Martyrs solemnity November 24. The four new ones cite two official calendars of different dioceses; the exporter rejects a diocesan decision with fewer. Every other supported date is labelled as owner-approved baseline with the provider as its source, never as a national directive.
+
+Unsupported: Holy Thursday and Holy Saturday (no generic daytime Mass), February 17 (Hà Nội assigns the Tết Mass, Vĩnh Long only permits it), October 4 (Rosary external solemnity in Hà Nội) and October 18 (Mission Sunday).
+
+### Gospel reviews
+
+All earlier approvals were invalidated by the new version, as designed. 246 explicit entry reviews were made, each with its own evidence URL, date and note; the full list with actual review times is in [`vietnam-baseline-reviews.json`](vietnam-baseline-reviews.json).
+
+- **14 individual**: the nine earlier entries re-reviewed unchanged, plus `Mt 2,1-12` (Epiphany), `Ga 15,9-17` (Saint Matthias, May 14), `Mt 28,16-20` (Ascension), `Mt 25,14-30` (November 15) and `Lc 9,23-26` (November 24).
+- **232 by a two-calendar rule**, applied by script: the Hà Nội calendar's Gospel for the date must also appear inside the Vĩnh Long Ordo's entry for that same date. A typo or a different celebration in either calendar fails the match and leaves the date unreviewed. This is agreement between two independent official calendars, not a majority vote or a crawl result, but it is machine matching: the approved lectionary was not inspected and no wording was certified.
+
+One agreeing pair was withheld: both calendars print `Mt 10,6-13` for Saint Barnabas (June 11) where the lectionary table gives `Mt 10,7-13`.
+
+The reviews also expose the legacy store: on 34 reviewed dates the old stored reference differs, almost always a saint's Gospel filed on the wrong day (for example Saint Lawrence's `Ga 12,24-26` on August 8 and 12, not August 10).
+
+### What is left
+
+- **114 unreviewed**: all of July (the Hà Nội page returned HTTP 520 three times) and December (not yet published for the new year) account for 62. The other 52 are dates where the two calendars differ, one has a typo, or the parser found no single reading line.
+- **13 missing text**: `Mt 1,16.18-21.24a`, `Ga 3,7b-15`, `Ga 14,27-31a`, `Ga 15,26-16,4a`, `Ga 16,20-23a`, `Ga 17,1-11a`, `Ga 17,11b-19`, `Mc 12,28b-34`, `Mt 18,21-19,1`, `Mt 20,1-16a`, `Lc 6,20-26`, `Lc 7,31-35`, `Lc 9,43b-45`. They need the verse pipeline, not more reviews.
+
+### Validation
+
+Go tests, race suite and Staticcheck pass; 22 calendar tests and 24 frontend tests pass. CLI and frontend resolver agree with the ledger on all 367 checked dates (the year plus one day either side). Reapplying all 246 reviews added no history and the repeat audit is byte-identical. Integrity and foreign-key checks pass; 2,191 legacy date rows, 2,922 verse rows and 15 observations are unchanged. Lint, the production build and page-level smoke tests were not rerun; no frontend or Go runtime code changed.
+
+Artifacts: `build/vietnam-baseline-2026-11-11/` (ignored): `audit.db` (SHA-256 `7834c4d5b0886f64a94fc8e3336f90b8ae439a01dd7ac5d3d9ae51f82bb92175`), manifest, reports, review plan and log, captures and the matching scripts. 27 captured requests this day, no daily crawl.

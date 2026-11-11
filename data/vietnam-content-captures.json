@@ -160,5 +160,41 @@
     "requested_at": "2026-11-11T03:12:13Z",
     "sha256": "3a128fc6486fd5eb8575aab28f07240066e08aea1dabdede2e91b8a23e46c59a",
     "text_sha256": "885d694df232a17d7040e01797cc8765ff7fbdc864eb939e6375411efa3efda0"
+  },
+  "hanoi-mar-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-ba-2026/",
+    "requested_at": "2026-11-11T03:31:27Z",
+    "sha256": "e62c71a3cf3b730249e35e44eb5945f8fd76da0dbb80e4ae86701b9fd44c7cc0",
+    "text_sha256": "072fecb79e77714c453d7c9f567a4bbeb8f379d417efc783218127923ddf4e1e"
+  },
+  "hanoi-apr-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-tu-2026/",
+    "requested_at": "2026-11-11T03:31:29Z",
+    "sha256": "3baf2275d6a71eb41ff6dc392f2554dd6d06179794f98977b3b407daea5c3102",
+    "text_sha256": "ed87a5b0607d54a1f75bc7f399a1ae46f2d1b4d4afafa1eb3903f020fc4c62f3"
+  },
+  "hanoi-jun-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-sau-2026/",
+    "requested_at": "2026-11-11T03:31:30Z",
+    "sha256": "9d202de5989697bd5fdcfe7df89daca23f3139b6a44662fbd323e5e02fe20cd1",
+    "text_sha256": "3317af4a86673c2bc2738a0c1e4494241af08a86a4b0ae348043c638d268be32"
+  },
+  "hanoi-aug-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-tam-2026/",
+    "requested_at": "2026-11-11T03:31:33Z",
+    "sha256": "77134c006ab8e4db2734177de596b72883a7a612a47a88eb87d8cd72dbc5e32d",
+    "text_sha256": "efcc5c1b945700cf1a97fcb13f4d92256ada01861530be4530077566357fa32d"
+  },
+  "hanoi-sep-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-chin-2026/",
+    "requested_at": "2026-11-11T03:31:35Z",
+    "sha256": "bee0a2a3072c2b72a605fc3f91a5890bc85386d9b9093160a7012885271b2837",
+    "text_sha256": "097d5bd51a516ec598353646a094e795258510b7161b8cf88d6e79408e4a0b93"
+  },
+  "hanoi-oct-2026": {
+    "url": "https://www.tonggiaophanhanoi.org/thang-muoi-2026/",
+    "requested_at": "2026-11-11T03:31:36Z",
+    "sha256": "87a8ac62a862b46227d37a9a12e51bb4804f7088c2d8b7fb08297954f12a7f91",
+    "text_sha256": "28884d47daf95b26c4e8afbdeaa069ea123541ae4dac91deab900bad9b40e7b9"
   }
 }

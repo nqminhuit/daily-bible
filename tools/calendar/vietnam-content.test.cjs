@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const review = require('../../data/vietnam-content-review.json');
 const captures = require('../../data/vietnam-content-captures.json');
 const rules = require('../../data/vietnam-pilot-2026.json');
+const baseline = require('../../data/vietnam-baseline-reviews.json');
 
 test('content reviews retain actual captures and do not become automatic calendar approvals', () => {
   assert.equal(review.auto_approve, false);
@@ -77,19 +78,42 @@ test('text repair covers only five explicitly reviewed rows, not a chapter or an
   assert.match(r.remaining_missing_range, /24-32 remains absent/);
 });
 
-test('diocesan rule findings stay evidence and never become supported national definitions', () => {
+test('rule findings are captured evidence and the later owner decisions are explicit', () => {
   const f = review.rule_findings;
-  assert.equal(f.status, 'evidence-only-no-definition-or-rules-version-change');
-  assert.equal(review.rules_version, 'vietnam-national-pilot-2026-0db4f1f3fdf6cd9a137a');
-  for (const date of ['2026-01-04', '2026-05-14', '2026-05-17', '2026-11-15', '2026-11-24']) {
-    assert.ok(rules.unsupported[date]);
-    assert.ok(!rules.decisions.some(d => d.date === date));
-    assert.ok(!review.reviews.some(r => r.date === date));
+  assert.match(f.status, /acted-on-by-owner-decisions/);
+  assert.match(review.rules_version_note, /superseded.*re-reviewed/);
+  assert.notEqual(baseline.rules_version, review.rules_version);
+  for (const date of ['2026-01-04', '2026-05-17', '2026-11-15', '2026-11-24']) {
+    assert.equal(rules.decisions.find(d => d.date === date).evidence, 'diocesan');
   }
-  assert.match(f.martyrs_2026_11_15.status, /needs-owner-decision/);
-  assert.match(f.ascension_2026.status, /needs-owner-decision/);
+  assert.ok(rules.unsupported['2026-02-17']);
   assert.deepEqual(f.martyrs_proper_gospels.refs_in_listed_order, ['Lc 9,23-26', 'Ga 17,11b-19']);
   for (const finding of Object.values(f).filter(v => v.sources)) {
     for (const id of finding.sources) assert.ok(captures[id], id);
   }
+});
+
+test('baseline review ledger is a record of explicit temporary-copy reviews, not an importable approval', () => {
+  assert.equal(baseline.auto_approve, false);
+  assert.match(baseline.purpose, /not-an-importable-approval/);
+  assert.equal(baseline.days, undefined);
+  const dates = new Set();
+  const earlier = JSON.stringify(require('../../data/vietnam-pilot-reading-evidence.json'));
+  const captured = new Set(Object.values(captures).map(c => c.url));
+  for (const url of baseline.evidence_urls) assert.ok(captured.has(url) || earlier.includes(JSON.stringify(url)), url);
+  for (const [date, ref, kind, url, evidenceDate, reviewedAt, status] of baseline.reviews) {
+    assert.match(date, /^2026-\d{2}-\d{2}$/);
+    assert.ok(!dates.has(date));
+    dates.add(date);
+    assert.match(ref, /^(Mt|Mc|Lc|Ga) \d/);
+    assert.ok(kind === 'individual' || kind === 'agreement');
+    assert.ok(baseline.evidence_urls[url]);
+    if (kind === 'agreement') assert.equal(evidenceDate, date);
+    assert.ok(Date.parse(reviewedAt) >= Date.parse('2026-11-11T00:00:00Z'));
+    assert.ok(['calendar_resolved', 'calendar_resolved_legacy_difference', 'missing_text'].includes(status));
+    assert.ok(!rules.unsupported[date]);
+  }
+  assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 14);
+  for (const date of baseline.not_reviewed.unreviewed_dates) assert.ok(!dates.has(date));
+  assert.equal(dates.size + baseline.not_reviewed.unreviewed_dates.length + baseline.not_reviewed.unsupported_dates.length, 365);
 });
