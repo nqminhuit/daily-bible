@@ -17,7 +17,7 @@
   "weekday": "a memorial marked weekday:true, and any memorial not listed, reads the weekday entry"
  },
  "test_2026_reviews": {
-  "agree": 322,
+  "agree": 321,
   "uncovered": 0,
   "contradict": [
    [
@@ -61,6 +61,13 @@
     "Lc 9,18-22",
     "ordinary_time_25_friday",
     "other"
+   ],
+   [
+    "2026-05-25",
+    "Ga 19,25-34",
+    "Ga 19,25-27",
+    "mary_mother_of_the_church",
+    "missing text for 28-30"
    ]
   ]
  },
@@ -1049,9 +1056,14 @@
    ]
   },
   "observance:mary_mother_of_the_church": {
-   "ref": "Ga 19,25-34",
-   "evidence": [],
-   "decision": "Reviewed 2026 date (individual review). Four pages print Ga 19,25-27 and two print the weekday. Open: pages and review differ on the last verse."
+   "ref": "Ga 19,25-27",
+   "evidence": [
+    "2021-05-24",
+    "2024-05-20",
+    "2025-06-09",
+    "2026-05-25"
+   ],
+   "decision": "Four dated pages (2021, 2024, 2025, 2026) print Ga 19,25-27, which has complete text. The reviewed 2026 date says Ga 19,25-34, but verses 28-30 exist only in the Passion narrative, which the importer cannot read yet; switch to 25-34 when Passion text is supported."
   },
   "observance:matthew_apostle": {
    "ref": "Mt 9,9-13",

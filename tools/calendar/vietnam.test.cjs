@@ -58,7 +58,7 @@ test('rules version is independent of the requested years and years are bounded'
   }
 });
 
-test('the committed 2026 reviews agree with the table except six known dates', async () => {
+test('the committed 2026 reviews agree with the table except seven known dates', async () => {
   const days = await byDate();
   const differing = [];
   for (const [date, ref] of baseline.reviews) {
@@ -67,7 +67,7 @@ test('the committed 2026 reviews agree with the table except six known dates', a
     const entry = entries[key];
     if (!entry || entry.ref !== ref) differing.push(date);
   }
-  assert.deepEqual(differing, ['2026-02-02', '2026-02-18', '2026-02-19', '2026-02-20', '2026-09-08', '2026-09-25']);
+  assert.deepEqual(differing, ['2026-02-02', '2026-02-18', '2026-02-19', '2026-02-20', '2026-05-25', '2026-09-08', '2026-09-25']);
 });
 
 test('filling an uncovered Sunday entry does not change the rules version', async () => {
