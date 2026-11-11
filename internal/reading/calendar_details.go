@@ -47,7 +47,7 @@ func decodeCalendarDefinition(payload, key, date, calendar string) (lectionary.C
 }
 
 func requiresCalendarDetails(calendar, version string) bool {
-	return calendar == "vietnam" && strings.HasPrefix(version, "vietnam-national-pilot-")
+	return calendar == "vietnam"
 }
 
 func enrichCalendarMetadata(ctx context.Context, db *sql.DB, m *Metadata) error {

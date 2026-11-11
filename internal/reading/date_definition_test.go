@@ -4,17 +4,17 @@ import "testing"
 
 func TestIndependentDateDecisionSurvivesCorruptAuxiliaryDefinition(t *testing.T) {
 	db := testDB(t)
-	m := pilotManifest()
+	m := vietnamManifest()
 	importManifest(t, db, m)
-	r := EntryReview{CalendarID: m.CalendarID, Date: "2026-02-20", Ref: "Mt 6,1-6.16-18", EvidenceURL: "https://example.test/exact-date", EvidenceDate: "2026-02-20", Note: "Independently reviewed exact date, not derived from calendar metadata"}
-	if err := ReviewDate(t.Context(), db, r, "Exact-date Ash Mass"); err != nil {
+	r := EntryReview{CalendarID: m.CalendarID, Date: martyrsDate, Ref: "Lc 9,23-26", EvidenceURL: "https://example.test/exact-date", EvidenceDate: martyrsDate, Note: "Independently reviewed exact date, not derived from calendar metadata"}
+	if err := ReviewDate(t.Context(), db, r, "Exact-date Martyrs"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := db.Exec(`UPDATE reading_calendar_day_details SET definition_json='broken' WHERE date='2026-02-20'`); err != nil {
+	if _, err := db.Exec(`UPDATE reading_calendar_day_details SET definition_json='broken' WHERE date='2026-11-24'`); err != nil {
 		t.Fatal(err)
 	}
 	got, err := LookupFor(t.Context(), db, r.Date, m.CalendarID, DayMass)
-	if err != nil || got.Ref != r.Ref || got.ResolutionMethod != "source_checked" || got.Celebration != "Exact-date Ash Mass" {
+	if err != nil || got.Ref != r.Ref || got.ResolutionMethod != "source_checked" || got.Celebration != "Exact-date Martyrs" {
 		t.Fatal("auxiliary metadata invalidated independent evidence", got, err)
 	}
 	report, err := Audit(t.Context(), db, m.CalendarID, r.Date, r.Date)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/minh/daily-bible/internal/lectionary"
@@ -97,10 +98,10 @@ func TestReviewQueueKeepsVersionsSeparateAndFlagsInvalidCandidates(t *testing.T)
 func TestManifestRequiresMatchingGospelEntrySchema(t *testing.T) {
 	db := testDB(t)
 	m := testManifest(testDay("2026-11-03", "ordinary_time_31_tuesday", "WEEKDAY", "ordinary_time_31_tuesday", "YEAR_A", "YEAR_2"))
-	for _, version := range []int{0, 1, 2, lectionary.GospelEntrySchemaVersion + 1} {
+	for _, version := range []int{0, 1, 2, 3, lectionary.GospelEntrySchemaVersion + 1} {
 		m.GospelEntrySchema = version
-		if err := ImportCalendar(t.Context(), db, m); err == nil {
-			t.Fatalf("schema %d accepted", version)
+		if err := ImportCalendar(t.Context(), db, m); err == nil || !strings.Contains(err.Error(), "regenerate the manifest") {
+			t.Fatalf("schema %d accepted: %v", version, err)
 		}
 	}
 	var count int

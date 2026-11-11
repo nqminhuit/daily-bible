@@ -24,7 +24,14 @@ func testDB(t *testing.T) *sql.DB {
 	return db
 }
 func testDay(date, id, rank, temporal, sc, wc string) lectionary.CalendarDay {
-	return lectionary.CalendarDay{Date: date, Observance: id, Rank: rank, Temporal: temporal, SundayCycle: sc, WeekdayCycle: wc, SourceURL: "https://example.test/calendar", ReviewNote: "Reviewed calendar rule fixture"}
+	entry := "observance:" + id
+	if id == temporal {
+		entry = "temporal:" + id
+		if rank == "SUNDAY" {
+			entry += ":" + sc
+		}
+	}
+	return lectionary.CalendarDay{Date: date, Observance: id, Rank: rank, Temporal: temporal, SundayCycle: sc, WeekdayCycle: wc, GospelEntry: entry, SourceURL: "https://example.test/calendar", ReviewNote: "Reviewed calendar rule fixture"}
 }
 func testManifest(days ...lectionary.CalendarDay) CalendarManifest {
 	return CalendarManifest{GospelEntrySchema: lectionary.GospelEntrySchemaVersion, CalendarID: "roman-general", RulesVersion: "test-v1", SourceURL: "https://example.test/calendar", Days: days}
@@ -48,6 +55,9 @@ func TestProperReferenceReusedAcrossYearsWithoutDatedRows(t *testing.T) {
 		testDay("2025-11-09", "dedication_of_the_lateran_basilica", "FEAST", "ordinary_time_32_sunday", "YEAR_C", "YEAR_1"),
 		testDay("2026-11-09", "dedication_of_the_lateran_basilica", "FEAST", "ordinary_time_32_monday", "YEAR_A", "YEAR_2"),
 		testDay("2027-11-09", "dedication_of_the_lateran_basilica", "FEAST", "ordinary_time_32_tuesday", "YEAR_B", "YEAR_1"))
+	for i := range m.Days {
+		m.Days[i].Celebration = "Cung hiến Thánh đường La-tê-ra-nô"
+	}
 	importManifest(t, db, m)
 	if _, err := LookupFor(t.Context(), db, "2027-11-09", m.CalendarID, DayMass); !errors.Is(err, sql.ErrNoRows) {
 		t.Fatal("manifest alone became evidence", err)

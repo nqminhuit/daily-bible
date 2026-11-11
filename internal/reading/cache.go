@@ -50,19 +50,13 @@ func ImportCalendar(ctx context.Context, db *sql.DB, m CalendarManifest) error {
 		}
 		seen[d.Date] = true
 		e, err := d.Entry()
-		if requiresCalendarDetails(m.CalendarID, m.RulesVersion) && !strings.HasPrefix(d.Date, "2026-") {
-			return fmt.Errorf("national pilot definitions are limited to reviewed year 2026")
-		}
 		if err != nil {
 			return fmt.Errorf("calendar %s: %w", d.Date, err)
 		}
 		if d.SourceURL != "" && !validEvidenceURL(d.SourceURL) {
 			return fmt.Errorf("calendar %s: invalid day evidence URL", d.Date)
 		}
-		if d.Mass != nil && m.CalendarID != "vietnam" {
-			return fmt.Errorf("calendar %s: assigned national Mass requires Vietnam scope", d.Date)
-		}
-		if (m.CalendarID == "vietnam" && e.Key != "") || d.Mass != nil {
+		if m.CalendarID == "vietnam" && e.Key != "" {
 			if !validEvidenceURL(d.SourceURL) || strings.TrimSpace(d.ReviewNote) == "" {
 				return fmt.Errorf("calendar %s: national definition requires its own HTTPS source and review note", d.Date)
 			}
@@ -171,9 +165,6 @@ func ReviewEntry(ctx context.Context, db *sql.DB, r EntryReview) error {
 		if _, err := decodeCalendarDefinition(payload, key, r.Date, r.CalendarID); err != nil {
 			return err
 		}
-	}
-	if expected := lectionary.InvariantGospel(key); expected != "" && !scripture.Equivalent(ref, expected) {
-		return fmt.Errorf("reference disagrees with the reviewed proper Gospel %s", expected)
 	}
 	var previous, previousURL, previousDate, previousNote string
 	err = tx.QueryRowContext(ctx, `SELECT r.gospel_ref,r.evidence_url,COALESCE(r.evidence_date,''),r.review_note FROM reading_entries e JOIN reading_entry_reviews r ON r.id=e.review_id WHERE e.calendar_id=? AND e.rules_version=? AND e.entry_key=? AND e.mass_option=?`, r.CalendarID, version, key, DayMass).Scan(&previous, &previousURL, &previousDate, &previousNote)

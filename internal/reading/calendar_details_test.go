@@ -17,19 +17,19 @@ func TestExistingSupportedCacheWithoutDayDetailsRemainsReadable(t *testing.T) {
 }
 
 func TestCorruptNationalDefinitionCannotServeOrBecomeCrawlCandidate(t *testing.T) {
-	for _, payload := range []string{`broken`, `{"date":"2026-02-20"}`} {
+	for _, payload := range []string{`broken`, `{"date":"2026-11-24"}`} {
 		t.Run(payload, func(t *testing.T) {
 			db := testDB(t)
-			m := pilotManifest()
+			m := vietnamManifest()
 			importManifest(t, db, m)
-			review(t, db, m.CalendarID, "2026-02-20", "Mt 6,1-6.16-18")
-			if _, err := db.Exec(`UPDATE reading_calendar_day_details SET definition_json=? WHERE date='2026-02-20'`, payload); err != nil {
+			review(t, db, m.CalendarID, martyrsDate, "Lc 9,23-26")
+			if _, err := db.Exec(`UPDATE reading_calendar_day_details SET definition_json=? WHERE date='2026-11-24'`, payload); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := LookupFor(t.Context(), db, "2026-02-20", m.CalendarID, DayMass); err == nil {
+			if _, err := LookupFor(t.Context(), db, martyrsDate, m.CalendarID, DayMass); err == nil {
 				t.Fatal("corrupt proof served")
 			}
-			if _, _, err := EntryForDate(t.Context(), db, m.CalendarID, "2026-02-20"); err == nil {
+			if _, _, err := EntryForDate(t.Context(), db, m.CalendarID, martyrsDate); err == nil {
 				t.Fatal("corrupt proof became crawl candidate")
 			}
 		})

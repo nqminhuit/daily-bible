@@ -3,7 +3,6 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const review = require('../../data/vietnam-content-review.json');
 const captures = require('../../data/vietnam-content-captures.json');
-const rules = require('../../data/vietnam-pilot-2026.json');
 const baseline = require('../../data/vietnam-baseline-reviews.json');
 const vatican = require('../../data/vietnam-vatican-captures.json');
 const repair = require('../../data/vietnam-text-repair.json');
@@ -16,7 +15,6 @@ test('content reviews retain actual captures and do not become automatic calenda
   assert.equal(review.days, undefined);
   assert.equal(review.gospel_entry_schema, undefined);
   for (const r of review.reviews) {
-    assert.ok(rules.decisions.some(d => d.date === r.date && d.identity === r.mass));
     assert.ok(captures[r.source]);
     assert.ok(Date.parse(r.reviewed_at) >= Date.parse(captures[r.source].requested_at));
     assert.match(r.evidence_date, /^\d{4}-\d{2}-\d{2}$/);
@@ -85,11 +83,6 @@ test('rule findings are captured evidence and the later owner decisions are expl
   assert.match(f.status, /acted-on-by-owner-decisions/);
   assert.match(review.rules_version_note, /superseded.*re-reviewed/);
   assert.notEqual(baseline.rules_version, review.rules_version);
-  for (const date of ['2026-01-04', '2026-05-17', '2026-11-15', '2026-11-24']) {
-    assert.equal(rules.decisions.find(d => d.date === date).evidence, 'diocesan');
-  }
-  assert.deepEqual(rules.unsupported, {});
-  assert.ok(rules.baseline_notes['2026-02-17']);
   assert.deepEqual(f.martyrs_proper_gospels.refs_in_listed_order, ['Lc 9,23-26', 'Ga 17,11b-19']);
   for (const finding of Object.values(f).filter(v => v.sources)) {
     for (const id of finding.sources) assert.ok(captures[id], id);
@@ -117,7 +110,6 @@ test('baseline review ledger is a record of explicit temporary-copy reviews, not
     if (kind !== 'individual') assert.equal(evidenceDate, date);
     assert.ok(Date.parse(reviewedAt) >= Date.parse('2026-11-11T00:00:00Z'));
     assert.ok(['calendar_resolved', 'calendar_resolved_legacy_difference', 'missing_text'].includes(status));
-    assert.ok(!rules.unsupported[date]);
   }
   assert.equal(baseline.reviews.filter(r => r[2] === 'individual').length, 25);
   for (const date of baseline.not_reviewed.unreviewed_dates) assert.ok(!dates.has(date));

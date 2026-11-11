@@ -154,23 +154,12 @@ Supported calendars use versioned definitions and **explicitly reviewed reusable
 entry mappings**, with date-specific reviewed choices taking precedence. Only the
 `day` Mass option is currently supported; unspecified variants are not guessed.
 
-Sharing verse text and supported lectionary mappings is intentional. Weekday
-Gospels repeat annually across I/II first-reading cycles; Sunday Gospels retain
-A/B/C. Current exports require `gospel_entry_schema: 3`; regenerate old manifests
-and review changed dependencies rather than silently relabeling approvals. Schema
-3 distinguishes assigned Masses from underlying observances/seasons and retains
-per-day rule evidence and unsupported reasons (migration 005).
+Sharing verse text and supported lectionary mappings is intentional. Weekday Gospels repeat annually across I/II first-reading cycles; Sunday Gospels retain A/B/C.
 
-An explicit [2026 Vietnam pilot](data/vietnam-pilot-audit.md) now supports nine
-source-backed date definitions, with the remaining 356 dates deliberately
-unsupported. Its [content-review continuation](data/vietnam-content-audit.md)
-now has eight renderable dates after six additional mapping reviews and a
-five-row missing-text repair on a temporary copy. Mồng Ba Tết remains pending;
-the diocesan Ordo found during research is not a national baseline, and the
-approved lectionary/option-order contract is still incomplete. This is not
-full-year or archive coverage. Use
-`node tools/calendar/vietnam-pilot.cjs 2026` only for evaluation. Automatic Vietnam
-Romcal export remains blocked.
+Current exports require `gospel_entry_schema: 4`: each supported day carries an explicit year-independent `gospel_entry` chosen from `data/lectionary-table.json`, and the Go importer only validates it. Regenerate old manifests and review changed dependencies rather than silently relabeling approvals. Per-day rule evidence and unsupported reasons are retained (migration 005).
+
+`node tools/calendar/vietnam.cjs 2021-2050` generates the Vietnam manifest for any year 2021-2050 from the General Roman baseline with Sunday Epiphany, Ascension and Corpus Christi and the Vietnamese Martyrs on November 24. It only selects entry keys and approves no Gospel mapping. Tết and transferred-Ash formularies are removed, Holy Week days without a daytime entry are unsupported, and Sundays missing from the table stay unreviewed. The diocesan Ordo found during research is not a national baseline, and the approved lectionary/option-order contract is still incomplete. Automatic Vietnam Romcal export remains blocked.
+
 Offline audits include a grouped, read-only `entries` review queue with source
 observations and structural text diagnostics, not automatic candidate promotion.
 What is forbidden is treating an estimated seasonal key, legacy majority, or arbitrary
