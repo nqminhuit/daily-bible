@@ -42,6 +42,18 @@ Vietnam needs only four fixed rules, none of them yearly: Epiphany, Ascension an
 5. The 11 uncovered Sundays stay uncovered for now; the first falls on 2028-06-25. Fill them later from another source.
 6. `fix/date-verified-mass-readings` may be pushed; its base is `master`. Code tasks go on child branches with draft PRs into it. Deploying still needs a separate go-ahead.
 
+### Progress — 2026-11-11, later (steps 3 and 6 done; release candidate built; not shipped)
+
+- **Step 3 done.** Gospel entry schema is 4: each calendar day carries an explicit `gospel_entry`, checked against its observance and weekday. Tết and Ash-transfer formularies are removed. Merged into `fix/date-verified-mass-readings` from `feat/year-independent-gospel-entries` (no PR: `gh` is signed in to an account that cannot open PRs on this repository).
+- **Step 6 done.** `node tools/calendar/vietnam.cjs 2021-2050` generates 10,957 days, rules version `vietnam-general-00ea383dd5315370a43e`. The version does not change when more years are generated or when an uncovered Sunday is filled.
+- **Release candidate:** `build/release-2026-11-11/bible.db` (ignored; SHA-256 starts `7e1b3d6c`). Built from the shipped database: verse repair (46 rows inserted, 17 replaced), calendar 2021-2050 imported, 527 entries applied as explicit reviews by `build.py`. Legacy date/reference pairs are unchanged; two legacy estimate keys changed (2026-11-01, 2026-11-09).
+- **Result over 2021-2050:** 10,789 dates render, 48 have no reviewed entry (the 11 uncovered Sundays), 120 are the four Holy Week days. CLI and frontend agree on reference, text, entry, version and evidence for all 10,957 dates.
+- **Changed after the owner's decision 2:** Mary, Mother of the Church uses `Ga 19,25-27`. `Ga 19,25-34` has no text for verses 28-30 (they exist only in the Passion narrative), so the day rendered blank. Switch back when Passion text is supported.
+- **Near-term gap: Sunday 2026-12-20** (Advent IV, Year B) has no entry. Its only archive page (2023-12-24) printed the Christmas night Mass. Add the entry when the dated Vatican News page for 2026-12-20 is published, then apply one review; the rules version stays the same.
+- Frontend (`/tmp/gospel-site-mass-fix.afwvYH`, local commit only): definition proof is required for every Vietnam rules version; 24 tests and lint pass.
+
+**Left for step 7 (needs the owner's go-ahead):** copy the release candidate over both `resources/bible.db` files with rollback copies, switch `READING_CALENDAR` to `vietnam` in both repositories and their workflows, update the frontend docs, push the frontend branch, deploy, then check the live site. After activation the heal job may fetch dated Vatican pages as candidates for unreviewed entries; candidates are not approvals.
+
 ### Known limits to state plainly at release
 
 - Tết days show the ordinary day, or Ash Wednesday when they clash.
